@@ -9,10 +9,11 @@ defineProps<Props>();
 </script>
 
 <template>
-    <div class="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-        <AppLogoIcon class="size-5 fill-current text-white dark:text-black" />
+    <div class="flex aspect-square size-9 items-center justify-center rounded-xl bg-slate-900 p-1.5 text-white shadow-xs">
+        <AppLogoIcon class="size-6 object-contain" />
     </div>
-    <div class="ml-1 grid flex-1 text-left text-sm">
-        <span class="mb-0.5 truncate font-semibold leading-none">Laravel Starter Kit</span>
+    <div class="ml-2 grid flex-1 text-left text-sm">
+        <span class="truncate font-bold leading-none text-gray-900">SIMPADU KOP</span>
+        <span class="truncate text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-0.5">Prov. Sumut</span>
     </div>
 </template>

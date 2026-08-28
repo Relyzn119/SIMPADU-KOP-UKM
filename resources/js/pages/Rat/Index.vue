@@ -152,27 +152,27 @@ const handleDelete = (item: any) => {
         <Head title="Monitoring & Pelaporan RAT Koperasi" />
 
         <div class="space-y-6">
-            <!-- DEADLINE BANNER (UU NO. 25/1992) -->
-            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-950 via-slate-900 to-slate-900 border border-teal-800/40 p-6 shadow-2xl">
+            <!-- DEADLINE BANNER CARD (UU NO. 25/1992) -->
+            <div class="rounded-3xl bg-white border border-gray-200/70 p-6 shadow-2xs">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-semibold mb-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-700 text-xs font-bold mb-2">
                             <Clock class="w-3.5 h-3.5" />
                             Amanat Undang-Undang No. 25 Tahun 1992
                         </div>
-                        <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
                             Monitoring & Pelaporan RAT (Tahun Buku {{ tahunBuku }})
                         </h1>
-                        <p class="text-xs text-slate-400 mt-1 max-w-2xl">
-                            Pelaksanaan RAT paling lambat diselenggarakan 6 (enam) bulan setelah tutup tahun buku (Batas Waktu: <span class="text-teal-400 font-bold">30 Juni {{ tahunBuku + 1 }}</span>).
+                        <p class="text-xs text-gray-500 mt-1 max-w-2xl">
+                            Pelaksanaan RAT paling lambat diselenggarakan 6 (enam) bulan setelah tutup tahun buku (Batas Waktu: <span class="text-teal-700 font-bold">30 Juni {{ tahunBuku + 1 }}</span>).
                         </p>
                     </div>
 
                     <button 
                         @click="openCreateModal"
-                        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs shadow-lg shadow-teal-600/30 transition self-start sm:self-auto"
+                        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition self-start sm:self-auto"
                     >
-                        <Plus class="w-4 h-4" />
+                        <Plus class="w-4 h-4 text-emerald-400" />
                         Input RAT Koperasi
                     </button>
                 </div>
@@ -180,45 +180,45 @@ const handleDelete = (item: any) => {
 
             <!-- KPI SUMMARY COUNTER CARDS -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-                    <div class="text-xs font-semibold text-slate-400 uppercase">Kepatuhan RAT</div>
+                <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs">
+                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Kepatuhan RAT</div>
                     <div class="mt-2 flex items-baseline gap-2">
-                        <span class="text-3xl font-extrabold text-white">{{ summary.kepatuhan_pct }}%</span>
-                        <span class="text-xs font-semibold text-teal-400">Target Diskop</span>
+                        <span class="text-3xl font-extrabold text-gray-900 font-mono">{{ summary.kepatuhan_pct }}%</span>
+                        <span class="text-xs font-bold text-teal-700">Target Diskop</span>
                     </div>
-                    <div class="w-full bg-slate-800 rounded-full h-1.5 mt-3 overflow-hidden">
-                        <div class="bg-teal-500 h-full rounded-full" :style="{ width: `${summary.kepatuhan_pct}%` }"></div>
+                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-3 overflow-hidden">
+                        <div class="bg-teal-600 h-full rounded-full" :style="{ width: `${summary.kepatuhan_pct}%` }"></div>
                     </div>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-                    <div class="text-xs font-semibold text-emerald-400 uppercase">RAT Tepat Waktu</div>
-                    <div class="mt-2 text-3xl font-extrabold text-white">{{ summary.rat_tepat_waktu }}</div>
-                    <p class="text-[11px] text-slate-500 mt-1">Sebelum 30 Juni {{ tahunBuku + 1 }}</p>
+                <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs">
+                    <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider">RAT Tepat Waktu</div>
+                    <div class="mt-2 text-3xl font-extrabold text-gray-900 font-mono">{{ summary.rat_tepat_waktu }}</div>
+                    <p class="text-[11px] text-gray-400 font-medium mt-1">Sebelum 30 Juni {{ tahunBuku + 1 }}</p>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-                    <div class="text-xs font-semibold text-amber-400 uppercase">RAT Terlambat</div>
-                    <div class="mt-2 text-3xl font-extrabold text-white">{{ summary.rat_terlambat }}</div>
-                    <p class="text-[11px] text-slate-500 mt-1">Setelah 30 Juni {{ tahunBuku + 1 }}</p>
+                <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs">
+                    <div class="text-xs font-bold text-amber-700 uppercase tracking-wider">RAT Terlambat</div>
+                    <div class="mt-2 text-3xl font-extrabold text-gray-900 font-mono">{{ summary.rat_terlambat }}</div>
+                    <p class="text-[11px] text-gray-400 font-medium mt-1">Setelah 30 Juni {{ tahunBuku + 1 }}</p>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-                    <div class="text-xs font-semibold text-rose-400 uppercase">Belum Melaporkan</div>
-                    <div class="mt-2 text-3xl font-extrabold text-white">{{ summary.belum_rat }}</div>
-                    <p class="text-[11px] text-slate-500 mt-1">Perlu Surat Teguran</p>
+                <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs">
+                    <div class="text-xs font-bold text-rose-700 uppercase tracking-wider">Belum Melaporkan</div>
+                    <div class="mt-2 text-3xl font-extrabold text-gray-900 font-mono">{{ summary.belum_rat }}</div>
+                    <p class="text-[11px] text-gray-400 font-medium mt-1">Perlu Surat Teguran</p>
                 </div>
             </div>
 
-            <!-- SEARCH & FILTER BAR -->
-            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl space-y-4">
+            <!-- SEARCH & FILTER BAR CARD -->
+            <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                     <!-- Select Tahun Buku -->
                     <div>
                         <select 
                             v-model="tahunBuku"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs font-bold focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs font-bold focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
                         >
                             <option :value="2025">Tahun Buku 2025</option>
                             <option :value="2024">Tahun Buku 2024</option>
@@ -228,13 +228,13 @@ const handleDelete = (item: any) => {
 
                     <!-- Search Input -->
                     <div class="relative lg:col-span-2">
-                        <Search class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                        <Search class="w-4 h-4 text-gray-400 absolute left-3.5 top-3" />
                         <input 
                             v-model="search"
                             @input="applyFilters"
                             type="text"
                             placeholder="Cari Koperasi / No. BH..."
-                            class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs placeholder:text-slate-500 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                            class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
                         />
                     </div>
 
@@ -243,7 +243,7 @@ const handleDelete = (item: any) => {
                         <select 
                             v-model="statusRat"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
                         >
                             <option value="">Semua Status RAT</option>
                             <option value="Sudah RAT Tepat Waktu">RAT Tepat Waktu</option>
@@ -257,7 +257,7 @@ const handleDelete = (item: any) => {
                         <select 
                             v-model="kabupatenKota"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
                         >
                             <option value="">Semua Kab/Kota</option>
                             <option v-for="kab in kabupatenKotaList" :key="kab" :value="kab">{{ kab }}</option>
@@ -266,11 +266,11 @@ const handleDelete = (item: any) => {
                 </div>
             </div>
 
-            <!-- TABLE CONTAINER -->
-            <div class="rounded-2xl bg-slate-900 border border-slate-800 shadow-xl overflow-hidden">
+            <!-- TABLE CONTAINER CARD -->
+            <div class="rounded-3xl bg-white border border-gray-200/70 shadow-2xs overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-300">
-                        <thead class="bg-slate-950/60 text-slate-400 uppercase tracking-wider text-[11px] border-b border-slate-800">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-gray-50/80 text-gray-500 uppercase tracking-wider text-[10px] font-bold border-b border-gray-100">
                             <tr>
                                 <th class="py-3.5 px-4 font-bold">Koperasi & BH</th>
                                 <th class="py-3.5 px-4 font-bold text-center">Tgl RAT</th>
@@ -281,47 +281,47 @@ const handleDelete = (item: any) => {
                                 <th class="py-3.5 px-4 font-bold text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-800/60">
+                        <tbody class="divide-y divide-gray-100">
                             <tr 
                                 v-for="item in rats.data" 
                                 :key="item.id"
-                                class="hover:bg-slate-800/40 transition group"
+                                class="hover:bg-gray-50/60 transition group"
                             >
                                 <td class="py-3.5 px-4">
-                                    <div class="font-bold text-slate-100 group-hover:text-teal-400 transition">
+                                    <div class="font-bold text-gray-900 group-hover:text-teal-600 transition">
                                         {{ item.koperasi?.nama_koperasi }}
                                     </div>
-                                    <div class="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                                    <div class="text-[11px] text-gray-500 font-medium flex items-center gap-2 mt-0.5">
                                         <span>{{ item.koperasi?.kabupaten_kota }}</span>
                                         <span>•</span>
-                                        <span class="font-mono text-slate-500">{{ item.koperasi?.no_badan_hukum }}</span>
+                                        <span class="font-mono text-gray-400">{{ item.koperasi?.no_badan_hukum }}</span>
                                     </div>
                                 </td>
 
-                                <td class="py-3.5 px-4 text-center font-mono text-slate-200">
+                                <td class="py-3.5 px-4 text-center font-mono font-medium text-gray-700">
                                     {{ item.tanggal_rat }}
                                 </td>
 
-                                <td class="py-3.5 px-4 text-slate-300">
+                                <td class="py-3.5 px-4 text-gray-700 font-medium">
                                     {{ item.tempat_pelaksanaan }}
                                 </td>
 
                                 <td class="py-3.5 px-4 text-center">
-                                    <div class="font-bold text-white">{{ item.jumlah_anggota_hadir }} Orang</div>
+                                    <div class="font-bold text-gray-900">{{ item.jumlah_anggota_hadir }} Orang</div>
                                     <span 
-                                        class="text-[10px] font-semibold"
-                                        :class="item.kuorum ? 'text-emerald-400' : 'text-rose-400'"
+                                        class="text-[10px] font-bold"
+                                        :class="item.kuorum ? 'text-emerald-600' : 'text-rose-600'"
                                     >
-                                        {{ item.kuorum ? 'Kuorum Mencecah' : 'Tidak Kuorum' }}
+                                        {{ item.kuorum ? 'Kuorum Memenuhi' : 'Tidak Kuorum' }}
                                     </span>
                                 </td>
 
                                 <td class="py-3.5 px-4 text-center">
                                     <span 
-                                        class="px-2.5 py-1 rounded-full text-[10px] font-semibold border"
+                                        class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border"
                                         :class="item.status_rat === 'Sudah RAT Tepat Waktu' 
-                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
-                                            : 'bg-amber-500/10 text-amber-400 border-amber-500/30'"
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                                            : 'bg-amber-50 text-amber-700 border-amber-200'"
                                     >
                                         {{ item.status_rat }}
                                     </span>
@@ -332,31 +332,31 @@ const handleDelete = (item: any) => {
                                         v-if="item.file_lpj_path"
                                         :href="`/${item.file_lpj_path}`"
                                         target="_blank"
-                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-500/10 text-teal-300 border border-teal-500/30 hover:bg-teal-500/20 text-[11px] font-medium transition"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 text-xs font-bold hover:bg-teal-100 transition"
                                     >
                                         <FileText class="w-3.5 h-3.5" />
                                         Unduh LPJ
                                     </a>
-                                    <span v-else class="text-[11px] text-slate-500 italic">Belum Ada LPJ</span>
+                                    <span v-else class="text-[11px] text-gray-400 italic">Belum Ada LPJ</span>
                                 </td>
 
                                 <td class="py-3.5 px-4 text-center">
-                                    <div class="flex items-center justify-center gap-1.5">
+                                    <div class="flex items-center justify-center gap-1">
                                         <button 
                                             @click="openEditModal(item)"
-                                            class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                                            class="p-1.5 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition"
                                             title="Edit Data RAT"
                                         >
-                                            <Edit3 class="w-4 h-4 text-cyan-400" />
+                                            <Edit3 class="w-4 h-4" />
                                         </button>
 
                                         <button 
                                             v-if="userRole === 'admin_koperasi'"
                                             @click="handleDelete(item)"
-                                            class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition"
+                                            class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition"
                                             title="Hapus Data RAT"
                                         >
-                                            <Trash2 class="w-4 h-4 text-rose-400" />
+                                            <Trash2 class="w-4 h-4" />
                                         </button>
                                     </div>
                                 </td>
@@ -364,41 +364,63 @@ const handleDelete = (item: any) => {
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination Footer -->
+                <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+                    <div class="text-xs text-gray-500 font-medium">
+                        Halaman <span class="font-bold text-gray-900">{{ rats.current_page }}</span> dari <span class="font-bold text-gray-900">{{ rats.last_page }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                        <Component
+                            v-for="(link, index) in rats.links"
+                            :key="index"
+                            :is="link.url ? Link : 'span'"
+                            :href="link.url"
+                            v-html="link.label"
+                            class="px-3 py-1.5 rounded-xl text-xs font-semibold transition"
+                            :class="[
+                                link.active ? 'bg-slate-900 text-white shadow-2xs' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
+                                !link.url && 'opacity-40 cursor-not-allowed'
+                            ]"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- FORM MODAL INPUT RAT -->
+        <!-- FORM MODAL INPUT RAT DIALOG -->
         <div 
             v-if="isModalOpen" 
-            class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+            class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
         >
-            <div class="relative w-full max-w-xl rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden my-8">
-                <div class="px-6 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+            <div class="relative w-full max-w-xl rounded-3xl bg-white border border-gray-200/80 shadow-2xl overflow-hidden my-8">
+                <div class="px-6 py-4 bg-white border-b border-gray-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center">
+                        <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
                             <FileSpreadsheet class="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 class="text-base font-bold text-white">
+                            <h3 class="text-base font-bold text-gray-900">
                                 {{ ratToEdit ? 'Edit Pelaksanaan RAT' : 'Input Pelaksanaan RAT Baru' }}
                             </h3>
-                            <p class="text-xs text-slate-400">Verifikasi Batas Waktu 30 Juni</p>
+                            <p class="text-xs text-gray-500">Verifikasi Batas Waktu 30 Juni</p>
                         </div>
                     </div>
 
-                    <button @click="isModalOpen = false" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <button @click="isModalOpen = false" class="p-1.5 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition">
                         <X class="w-5 h-5" />
                     </button>
                 </div>
 
                 <form @submit.prevent="handleSubmit" class="p-6 space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Pilih Koperasi *</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Pilih Koperasi *</label>
                         <select 
                             v-model="form.koperasi_id"
                             :disabled="!!ratToEdit"
                             required
-                            class="w-full rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs px-3.5 py-2.5 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition disabled:opacity-60"
+                            class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150 disabled:opacity-60"
                         >
                             <option v-for="k in koperasis" :key="k.id" :value="k.id">
                                 {{ k.nama_koperasi }} ({{ k.kabupaten_kota }})
@@ -408,53 +430,53 @@ const handleDelete = (item: any) => {
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Tahun Buku *</label>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Tahun Buku *</label>
                             <input 
                                 v-model="form.tahun_buku"
                                 type="number"
                                 required
-                                class="w-full rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs px-3.5 py-2.5 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Tanggal Pelaksanaan RAT *</label>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Tanggal Pelaksanaan RAT *</label>
                             <input 
                                 v-model="form.tanggal_rat"
                                 type="date"
                                 required
-                                class="w-full rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs px-3.5 py-2.5 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Tempat Pelaksanaan *</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Tempat Pelaksanaan *</label>
                         <input 
                             v-model="form.tempat_pelaksanaan"
                             type="text"
                             required
                             placeholder="Aula Kantor Koperasi / Gedung Pertemuan..."
-                            class="w-full rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs px-3.5 py-2.5 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                            class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
                         />
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Jumlah Anggota Hadir *</label>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Jumlah Anggota Hadir *</label>
                             <input 
                                 v-model="form.jumlah_anggota_hadir"
                                 type="number"
                                 required
-                                class="w-full rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs px-3.5 py-2.5 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-1">Status Kuorum *</label>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Status Kuorum *</label>
                             <select 
                                 v-model="form.kuorum"
-                                class="w-full rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs px-3.5 py-2.5 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
                             >
                                 <option :value="true">Memenuhi Kuorum</option>
                                 <option :value="false">Tidak Kuorum</option>
@@ -463,37 +485,37 @@ const handleDelete = (item: any) => {
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Upload Berkas LPJ / Berita Acara (PDF/DOC)</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Upload Berkas LPJ / Berita Acara (PDF/DOC)</label>
                         <input 
                             @change="handleFileChange"
                             type="file"
                             accept=".pdf,.doc,.docx"
-                            class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-teal-400 hover:file:bg-slate-700 transition"
+                            class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white hover:file:bg-slate-800 transition"
                         />
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Catatan Pelaksanaan (Opsional)</label>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Catatan Pelaksanaan (Opsional)</label>
                         <textarea 
                             v-model="form.catatan"
                             rows="2"
                             placeholder="Catatan persetujuan pertanggungjawaban pengurus..."
-                            class="w-full rounded-xl bg-slate-800/80 border border-slate-700/80 text-white text-xs px-3.5 py-2.5 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition"
+                            class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
                         ></textarea>
                     </div>
 
-                    <div class="pt-4 border-t border-slate-800 flex items-center justify-end gap-3">
+                    <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
                         <button 
                             type="button" 
                             @click="isModalOpen = false"
-                            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 transition"
+                            class="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition"
                         >
                             Batal
                         </button>
                         <button 
                             type="submit"
                             :disabled="form.processing"
-                            class="px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs shadow-lg shadow-teal-600/30 transition disabled:opacity-50"
+                            class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md shadow-slate-900/10 transition disabled:opacity-50"
                         >
                             Simpan Data RAT
                         </button>
@@ -503,3 +525,4 @@ const handleDelete = (item: any) => {
         </div>
     </AuthenticatedLayout>
 </template>
+

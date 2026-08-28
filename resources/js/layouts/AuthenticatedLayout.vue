@@ -125,8 +125,8 @@ const handleLogout = () => {
                 </button>
 
                 <Link href="/dashboard" class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-sm shadow-xs">
-                        <Award class="w-4 h-4 text-emerald-400" />
+                    <div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center p-1.5 shadow-xs">
+                        <img src="/images/icon-provsu.svg" alt="Provsu emblem" class="w-full h-full object-contain" />
                     </div>
                     <span class="font-bold text-sm text-gray-900 tracking-tight">SIMPADU KOP</span>
                 </Link>
@@ -159,8 +159,8 @@ const handleLogout = () => {
 
                     <!-- BRAND LOGO HEADER -->
                     <div class="px-2 pt-1 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center text-white shadow-sm shrink-0">
-                            <Award class="w-5 h-5 text-emerald-400" />
+                        <div class="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center p-2 shadow-sm shrink-0">
+                            <img src="/images/icon-provsu.svg" alt="Provsu Emblem" class="w-full h-full object-contain" />
                         </div>
                         <div>
                             <div class="font-extrabold text-base text-gray-900 tracking-tight leading-tight">
