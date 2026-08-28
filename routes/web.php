@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KoperasiController;
+use App\Http\Controllers\PengawasanController;
 use App\Http\Controllers\RatController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Modul Pelaporan & Monitoring RAT
     Route::resource('rat', RatController::class);
+
+    // Modul Pemeriksaan & Skor Kesehatan Koperasi
+    Route::resource('pengawasan', PengawasanController::class);
 });
 
 require __DIR__.'/settings.php';
