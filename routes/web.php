@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CetakController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KoperasiController;
 use App\Http\Controllers\PengawasanController;
@@ -28,6 +29,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/temuan/{temuan}/tindak-lanjut', [TemuanController::class, 'updateTindakLanjut'])->name('temuan.update-tindak-lanjut');
     Route::put('/temuan/{temuan}/verifikasi', [TemuanController::class, 'verifikasi'])->name('temuan.verifikasi');
     Route::delete('/temuan/{temuan}', [TemuanController::class, 'destroy'])->name('temuan.destroy');
+
+    // Modul Cetak Laporan Resmi Diskop Sumut
+    Route::get('/cetak', [CetakController::class, 'index'])->name('cetak.index');
 });
 
 require __DIR__.'/settings.php';
