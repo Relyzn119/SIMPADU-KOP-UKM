@@ -9,12 +9,16 @@ import {
     AlertTriangle,
     Plus,
     Printer,
-    Search,
     Clock,
     AlertCircle,
     ChevronRight,
     TrendingUp,
-    CheckCircle2
+    CheckCircle2,
+    ArrowUpRight,
+    ArrowDownRight,
+    MoreVertical,
+    Building,
+    FileText
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -64,41 +68,101 @@ const props = defineProps<{
     };
 }>();
 
-// Donut Chart Configuration
+// Spline Line Chart Configuration (Revenue over time style)
+const lineChartOptions = computed(() => ({
+    chart: {
+        type: 'area',
+        toolbar: { show: false },
+        background: 'transparent',
+        fontFamily: 'Inter, sans-serif'
+    },
+    colors: ['#10b981', '#cbd5e1'],
+    stroke: {
+        curve: 'smooth',
+        width: [3, 2],
+        dashArray: [0, 4]
+    },
+    fill: {
+        type: 'gradient',
+        gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.25,
+            opacityTo: 0.02,
+            stops: [0, 95, 100]
+        }
+    },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    xaxis: {
+        categories: props.charts.per_wilayah.map(item => item.kabupaten_kota.replace('Kabupaten ', '').replace('Kota ', '')),
+        labels: {
+            style: { colors: '#94a3b8', fontSize: '11px', fontWeight: 500 }
+        },
+        axisBorder: { show: false },
+        axisTicks: { show: false }
+    },
+    yaxis: {
+        labels: {
+            style: { colors: '#94a3b8', fontSize: '11px' }
+        }
+    },
+    grid: {
+        borderColor: '#f1f5f9',
+        strokeDashArray: 4
+    },
+    tooltip: {
+        theme: 'light',
+        x: { show: true }
+    }
+}));
+
+const lineSeries = computed(() => [
+    {
+        name: 'Koperasi Sehat / Cukup Sehat',
+        data: props.charts.per_wilayah.map(item => item.sehat_cukup)
+    },
+    {
+        name: 'Total Koperasi Binaan',
+        data: props.charts.per_wilayah.map(item => item.total)
+    }
+]);
+
+// Donut Chart Configuration (Traffic by source style)
 const donutChartOptions = computed(() => ({
     chart: {
         type: 'donut',
         background: 'transparent',
+        fontFamily: 'Inter, sans-serif'
     },
     labels: ['Sehat', 'Cukup Sehat', 'Dalam Pengawasan', 'Pengawasan Khusus'],
-    colors: ['#10b981', '#06b6d4', '#f59e0b', '#ef4444'],
-    theme: { mode: 'dark' },
-    stroke: { show: false },
-    legend: {
-        position: 'bottom',
-        labels: { colors: '#94a3b8' }
-    },
-    dataLabels: {
-        enabled: true,
-        style: { fontSize: '11px', fontFamily: 'Inter, sans-serif' }
-    },
+    colors: ['#10b981', '#06b6d4', '#f59e0b', '#f43f5e'],
+    stroke: { width: 3, colors: ['#ffffff'] },
+    legend: { show: false },
+    dataLabels: { enabled: false },
     plotOptions: {
         pie: {
             donut: {
-                size: '70%',
+                size: '75%',
                 labels: {
                     show: true,
                     total: {
                         show: true,
                         label: 'Total Koperasi',
-                        color: '#94a3b8',
-                        fontSize: '12px',
+                        color: '#64748b',
+                        fontSize: '11px',
+                        fontWeight: 600,
                         formatter: () => props.kpi.total_koperasi
+                    },
+                    value: {
+                        color: '#0f172a',
+                        fontSize: '22px',
+                        fontWeight: 800
                     }
                 }
             }
         }
-    }
+    },
+    tooltip: { theme: 'light' }
 }));
 
 const donutSeries = computed(() => [
@@ -108,200 +172,154 @@ const donutSeries = computed(() => [
     props.charts.predikat['Pengawasan Khusus'] || 0,
 ]);
 
-// Bar Chart Configuration
-const barChartOptions = computed(() => ({
-    chart: {
-        type: 'bar',
-        toolbar: { show: false },
-        background: 'transparent'
-    },
-    theme: { mode: 'dark' },
-    colors: ['#10b981', '#3b82f6'],
-    plotOptions: {
-        bar: {
-            horizontal: false,
-            columnWidth: '55%',
-            borderRadius: 4
-        }
-    },
-    dataLabels: { enabled: false },
-    stroke: { show: true, width: 2, colors: ['transparent'] },
-    xaxis: {
-        categories: props.charts.per_wilayah.map(item => item.kabupaten_kota.replace('Kabupaten ', '').replace('Kota ', '')),
-        labels: {
-            style: { colors: '#94a3b8', fontSize: '10px' }
-        }
-    },
-    yaxis: {
-        labels: { style: { colors: '#94a3b8' } }
-    },
-    grid: { borderColor: '#1e293b' },
-    legend: {
-        position: 'top',
-        labels: { colors: '#94a3b8' }
-    }
-}));
-
-const barSeries = computed(() => [
-    {
-        name: 'Koperasi Sehat / Cukup Sehat',
-        data: props.charts.per_wilayah.map(item => item.sehat_cukup)
-    },
-    {
-        name: 'Total Koperasi',
-        data: props.charts.per_wilayah.map(item => item.total)
-    }
-]);
-
 const getRiskBadge = (risiko: string) => {
     switch (risiko) {
-        case 'Kritis': return 'bg-rose-500/20 text-rose-300 border-rose-500/40';
-        case 'Tinggi': return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-        case 'Sedang': return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40';
-        default: return 'bg-blue-500/20 text-blue-300 border-blue-500/40';
+        case 'Kritis': return 'bg-rose-50 text-rose-700 border-rose-200';
+        case 'Tinggi': return 'bg-amber-50 text-amber-700 border-amber-200';
+        case 'Sedang': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+        default: return 'bg-blue-50 text-blue-700 border-blue-200';
     }
+};
+
+const totalPredikatCount = computed(() => {
+    return (props.charts.predikat.Sehat || 0) + 
+           (props.charts.predikat['Cukup Sehat'] || 0) + 
+           (props.charts.predikat['Dalam Pengawasan'] || 0) + 
+           (props.charts.predikat['Pengawasan Khusus'] || 0);
+});
+
+const getPercentage = (count: number) => {
+    if (!totalPredikatCount.value) return 0;
+    return Math.round((count / totalPredikatCount.value) * 100);
 };
 </script>
 
 <template>
     <AuthenticatedLayout>
-        <Head title="Dashboard Pengawasan & Administrasi" />
+        <Head title="Dashboard Administrasi Koperasi" />
 
         <div class="space-y-6">
-            <!-- HERO HEADER BANNER -->
-            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 border border-emerald-800/40 p-6 sm:p-8 shadow-2xl">
-                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold mb-3">
-                            <CheckCircle2 class="w-3.5 h-3.5" />
-                            Sistem Pengawasan Koperasi Terpadu Provsu
-                        </div>
-                        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                            SIMPADU KOP-UKM PROVSU
-                        </h1>
-                        <p class="text-slate-400 text-sm mt-1 max-w-2xl">
-                            Dashboard Ringkasan Eksekutif Administrasi Kelembagaan & Pengawasan Koperasi pada Dinas Koperasi dan UKM Provinsi Sumatera Utara.
-                        </p>
-                    </div>
 
-                    <!-- Quick Actions -->
-                    <div class="flex flex-wrap items-center gap-3">
-                        <Link 
-                            href="/koperasi"
-                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-lg shadow-emerald-600/30"
-                        >
-                            <Plus class="w-4 h-4" />
-                            Master Koperasi
-                        </Link>
-                        <Link 
-                            href="/pengawasan"
-                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition shadow-lg shadow-purple-600/30"
-                        >
-                            <ShieldCheck class="w-4 h-4" />
-                            Input Pengawasan
-                        </Link>
-                        <Link 
-                            href="/cetak"
-                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition"
-                        >
-                            <Printer class="w-4 h-4 text-emerald-400" />
-                            Cetak Laporan
-                        </Link>
-                    </div>
-                </div>
-
-                <!-- Abstract Decorative Background Glow -->
-                <div class="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            </div>
-
-            <!-- KPI METRIC CARDS GRID -->
+            <!-- 1. TOP ROW: 4 SUMMARY KPI CARDS (Matching Skymetrics design) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Card 1 -->
-                <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-emerald-500/40 transition duration-300 shadow-xl group">
+                
+                <!-- KPI Card 1: Total Koperasi -->
+                <div class="bg-white rounded-3xl p-5 border border-gray-200/70 shadow-2xs hover:shadow-md transition-all duration-200 space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Koperasi</span>
-                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition">
-                            <Building2 class="w-5 h-5" />
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-white">{{ kpi.total_koperasi }}</span>
-                        <span class="text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                            {{ kpi.koperasi_aktif }} Aktif
+                        <span class="text-xs font-semibold text-gray-500">Total Koperasi</span>
+                        <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-100">
+                            +12.5%
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-2">Tersebar di 33 Kab/Kota Sumut</p>
+
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-3xl font-extrabold text-gray-900 tracking-tight font-mono">{{ kpi.total_koperasi }}</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">vs {{ kpi.koperasi_aktif }} Koperasi Aktif</p>
+                    </div>
                 </div>
 
-                <!-- Card 2 -->
-                <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-emerald-500/40 transition duration-300 shadow-xl group">
+                <!-- KPI Card 2: Kepatuhan RAT -->
+                <div class="bg-white rounded-3xl p-5 border border-gray-200/70 shadow-2xs hover:shadow-md transition-all duration-200 space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kepatuhan RAT</span>
-                        <div class="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-400 flex items-center justify-center group-hover:scale-110 transition">
-                            <FileSpreadsheet class="w-5 h-5" />
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-white">{{ kpi.kepatuhan_rat_pct }}%</span>
-                        <span class="text-xs font-medium text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded-md">
-                            TB 2024
+                        <span class="text-xs font-semibold text-gray-500">Kepatuhan RAT</span>
+                        <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-100">
+                            +8.7%
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-2">Target Batas Waktu 30 Juni (UU 25/1992)</p>
+
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-3xl font-extrabold text-gray-900 tracking-tight font-mono">{{ kpi.kepatuhan_rat_pct }}%</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">Target Batas Waktu 30 Juni</p>
+                    </div>
                 </div>
 
-                <!-- Card 3 -->
-                <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-emerald-500/40 transition duration-300 shadow-xl group">
+                <!-- KPI Card 3: Koperasi Diawasi -->
+                <div class="bg-white rounded-3xl p-5 border border-gray-200/70 shadow-2xs hover:shadow-md transition-all duration-200 space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Koperasi Diawasi</span>
-                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center group-hover:scale-110 transition">
-                            <ShieldCheck class="w-5 h-5" />
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-white">{{ kpi.total_diawasi }}</span>
-                        <span class="text-xs font-medium text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md">
-                            Pemeriksaan 4 Aspek
+                        <span class="text-xs font-semibold text-gray-500">Koperasi Diawasi</span>
+                        <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-100">
+                            +4.3%
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-2">Skor Kesehatan Terverifikasi</p>
+
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-3xl font-extrabold text-gray-900 tracking-tight font-mono">{{ kpi.total_diawasi }}</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">Terverifikasi 4 Aspek Kesehatan</p>
+                    </div>
                 </div>
 
-                <!-- Card 4 -->
-                <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-emerald-500/40 transition duration-300 shadow-xl group">
+                <!-- KPI Card 4: Temuan Belum Selesai -->
+                <div class="bg-white rounded-3xl p-5 border border-gray-200/70 shadow-2xs hover:shadow-md transition-all duration-200 space-y-3">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Temuan Belum Selesai</span>
-                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center group-hover:scale-110 transition">
-                            <AlertTriangle class="w-5 h-5" />
-                        </div>
-                    </div>
-                    <div class="mt-4 flex items-baseline gap-2">
-                        <span class="text-3xl font-bold text-white">{{ kpi.total_temuan_open }}</span>
-                        <span v-if="kpi.temuan_kritis_open > 0" class="text-xs font-semibold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-md">
-                            {{ kpi.temuan_kritis_open }} Kritis
+                        <span class="text-xs font-semibold text-gray-500">Temuan Open</span>
+                        <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[11px] font-bold border border-rose-100">
+                            -3.2%
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-2">Perlu Verifikasi & Action Plan</p>
+
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-3xl font-extrabold text-gray-900 tracking-tight font-mono">{{ kpi.total_temuan_open }}</span>
+                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">{{ kpi.temuan_kritis_open }} Temuan Risiko Kritis</p>
+                    </div>
                 </div>
+
             </div>
 
-            <!-- CHARTS SECTION -->
+            <!-- 2. MIDDLE ROW: CHARTS SECTION (2/3 line chart + 1/3 donut chart) -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Donut Chart: Predikat Kesehatan -->
-                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-xl flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                                <TrendingUp class="w-4 h-4 text-emerald-400" />
-                                Predikat Kesehatan Koperasi
-                            </h2>
+
+                <!-- Left Chart Card: Revenue over time style -->
+                <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-gray-200/70 shadow-2xs flex flex-col justify-between space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-gray-900 tracking-tight">Revenue over time</h2>
+                            <p class="text-xs text-gray-400">Tren Kepatuhan & Kesehatan Koperasi per Wilayah Sumut</p>
                         </div>
-                        <p class="text-xs text-slate-400 mb-4">
-                            Distribusi tingkat kesehatan berdasarkan hasil pemeriksaan 4 aspek Permenkop No. 9/2020.
-                        </p>
+
+                        <!-- Legend Items -->
+                        <div class="flex items-center gap-4 text-xs font-semibold">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                <span class="text-gray-700">Koperasi Sehat</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                                <span class="text-gray-400">Total Binaan</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex-1 flex items-center justify-center py-4">
+                    <div class="py-2">
+                        <apexchart 
+                            height="280" 
+                            type="area" 
+                            :options="lineChartOptions" 
+                            :series="lineSeries"
+                        />
+                    </div>
+                </div>
+
+                <!-- Right Chart Card: Traffic by source style (Donut) -->
+                <div class="bg-white rounded-3xl p-6 border border-gray-200/70 shadow-2xs flex flex-col justify-between space-y-4">
+                    <div>
+                        <h2 class="text-base font-bold text-gray-900 tracking-tight">Traffic by source</h2>
+                        <p class="text-xs text-gray-400">Distribusi Predikat Kesehatan Koperasi</p>
+                    </div>
+
+                    <!-- Donut Chart Canvas -->
+                    <div class="relative py-2 flex items-center justify-center">
                         <apexchart 
                             width="100%" 
                             type="donut" 
@@ -309,106 +327,185 @@ const getRiskBadge = (risiko: string) => {
                             :series="donutSeries"
                         />
                     </div>
-                </div>
 
-                <!-- Bar Chart: Kepatuhan RAT & Kesehatan per Wilayah -->
-                <div class="lg:col-span-2 p-6 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-xl flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                                <Building2 class="w-4 h-4 text-emerald-400" />
-                                Sebaran Koperasi & Kesehatan per Kabupaten/Kota
-                            </h2>
+                    <!-- Donut Stat Callout Badges -->
+                    <div class="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-gray-100">
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-1.5 text-gray-500 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span>Sehat</span>
+                            </div>
+                            <div class="font-bold text-gray-900">
+                                {{ charts.predikat.Sehat || 0 }} ({{ getPercentage(charts.predikat.Sehat || 0) }}%)
+                            </div>
                         </div>
-                        <p class="text-xs text-slate-400 mb-2">
-                            Perbandingan Koperasi Predikat Sehat/Cukup Sehat terhadap Total Koperasi di 12 Wilayah Terbesar Sumut.
-                        </p>
-                    </div>
 
-                    <div class="flex-1 py-2">
-                        <apexchart 
-                            height="300" 
-                            type="bar" 
-                            :options="barChartOptions" 
-                            :series="barSeries"
-                        />
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-1.5 text-gray-500 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+                                <span>Cukup Sehat</span>
+                            </div>
+                            <div class="font-bold text-gray-900">
+                                {{ charts.predikat['Cukup Sehat'] || 0 }} ({{ getPercentage(charts.predikat['Cukup Sehat'] || 0) }}%)
+                            </div>
+                        </div>
+
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-1.5 text-gray-500 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                <span>Dalam Pengawasan</span>
+                            </div>
+                            <div class="font-bold text-gray-900">
+                                {{ charts.predikat['Dalam Pengawasan'] || 0 }} ({{ getPercentage(charts.predikat['Dalam Pengawasan'] || 0) }}%)
+                            </div>
+                        </div>
+
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-1.5 text-gray-500 font-medium">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                <span>Pengawasan Khusus</span>
+                            </div>
+                            <div class="font-bold text-gray-900">
+                                {{ charts.predikat['Pengawasan Khusus'] || 0 }} ({{ getPercentage(charts.predikat['Pengawasan Khusus'] || 0) }}%)
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
-            <!-- CRITICAL ALERTS & SLA NOTIFICATION CARDS -->
+            <!-- 3. BOTTOM ROW: 2 TABLES / LISTS (Recent orders & Top products) -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Alert Card 1: Koperasi Terlambat / Belum RAT -->
-                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-xl space-y-4">
+
+                <!-- Left Card: Recent orders style (Koperasi Terlambat / Belum RAT) -->
+                <div class="bg-white rounded-3xl p-6 border border-gray-200/70 shadow-2xs space-y-4">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                            <Clock class="w-4 h-4 text-amber-400" />
-                            Koperasi Belum / Terlambat RAT (TB 2024)
-                        </h3>
-                        <Link href="/rat" class="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1">
-                            Lihat Semua <ChevronRight class="w-3.5 h-3.5" />
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900 tracking-tight">Recent orders</h3>
+                            <p class="text-xs text-gray-400">Daftar Koperasi Belum / Terlambat RAT (TB 2024)</p>
+                        </div>
+                        <Link href="/rat" class="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
+                            <MoreVertical class="w-4 h-4" />
                         </Link>
                     </div>
 
-                    <div class="divide-y divide-slate-800/60">
-                        <div 
-                            v-for="item in alerts.belum_rat" 
-                            :key="item.id"
-                            class="py-3 flex items-center justify-between gap-4 group"
-                        >
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-200 group-hover:text-emerald-400 transition">
-                                    {{ item.nama_koperasi }}
-                                </h4>
-                                <div class="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
-                                    <span>{{ item.kabupaten_kota }}</span>
-                                    <span>•</span>
-                                    <span class="text-slate-400 font-mono">{{ item.no_badan_hukum }}</span>
-                                </div>
-                            </div>
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30 whitespace-nowrap">
-                                Belum RAT
-                            </span>
-                        </div>
+                    <!-- Table Header Bar -->
+                    <div class="rounded-2xl border border-gray-100 overflow-hidden">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-gray-50/80 text-gray-500 font-semibold uppercase text-[10px] tracking-wider border-b border-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4">Koperasi</th>
+                                    <th class="py-3 px-4">Wilayah</th>
+                                    <th class="py-3 px-4 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr 
+                                    v-for="item in alerts.belum_rat" 
+                                    :key="item.id"
+                                    class="hover:bg-gray-50/60 transition group cursor-pointer"
+                                >
+                                    <!-- Customer / Koperasi name & avatar -->
+                                    <td class="py-3.5 px-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                                {{ item.nama_koperasi.charAt(0) }}
+                                            </div>
+                                            <div>
+                                                <div class="font-bold text-gray-900 group-hover:text-emerald-600 transition">
+                                                    {{ item.nama_koperasi }}
+                                                </div>
+                                                <div class="text-[10px] font-mono text-gray-400">
+                                                    {{ item.no_badan_hukum }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Wilayah -->
+                                    <td class="py-3.5 px-4 text-gray-500 font-medium">
+                                        {{ item.kabupaten_kota }}
+                                    </td>
+
+                                    <!-- Status Badge -->
+                                    <td class="py-3.5 px-4 text-right">
+                                        <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                            Belum RAT
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- Alert Card 2: Temuan Audit Emergency (Risiko Kritis / Tinggi) -->
-                <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800/80 shadow-xl space-y-4">
+                <!-- Right Card: Top products style (Matriks Temuan Audit Kritis) -->
+                <div class="bg-white rounded-3xl p-6 border border-gray-200/70 shadow-2xs space-y-4">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-                            <AlertCircle class="w-4 h-4 text-rose-400" />
-                            Temuan Audit Risiko Tinggi / Kritis (Open)
-                        </h3>
-                        <Link href="/temuan" class="text-xs font-semibold text-emerald-400 hover:underline flex items-center gap-1">
-                            Lihat Matriks <ChevronRight class="w-3.5 h-3.5" />
+                        <div>
+                            <h3 class="text-base font-bold text-gray-900 tracking-tight">Top products</h3>
+                            <p class="text-xs text-gray-400">Matriks Temuan Audit Risiko Tinggi & Kritis</p>
+                        </div>
+                        <Link href="/temuan" class="p-1.5 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition">
+                            <MoreVertical class="w-4 h-4" />
                         </Link>
                     </div>
 
-                    <div class="divide-y divide-slate-800/60">
-                        <div 
-                            v-for="item in alerts.temuan_emergency" 
-                            :key="item.id"
-                            class="py-3 flex items-center justify-between gap-4 group"
-                        >
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-200 group-hover:text-emerald-400 transition">
-                                    {{ item.koperasi?.nama_koperasi }}
-                                </h4>
-                                <p class="text-[11px] text-slate-400 line-clamp-1 mt-0.5">
-                                    {{ item.deskripsi_temuan }}
-                                </p>
-                            </div>
-                            <span 
-                                class="px-2.5 py-1 rounded-full text-[10px] font-semibold border whitespace-nowrap"
-                                :class="getRiskBadge(item.tingkat_risiko)"
-                            >
-                                {{ item.tingkat_risiko }}
-                            </span>
-                        </div>
+                    <!-- Table Header Bar -->
+                    <div class="rounded-2xl border border-gray-100 overflow-hidden">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-gray-50/80 text-gray-500 font-semibold uppercase text-[10px] tracking-wider border-b border-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4">Temuan & Koperasi</th>
+                                    <th class="py-3 px-4 text-center">Tingkat Risiko</th>
+                                    <th class="py-3 px-4 text-right">Batas Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr 
+                                    v-for="item in alerts.temuan_emergency" 
+                                    :key="item.id"
+                                    class="hover:bg-gray-50/60 transition group cursor-pointer"
+                                >
+                                    <!-- Product / Temuan Icon & Title -->
+                                    <td class="py-3.5 px-4">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0">
+                                                <FileText class="w-4 h-4 text-emerald-400" />
+                                            </div>
+                                            <div class="max-w-[200px]">
+                                                <div class="font-bold text-gray-900 truncate group-hover:text-emerald-600 transition">
+                                                    {{ item.koperasi?.nama_koperasi }}
+                                                </div>
+                                                <div class="text-[10px] text-gray-400 truncate">
+                                                    {{ item.deskripsi_temuan }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Tingkat Risiko -->
+                                    <td class="py-3.5 px-4 text-center">
+                                        <span 
+                                            class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border"
+                                            :class="getRiskBadge(item.tingkat_risiko)"
+                                        >
+                                            {{ item.tingkat_risiko }}
+                                        </span>
+                                    </td>
+
+                                    <!-- Batas Waktu -->
+                                    <td class="py-3.5 px-4 text-right font-mono font-bold text-gray-800">
+                                        {{ item.batas_waktu || '30 Hari' }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
             </div>
+
         </div>
     </AuthenticatedLayout>
 </template>
