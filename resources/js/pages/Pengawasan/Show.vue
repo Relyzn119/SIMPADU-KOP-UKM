@@ -92,19 +92,29 @@ const getRiskBadge = (risiko: string) => {
             <!-- OFFICIAL REPORT CONTAINER (PRINT-READY) -->
             <div class="p-8 sm:p-10 rounded-3xl bg-white border border-gray-200/70 shadow-2xs space-y-6 text-gray-900 print:bg-white print:text-slate-900 print:shadow-none print:border-none print:p-0">
                 <!-- KOP SURAT DINAS KOPERASI SUMUT -->
-                <div class="border-b-2 border-gray-900 pb-4 text-center space-y-1">
-                    <h2 class="text-base font-extrabold uppercase tracking-wider text-gray-900">
-                        PEMERINTAH PROVINSI SUMATERA UTARA
-                    </h2>
-                    <h1 class="text-lg font-black uppercase tracking-widest text-emerald-700">
-                        DINAS KOPERASI DAN USAN KECIL MENENGAH
-                    </h1>
-                    <p class="text-xs text-gray-600">
-                        Jl. Gatot Subroto No. 222 Medan, Sumatera Utara | Telepon: (061) 8452110
-                    </p>
-                    <div class="text-[11px] font-bold text-gray-800 uppercase tracking-widest pt-2">
-                        LEMBAR HASIL PEMERIKSAAN KESEHATAN KOPERASI (LHP)
+                <div class="flex items-center gap-4 sm:gap-6 border-b-4 border-double border-gray-900 pb-4">
+                    <!-- LOGO EMBLEM PROVSU (LEFT) -->
+                    <img src="/images/icon-provsu.svg" alt="Logo Pemprov Sumut" class="w-20 h-20 sm:w-24 sm:h-24 object-contain shrink-0" />
+
+                    <!-- KOP TEXT (CENTER/RIGHT) -->
+                    <div class="flex-1 text-center space-y-0.5 text-gray-900">
+                        <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-900 leading-tight">
+                            PEMERINTAH PROVINSI SUMATERA UTARA
+                        </h2>
+                        <h1 class="text-sm sm:text-base font-black uppercase tracking-wide text-gray-900 leading-tight">
+                            DINAS KOPERASI DAN USAHA KECIL MENENGAH
+                        </h1>
+                        <p class="text-[10px] sm:text-[11px] text-gray-700 font-medium">
+                            Jalan Jenderal Gatot Subroto No. 222 Medan, Sumatera Utara 20118
+                        </p>
+                        <p class="text-[10px] sm:text-[11px] text-gray-600 font-medium">
+                            Telepon: (061) 8452110, Faksimile: (061) 8452110 | Laman: diskop.sumutprov.go.id
+                        </p>
                     </div>
+                </div>
+
+                <div class="text-center text-xs font-black text-gray-900 uppercase tracking-widest pt-2 underline underline-offset-4">
+                    LEMBAR HASIL PEMERIKSAAN KESEHATAN KOPERASI (LHP)
                 </div>
 
                 <!-- SURAT TUGAS & KOPERASI DETAILS -->
@@ -218,7 +228,7 @@ const getRiskBadge = (risiko: string) => {
                 </div>
 
                 <!-- SIGNATURE BOX FOR PRINT -->
-                <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs print:block hidden">
+                <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs print-signature print:flex print:justify-between print:pt-6">
                     <div>
                         <div>Mengetahui,</div>
                         <div class="font-bold">Pengurus Koperasi {{ pengawasan.koperasi?.nama_koperasi }}</div>

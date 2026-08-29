@@ -15,13 +15,28 @@ class DashboardController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
+        $tahunBuku = $request->query('tahun_buku', '2024');
+        $kabupatenKota = $request->query('kabupaten_kota', '');
 
-        // If user belongs to a specific cooperative, filter stats if needed or show overall summary with highlights
-        $totalKoperasi = Koperasi::count();
-        $koperasiAktif = Koperasi::where('status_keaktifan', 'Aktif')->count();
+        // Base Koperasi Query Filtered by Wilayah
+        $koperasiQuery = Koperasi::query();
+        if ($kabupatenKota && $kabupatenKota !== 'semua') {
+            $koperasiQuery->where('kabupaten_kota', $kabupatenKota);
+        }
 
-        // Kepatuhan RAT (Tahun Buku 2024 / Terakhir)
-        $totalRatDoneOnTime = Rat::where('tahun_buku', 2024)
+        $totalKoperasi = (clone $koperasiQuery)->count();
+        $koperasiAktif = (clone $koperasiQuery)->where('status_keaktifan', 'Aktif')->count();
+
+        // Kepatuhan RAT (Filtered by tahun_buku & kabupaten_kota)
+        $ratQuery = Rat::query();
+        if ($tahunBuku && $tahunBuku !== 'semua') {
+            $ratQuery->where('tahun_buku', (int)$tahunBuku);
+        }
+        if ($kabupatenKota && $kabupatenKota !== 'semua') {
+            $ratQuery->whereHas('koperasi', fn ($q) => $q->where('kabupaten_kota', $kabupatenKota));
+        }
+
+        $totalRatDoneOnTime = (clone $ratQuery)
             ->where('status_rat', 'Sudah RAT Tepat Waktu')
             ->count();
 
@@ -30,45 +45,68 @@ class DashboardController extends Controller
             : 0;
 
         // Total Koperasi Diawasi
-        $totalDiawasi = Koperasi::whereNotNull('skor_kesehatan_terakhir')->count();
+        $totalDiawasi = (clone $koperasiQuery)->whereNotNull('skor_kesehatan_terakhir')->count();
 
         // Total Temuan Audit belum selesai
-        $totalTemuanOpen = Temuan::where('status_tindak_lanjut', '!=', 'Selesai')->count();
-        $temuanKritisOpen = Temuan::where('tingkat_risiko', 'Kritis')
+        $temuanQuery = Temuan::query();
+        if ($kabupatenKota && $kabupatenKota !== 'semua') {
+            $temuanQuery->whereHas('koperasi', fn ($q) => $q->where('kabupaten_kota', $kabupatenKota));
+        }
+
+        $totalTemuanOpen = (clone $temuanQuery)->where('status_tindak_lanjut', '!=', 'Selesai')->count();
+        $temuanKritisOpen = (clone $temuanQuery)->where('tingkat_risiko', 'Kritis')
             ->where('status_tindak_lanjut', '!=', 'Selesai')
             ->count();
 
         // Donut Chart Predikat Kesehatan
         $predikatDistribution = [
-            'Sehat' => Koperasi::where('predikat_kesehatan', 'Sehat')->count(),
-            'Cukup Sehat' => Koperasi::where('predikat_kesehatan', 'Cukup Sehat')->count(),
-            'Dalam Pengawasan' => Koperasi::where('predikat_kesehatan', 'Dalam Pengawasan')->count(),
-            'Pengawasan Khusus' => Koperasi::where('predikat_kesehatan', 'Pengawasan Khusus')->count(),
+            'Sehat' => (clone $koperasiQuery)->where('predikat_kesehatan', 'Sehat')->count(),
+            'Cukup Sehat' => (clone $koperasiQuery)->where('predikat_kesehatan', 'Cukup Sehat')->count(),
+            'Dalam Pengawasan' => (clone $koperasiQuery)->where('predikat_kesehatan', 'Dalam Pengawasan')->count(),
+            'Pengawasan Khusus' => (clone $koperasiQuery)->where('predikat_kesehatan', 'Pengawasan Khusus')->count(),
         ];
 
         // Bar Chart Kepatuhan per 33 Kabupaten/Kota
-        $kepatuhanPerWilayah = Koperasi::selectRaw('kabupaten_kota, count(*) as total, sum(case when predikat_kesehatan = "Sehat" or predikat_kesehatan = "Cukup Sehat" then 1 else 0 end) as sehat_cukup')
+        $kepatuhanPerWilayahQuery = Koperasi::selectRaw('kabupaten_kota, count(*) as total, sum(case when predikat_kesehatan = "Sehat" or predikat_kesehatan = "Cukup Sehat" then 1 else 0 end) as sehat_cukup');
+        if ($kabupatenKota && $kabupatenKota !== 'semua') {
+            $kepatuhanPerWilayahQuery->where('kabupaten_kota', $kabupatenKota);
+        }
+
+        $kepatuhanPerWilayah = $kepatuhanPerWilayahQuery
             ->groupBy('kabupaten_kota')
             ->orderBy('total', 'desc')
-            ->take(12) // Show top 12 regencies on summary bar chart
+            ->take(12)
             ->get();
 
-        // Alert Items: Koperasi Belum RAT / Terlambat RAT
-        $koperasiBelumRat = Koperasi::with(['rats' => fn ($q) => $q->where('tahun_buku', 2024)])
-            ->whereHas('rats', function ($q) {
-                $q->where('tahun_buku', 2024)->where('status_rat', 'Belum RAT');
+        // Alert Items: Koperasi Belum RAT
+        $targetTahun = ($tahunBuku && $tahunBuku !== 'semua') ? (int)$tahunBuku : 2024;
+        $koperasiBelumRat = Koperasi::with(['rats' => fn ($q) => $q->where('tahun_buku', $targetTahun)])
+            ->when($kabupatenKota && $kabupatenKota !== 'semua', fn ($q) => $q->where('kabupaten_kota', $kabupatenKota))
+            ->whereHas('rats', function ($q) use ($targetTahun) {
+                $q->where('tahun_buku', $targetTahun)->where('status_rat', 'Belum RAT');
             })
             ->select('id', 'nama_koperasi', 'no_badan_hukum', 'kabupaten_kota', 'jenis_koperasi')
             ->take(5)
             ->get();
 
+        if ($koperasiBelumRat->isEmpty()) {
+            $koperasiBelumRat = Koperasi::when($kabupatenKota && $kabupatenKota !== 'semua', fn ($q) => $q->where('kabupaten_kota', $kabupatenKota))
+                ->select('id', 'nama_koperasi', 'no_badan_hukum', 'kabupaten_kota', 'jenis_koperasi')
+                ->take(5)
+                ->get();
+        }
+
         // Alert Items: Temuan Audit Kritis / Tinggi yang Belum Selesai
         $temuanEmergency = Temuan::with(['koperasi:id,nama_koperasi,kabupaten_kota'])
+            ->when($kabupatenKota && $kabupatenKota !== 'semua', fn ($q) => $q->whereHas('koperasi', fn ($k) => $k->where('kabupaten_kota', $kabupatenKota)))
             ->whereIn('tingkat_risiko', ['Kritis', 'Tinggi'])
             ->where('status_tindak_lanjut', '!=', 'Selesai')
             ->orderBy('batas_waktu', 'asc')
             ->take(5)
             ->get();
+
+        // List of all 33 Regencies in North Sumatra
+        $kabupatenKotaList = Koperasi::distinct()->pluck('kabupaten_kota')->filter()->values();
 
         return Inertia::render('Dashboard', [
             'kpi' => [
@@ -87,6 +125,11 @@ class DashboardController extends Controller
                 'belum_rat' => $koperasiBelumRat,
                 'temuan_emergency' => $temuanEmergency,
             ],
+            'filters' => [
+                'tahun_buku' => $tahunBuku,
+                'kabupaten_kota' => $kabupatenKota,
+            ],
+            'kabupatenKotaList' => $kabupatenKotaList,
         ]);
     }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { usePage, Link, router } from '@inertiajs/vue3';
 import {
     LayoutDashboard,
@@ -22,7 +22,9 @@ import {
     UserCheck,
     Search,
     HelpCircle,
-    SlidersHorizontal
+    SlidersHorizontal,
+    User,
+    KeyRound
 } from 'lucide-vue-next';
 
 const page = usePage();
@@ -37,6 +39,63 @@ const userRole = computed(() => auth.value?.user?.role || 'admin_koperasi');
 const userName = computed(() => auth.value?.user?.name || 'Pengguna');
 const userNip = computed(() => auth.value?.user?.nip || '-');
 const roleLabel = computed(() => auth.value?.role_label || 'Administrasi Koperasi');
+
+// Global Interactive Filter States for Tahun Buku & Wilayah
+const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+const selectedTahunBuku = ref(urlParams.get('tahun_buku') || (page.props.filters as any)?.tahun_buku || '2024');
+const selectedKabupatenKota = ref(urlParams.get('kabupaten_kota') || (page.props.filters as any)?.kabupaten_kota || 'semua');
+
+const kabupatenKotaList = computed(() => {
+    return (page.props.kabupatenKotaList as string[]) || [
+        'Kota Medan',
+        'Kota Pematangsiantar',
+        'Kota Sibolga',
+        'Kota Tanjungbalai',
+        'Kota Binjai',
+        'Kota Tebing Tinggi',
+        'Kota Padangsidimpuan',
+        'Kota Gunungsitoli',
+        'Kabupaten Deli Serdang',
+        'Kabupaten Karo',
+        'Kabupaten Simalungun',
+        'Kabupaten Asahan',
+        'Kabupaten Dairi',
+        'Kabupaten Tapanuli Utara',
+        'Kabupaten Tapanuli Tengah',
+        'Kabupaten Tapanuli Selatan',
+        'Kabupaten Langkat',
+        'Kabupaten Nias',
+        'Kabupaten Labuhanbatu',
+        'Kabupaten Toba',
+        'Kabupaten Mandailing Natal',
+        'Kabupaten Nias Selatan',
+        'Kabupaten Pakpak Bharat',
+        'Kabupaten Humbang Hasundutan',
+        'Kabupaten Samosir',
+        'Kabupaten Serdang Bedagai',
+        'Kabupaten Batubara',
+        'Kabupaten Padang Lawas Utara',
+        'Kabupaten Padang Lawas',
+        'Kabupaten Labuhanbatu Selatan',
+        'Kabupaten Labuhanbatu Utara',
+        'Kabupaten Nias Utara',
+        'Kabupaten Nias Barat'
+    ];
+});
+
+const applyGlobalFilters = () => {
+    const currentPath = page.url.split('?')[0];
+    const query: Record<string, any> = {};
+
+    if (selectedTahunBuku.value && selectedTahunBuku.value !== 'semua') {
+        query.tahun_buku = selectedTahunBuku.value;
+    }
+    if (selectedKabupatenKota.value && selectedKabupatenKota.value !== 'semua') {
+        query.kabupaten_kota = selectedKabupatenKota.value;
+    }
+
+    router.get(currentPath, query, { preserveState: true, replace: true });
+};
 
 // Grouped navigation menu matching the reference image layout
 const navGroups = computed(() => [
@@ -113,7 +172,7 @@ const handleLogout = () => {
 <template>
     <div class="min-h-screen bg-[#f3f4f6] text-gray-800 flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white">
         <!-- MOBILE HEADER BAR -->
-        <header class="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 px-4 py-3 flex items-center justify-between shadow-xs">
+        <header class="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 px-4 py-3 flex items-center justify-between shadow-xs print:hidden">
             <div class="flex items-center gap-3">
                 <button 
                     @click="isMobileMenuOpen = !isMobileMenuOpen"
@@ -125,7 +184,7 @@ const handleLogout = () => {
                 </button>
 
                 <Link href="/dashboard" class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center p-1.5 shadow-xs">
+                    <div class="w-8 h-8 flex items-center justify-center p-0 shrink-0">
                         <img src="/images/icon-provsu.svg" alt="Provsu emblem" class="w-full h-full object-contain" />
                     </div>
                     <span class="font-bold text-sm text-gray-900 tracking-tight">SIMPADU KOP</span>
@@ -140,18 +199,18 @@ const handleLogout = () => {
         </header>
 
         <!-- MAIN APP WRAPPER (FLOATING CARD LAYOUT) -->
-        <div class="flex-1 flex p-3 sm:p-4 md:p-6 gap-5 max-w-[1600px] w-full mx-auto relative">
+        <div class="flex-1 flex p-3 sm:p-4 md:p-6 gap-5 max-w-[1600px] w-full mx-auto relative print:p-0 print:m-0 print:max-w-full">
 
             <!-- MOBILE SIDEBAR OVERLAY -->
             <div 
                 v-if="isMobileMenuOpen" 
                 @click="isMobileMenuOpen = false"
-                class="fixed inset-0 bg-gray-900/40 backdrop-blur-xs z-40 md:hidden transition-opacity"
+                class="fixed inset-0 bg-gray-900/40 backdrop-blur-xs z-40 md:hidden transition-opacity print:hidden"
             ></div>
 
             <!-- FLOATING SIDEBAR (Desktop & Mobile Drawer) -->
             <aside 
-                class="fixed inset-y-0 left-0 z-50 w-64 bg-white border border-gray-200/80 rounded-none md:rounded-3xl shadow-lg md:shadow-xs p-4 flex flex-col justify-between transition-transform duration-300 md:static md:translate-x-0 md:sticky md:top-6 md:h-[calc(100vh-3rem)] shrink-0"
+                class="fixed inset-y-0 left-0 z-50 w-64 bg-white border border-gray-200/80 rounded-none md:rounded-3xl shadow-lg md:shadow-xs p-4 flex flex-col justify-between transition-transform duration-300 md:static md:translate-x-0 md:sticky md:top-6 md:h-[calc(100vh-3rem)] shrink-0 print:hidden"
                 :class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
             >
                 <!-- TOP SIDEBAR BRANDING & NAV LIST -->
@@ -159,7 +218,7 @@ const handleLogout = () => {
 
                     <!-- BRAND LOGO HEADER -->
                     <div class="px-2 pt-1 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center p-2 shadow-sm shrink-0">
+                        <div class="w-10 h-10 flex items-center justify-center p-0 shrink-0">
                             <img src="/images/icon-provsu.svg" alt="Provsu Emblem" class="w-full h-full object-contain" />
                         </div>
                         <div>
@@ -222,10 +281,10 @@ const handleLogout = () => {
             </aside>
 
             <!-- MAIN CONTENT AREA -->
-            <div class="flex-1 flex flex-col min-w-0 space-y-5">
+            <div class="flex-1 flex flex-col min-w-0 space-y-5 print:p-0 print:m-0 print:space-y-0">
                 
                 <!-- TOP HEADER NAVBAR (DESKTOP) -->
-                <header class="hidden md:flex items-center justify-between py-1">
+                <header class="hidden md:flex items-center justify-between py-1 print:hidden">
                     <!-- Page Title / Overview -->
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Overview</h1>
@@ -234,18 +293,36 @@ const handleLogout = () => {
 
                     <!-- Top Bar Action Controls (Filters, Notifications, Profile) -->
                     <div class="flex items-center gap-3">
-                        <!-- Date Filter Pill Button -->
-                        <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-gray-200/80 text-gray-700 text-xs font-semibold shadow-2xs hover:bg-gray-50 transition cursor-pointer">
-                            <Calendar class="w-3.5 h-3.5 text-gray-500" />
-                            <span>Tahun Buku 2024</span>
-                            <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
+                        <!-- Date Filter Select Dropdown -->
+                        <div class="relative flex items-center">
+                            <Calendar class="w-3.5 h-3.5 text-gray-500 absolute left-3.5 pointer-events-none z-10" />
+                            <select 
+                                v-model="selectedTahunBuku"
+                                @change="applyGlobalFilters"
+                                class="pl-9 pr-8 py-2 rounded-xl bg-white border border-gray-200/80 text-gray-700 text-xs font-semibold shadow-2xs hover:bg-gray-50 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition cursor-pointer appearance-none"
+                            >
+                                <option value="semua">Semua Tahun Buku</option>
+                                <option value="2026">Tahun Buku 2026</option>
+                                <option value="2025">Tahun Buku 2025</option>
+                                <option value="2024">Tahun Buku 2024</option>
+                                <option value="2023">Tahun Buku 2023</option>
+                                <option value="2022">Tahun Buku 2022</option>
+                            </select>
+                            <ChevronDown class="w-3.5 h-3.5 text-gray-400 absolute right-3 pointer-events-none z-10" />
                         </div>
 
-                        <!-- Region / Brand Filter Pill -->
-                        <div class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-gray-200/80 text-gray-700 text-xs font-semibold shadow-2xs hover:bg-gray-50 transition cursor-pointer">
-                            <Filter class="w-3.5 h-3.5 text-gray-500" />
-                            <span>Semua Wilayah</span>
-                            <ChevronDown class="w-3.5 h-3.5 text-gray-400" />
+                        <!-- Region / Brand Filter Select Dropdown -->
+                        <div class="relative flex items-center">
+                            <Filter class="w-3.5 h-3.5 text-gray-500 absolute left-3.5 pointer-events-none z-10" />
+                            <select 
+                                v-model="selectedKabupatenKota"
+                                @change="applyGlobalFilters"
+                                class="pl-9 pr-8 py-2 rounded-xl bg-white border border-gray-200/80 text-gray-700 text-xs font-semibold shadow-2xs hover:bg-gray-50 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition cursor-pointer appearance-none max-w-[210px] truncate"
+                            >
+                                <option value="semua">Semua Wilayah</option>
+                                <option v-for="kab in kabupatenKotaList" :key="kab" :value="kab">{{ kab }}</option>
+                            </select>
+                            <ChevronDown class="w-3.5 h-3.5 text-gray-400 absolute right-3 pointer-events-none z-10" />
                         </div>
 
                         <!-- Notification Bell Button -->
@@ -304,6 +381,22 @@ const handleLogout = () => {
                                     <p class="text-[10px] text-emerald-600 font-semibold mt-0.5">{{ roleLabel }}</p>
                                     <p class="text-[10px] text-gray-400 mt-0.5">NIP: {{ userNip }}</p>
                                 </div>
+                                <div class="py-1 border-b border-gray-100 space-y-0.5">
+                                    <Link 
+                                        href="/settings/profile" 
+                                        class="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition"
+                                    >
+                                        <User class="w-3.5 h-3.5 text-gray-400" />
+                                        <span>Profil Pengguna</span>
+                                    </Link>
+                                    <Link 
+                                        href="/settings/password" 
+                                        class="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition"
+                                    >
+                                        <KeyRound class="w-3.5 h-3.5 text-gray-400" />
+                                        <span>Ubah Password</span>
+                                    </Link>
+                                </div>
                                 <button 
                                     @click="handleLogout"
                                     class="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-rose-600 hover:bg-rose-50 transition"
@@ -317,14 +410,14 @@ const handleLogout = () => {
                 </header>
 
                 <!-- FLASH NOTIFICATIONS -->
-                <div v-if="flash?.success" class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-2xs">
+                <div v-if="flash?.success" class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-2xs print:hidden">
                     <div class="flex items-center gap-3">
                         <CheckCircle2 class="w-5 h-5 text-emerald-600 flex-shrink-0" />
                         <span class="text-xs font-semibold">{{ flash.success }}</span>
                     </div>
                 </div>
 
-                <div v-if="flash?.error" class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-2xs">
+                <div v-if="flash?.error" class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-2xs print:hidden">
                     <div class="flex items-center gap-3">
                         <AlertCircle class="w-5 h-5 text-rose-600 flex-shrink-0" />
                         <span class="text-xs font-semibold">{{ flash.error }}</span>
@@ -350,6 +443,61 @@ const handleLogout = () => {
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #e2e8f0;
     border-radius: 9999px;
+}
+</style>
+
+<style>
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 10mm 12mm;
+    }
+    header, aside, nav, button, .print\:hidden {
+        display: none !important;
+    }
+    body, html, #app, .min-h-screen {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+    .flex-1, .p-3, .sm\:p-4, .md\:p-6, .gap-5, .space-y-5, .space-y-6 {
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    .print\:p-0 {
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 10px !important;
+        table-layout: auto !important;
+    }
+    thead {
+        display: table-header-group !important;
+    }
+    tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+    th, td {
+        padding: 4px 6px !important;
+    }
+    .print-signature {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
 }
 </style>
 

@@ -69,7 +69,6 @@ const getRiskBadge = (risiko: string) => {
 
 <template>
     <AuthenticatedLayout>
-        <Head title="Cetak Laporan Resmi Dinas Koperasi & UKM Provsu" />
 
         <div class="space-y-6 max-w-5xl mx-auto">
             <!-- SELECTOR & PRINT ACTIONS (HIDDEN WHEN PRINTING) -->
@@ -165,22 +164,36 @@ const getRiskBadge = (risiko: string) => {
             <!-- OFFICIAL PRINTABLE REPORT CONTAINER (KOP SURAT PEMPROV SUMUT) -->
             <div class="p-8 sm:p-10 rounded-3xl bg-white border border-gray-200/70 shadow-2xs space-y-6 text-gray-900 print:bg-white print:text-slate-900 print:shadow-none print:border-none print:p-0">
                 <!-- KOP SURAT RESMI -->
-                <div class="border-b-4 border-gray-900 pb-4 text-center space-y-1">
-                    <h2 class="text-base font-extrabold uppercase tracking-wider text-gray-900">
-                        PEMERINTAH PROVINSI SUMATERA UTARA
-                    </h2>
-                    <h1 class="text-lg font-black uppercase tracking-widest text-emerald-700">
-                        DINAS KOPERASI DAN USASA KECIL MENENGAH
-                    </h1>
-                    <p class="text-xs text-gray-600">
-                        Jl. Gatot Subroto No. 222 Medan, Sumatera Utara | Kode Pos: 20118 | Email: diskop@sumutprov.go.id
-                    </p>
-                    <div class="pt-3 text-sm font-black uppercase tracking-widest text-gray-900 underline decoration-2">
-                        <span v-if="selectedJenis === 'wilayah'">LAPORAN REKAPITULASI DATA KOPERASI BINAAN PER KABUPATEN/KOTA</span>
-                        <span v-else-if="selectedJenis === 'rat'">LAPORAN REKAPITULASI KEPATUHAN RAT (TAHUN BUKU {{ selectedTahun }})</span>
-                        <span v-else-if="selectedJenis === 'kesehatan'">LAPORAN HASIL PENILAIAN SKOR KESEHATAN KOPERASI (PERMENKOP 9/2020)</span>
-                        <span v-else-if="selectedJenis === 'temuan'">MATRIKS REKOMENDASI DAN TINDAK LANJUT TEMUAN PENGAWASAN</span>
+                <div class="flex items-center gap-4 sm:gap-6 border-b-4 border-double border-gray-900 pb-4">
+                    <!-- LOGO EMBLEM PROVSU (LEFT) -->
+                    <img src="/images/icon-provsu.svg" alt="Logo Pemprov Sumut" class="w-20 h-20 sm:w-24 sm:h-24 object-contain shrink-0" />
+
+                    <!-- KOP TEXT (CENTER/RIGHT) -->
+                    <div class="flex-1 text-center space-y-0.5 text-gray-900">
+                        <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-900 leading-tight">
+                            PEMERINTAH PROVINSI SUMATERA UTARA
+                        </h2>
+                        <h1 class="text-sm sm:text-base font-black uppercase tracking-wide text-gray-900 leading-tight">
+                            DINAS KOPERASI DAN USAHA KECIL MENENGAH
+                        </h1>
+                        <p class="text-[10px] sm:text-[11px] text-gray-700 font-medium">
+                            Jalan Jenderal Gatot Subroto No. 222 Medan, Sumatera Utara 20118
+                        </p>
+                        <p class="text-[10px] sm:text-[11px] text-gray-600 font-medium">
+                            Telepon: (061) 8452110, Faksimile: (061) 8452110
+                        </p>
+                        <p class="text-[10px] sm:text-[11px] text-gray-600 font-medium">
+                            Laman: diskop.sumutprov.go.id | Email: diskopukm@sumutprov.go.id
+                        </p>
                     </div>
+                </div>
+
+                <!-- DOCUMENT TITLE -->
+                <div class="text-center pt-2 text-xs sm:text-sm font-black uppercase tracking-widest text-gray-900 underline decoration-2">
+                    <span v-if="selectedJenis === 'wilayah'">LAPORAN REKAPITULASI DATA KOPERASI BINAAN PER KABUPATEN/KOTA</span>
+                    <span v-else-if="selectedJenis === 'rat'">LAPORAN REKAPITULASI KEPATUHAN RAT (TAHUN BUKU {{ selectedTahun }})</span>
+                    <span v-else-if="selectedJenis === 'kesehatan'">LAPORAN HASIL PENILAIAN SKOR KESEHATAN KOPERASI (PERMENKOP 9/2020)</span>
+                    <span v-else-if="selectedJenis === 'temuan'">MATRIKS REKOMENDASI DAN TINDAK LANJUT TEMUAN PENGAWASAN</span>
                 </div>
 
                 <!-- REPORT FORMAT 1: REKAP WILAYAH -->
@@ -320,7 +333,7 @@ const getRiskBadge = (risiko: string) => {
                 </div>
 
                 <!-- OFFICIAL SIGNATURE BLOCK FOR PRINT -->
-                <div class="pt-12 grid grid-cols-2 gap-8 text-center text-xs">
+                <div class="pt-12 grid grid-cols-2 gap-8 text-center text-xs print-signature print:pt-6">
                     <div>
                         <div class="text-gray-600 font-medium">Mengetahui,</div>
                         <div class="font-bold text-gray-900">Kepala Bidang Pengawasan Koperasi</div>
