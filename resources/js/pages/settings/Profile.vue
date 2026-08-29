@@ -1,18 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
-import {
-    User,
-    Mail,
-    CreditCard,
-    Briefcase,
-    ShieldCheck,
-    Building2,
-    Lock,
-    Save,
-    CheckCircle2
-} from 'lucide-vue-next';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { Briefcase, CreditCard, Mail, Save, ShieldCheck, User } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 defineProps<{
     mustVerifyEmail?: boolean;
@@ -41,28 +31,21 @@ const submit = () => {
     <AuthenticatedLayout>
         <Head title="Pengaturan Profil Pengguna" />
 
-        <div class="space-y-6 max-w-4xl mx-auto">
-            
+        <div class="mx-auto max-w-4xl space-y-6">
             <!-- HEADER TITLE & TAB NAVIGATION -->
-            <div class="bg-white rounded-3xl p-6 border border-gray-200/70 shadow-2xs space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-6">
+                <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900 tracking-tight">Pengaturan Akun & Profil</h1>
-                        <p class="text-xs text-gray-500 mt-0.5">Kelola identitas diri, NIP, email, dan keamanan kata sandi Anda</p>
+                        <h1 class="text-xl font-bold tracking-tight text-gray-900">Pengaturan Akun & Profil</h1>
+                        <p class="mt-0.5 text-xs text-gray-500">Kelola identitas diri, NIP, email, dan keamanan kata sandi Anda</p>
                     </div>
 
                     <!-- TAB SELECTOR -->
-                    <div class="inline-flex p-1 rounded-2xl bg-gray-100/80 border border-gray-200/60 text-xs font-bold">
-                        <Link
-                            :href="route('profile.edit')"
-                            class="px-4 py-2 rounded-xl bg-white text-gray-900 shadow-2xs transition"
-                        >
+                    <div class="inline-flex rounded-2xl border border-gray-200/60 bg-gray-100/80 p-1 text-xs font-bold">
+                        <Link :href="route('profile.edit')" class="shadow-2xs rounded-xl bg-white px-4 py-2 text-gray-900 transition">
                             Profil Pengguna
                         </Link>
-                        <Link
-                            :href="route('password.edit')"
-                            class="px-4 py-2 rounded-xl text-gray-500 hover:text-gray-900 transition"
-                        >
+                        <Link :href="route('password.edit')" class="rounded-xl px-4 py-2 text-gray-500 transition hover:text-gray-900">
                             Ubah Password
                         </Link>
                     </div>
@@ -70,23 +53,28 @@ const submit = () => {
             </div>
 
             <!-- MAIN PROFILE FORM CARD -->
-            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-gray-200/70 shadow-2xs space-y-6">
-                
+            <div class="shadow-2xs space-y-6 rounded-3xl border border-gray-200/70 bg-white p-6 sm:p-8">
                 <!-- USER BADGE SUMMARY HEADER -->
-                <div class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 border border-gray-100">
-                    <div class="w-12 h-12 rounded-full bg-slate-900 text-white font-bold text-base flex items-center justify-center shadow-xs shrink-0">
+                <div class="flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4">
+                    <div
+                        class="shadow-xs flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-900 text-base font-bold text-white"
+                    >
                         {{ form.name.charAt(0) || 'U' }}
                     </div>
                     <div>
-                        <div class="font-bold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+                        <div class="flex items-center gap-2 text-sm font-bold text-gray-900 sm:text-base">
                             {{ form.name }}
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-extrabold border border-emerald-200">
-                                <ShieldCheck class="w-3 h-3 text-emerald-600" />
+                            <span
+                                class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-700"
+                            >
+                                <ShieldCheck class="h-3 w-3 text-emerald-600" />
                                 {{ roleLabel }}
                             </span>
                         </div>
-                        <div class="text-xs text-gray-500 font-medium mt-0.5 flex flex-wrap items-center gap-3">
-                            <span v-if="form.nip">NIP: <strong class="font-mono text-gray-700">{{ form.nip }}</strong></span>
+                        <div class="mt-0.5 flex flex-wrap items-center gap-3 text-xs font-medium text-gray-500">
+                            <span v-if="form.nip"
+                                >NIP: <strong class="font-mono text-gray-700">{{ form.nip }}</strong></span
+                            >
                             <span>Email: {{ form.email }}</span>
                         </div>
                     </div>
@@ -94,45 +82,42 @@ const submit = () => {
 
                 <!-- EDIT FORM -->
                 <form @submit.prevent="submit" class="space-y-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                         <!-- Nama Lengkap -->
                         <div class="space-y-1.5">
                             <label for="name" class="block text-xs font-bold text-gray-700">
                                 Nama Lengkap <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
-                                <User class="w-4 h-4 text-gray-400 absolute left-3.5 top-3 pointer-events-none" />
+                                <User class="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
                                 <input
                                     id="name"
                                     v-model="form.name"
                                     type="text"
                                     required
                                     placeholder="Masukkan nama lengkap Anda"
-                                    class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-3.5 text-xs text-gray-900 transition placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                                 />
                             </div>
-                            <div v-if="form.errors.name" class="text-xs text-rose-600 font-medium mt-1">
+                            <div v-if="form.errors.name" class="mt-1 text-xs font-medium text-rose-600">
                                 {{ form.errors.name }}
                             </div>
                         </div>
 
                         <!-- NIP / Nomor Identitas -->
                         <div class="space-y-1.5">
-                            <label for="nip" class="block text-xs font-bold text-gray-700">
-                                NIP / Nomor Identitas Pegawai
-                            </label>
+                            <label for="nip" class="block text-xs font-bold text-gray-700"> NIP / Nomor Identitas Pegawai </label>
                             <div class="relative">
-                                <CreditCard class="w-4 h-4 text-gray-400 absolute left-3.5 top-3 pointer-events-none" />
+                                <CreditCard class="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
                                 <input
                                     id="nip"
                                     v-model="form.nip"
                                     type="text"
                                     placeholder="Contoh: 19850612 201001 1 008"
-                                    class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm font-mono placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-3.5 font-mono text-xs text-gray-900 transition placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                                 />
                             </div>
-                            <div v-if="form.errors.nip" class="text-xs text-rose-600 font-medium mt-1">
+                            <div v-if="form.errors.nip" class="mt-1 text-xs font-medium text-rose-600">
                                 {{ form.errors.nip }}
                             </div>
                         </div>
@@ -143,58 +128,53 @@ const submit = () => {
                                 Alamat Email <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
-                                <Mail class="w-4 h-4 text-gray-400 absolute left-3.5 top-3 pointer-events-none" />
+                                <Mail class="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
                                 <input
                                     id="email"
                                     v-model="form.email"
                                     type="email"
                                     required
                                     placeholder="nama@sumutprov.go.id"
-                                    class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-3.5 text-xs text-gray-900 transition placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                                 />
                             </div>
-                            <div v-if="form.errors.email" class="text-xs text-rose-600 font-medium mt-1">
+                            <div v-if="form.errors.email" class="mt-1 text-xs font-medium text-rose-600">
                                 {{ form.errors.email }}
                             </div>
                         </div>
 
                         <!-- Jabatan -->
                         <div class="space-y-1.5">
-                            <label for="jabatan" class="block text-xs font-bold text-gray-700">
-                                Jabatan / Posisi Diri
-                            </label>
+                            <label for="jabatan" class="block text-xs font-bold text-gray-700"> Jabatan / Posisi Diri </label>
                             <div class="relative">
-                                <Briefcase class="w-4 h-4 text-gray-400 absolute left-3.5 top-3 pointer-events-none" />
+                                <Briefcase class="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
                                 <input
                                     id="jabatan"
                                     v-model="form.jabatan"
                                     type="text"
                                     placeholder="Contoh: Pengawas Koperasi Ahli Muda"
-                                    class="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                                    class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-3.5 text-xs text-gray-900 transition placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                                 />
                             </div>
-                            <div v-if="form.errors.jabatan" class="text-xs text-rose-600 font-medium mt-1">
+                            <div v-if="form.errors.jabatan" class="mt-1 text-xs font-medium text-rose-600">
                                 {{ form.errors.jabatan }}
                             </div>
                         </div>
-
                     </div>
 
                     <!-- SUBMIT ACTION -->
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
                         <button
                             type="submit"
                             :disabled="form.processing"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition disabled:opacity-50"
+                            class="shadow-xs inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 disabled:opacity-50"
                         >
-                            <Save class="w-4 h-4 text-emerald-400" />
+                            <Save class="h-4 w-4 text-emerald-400" />
                             <span>{{ form.processing ? 'Menyimpan...' : 'Simpan Perubahan Profil' }}</span>
                         </button>
                     </div>
                 </form>
-
             </div>
-
         </div>
     </AuthenticatedLayout>
 </template>

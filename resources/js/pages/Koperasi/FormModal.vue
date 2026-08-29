@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { watch, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import { X, Building2, UserCheck, DollarSign } from 'lucide-vue-next';
+import { Building2, X } from 'lucide-vue-next';
+import { computed, watch } from 'vue';
 
 const props = defineProps<{
     isOpen: boolean;
@@ -69,7 +69,7 @@ watch(
             form.reset();
         }
     },
-    { immediate: true }
+    { immediate: true },
 );
 
 const handleSubmit = () => {
@@ -78,30 +78,30 @@ const handleSubmit = () => {
             onSuccess: () => {
                 emit('close');
                 form.reset();
-            }
+            },
         });
     } else {
         form.post('/koperasi', {
             onSuccess: () => {
                 emit('close');
                 form.reset();
-            }
+            },
         });
     }
 };
 </script>
 
 <template>
-    <div 
-        v-if="isOpen" 
-        class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+    <div
+        v-if="isOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-sm duration-200 animate-in fade-in sm:p-6"
     >
-        <div class="relative w-full max-w-3xl rounded-3xl bg-white border border-gray-200/80 shadow-2xl overflow-hidden my-8">
+        <div class="relative my-8 w-full max-w-3xl overflow-hidden rounded-3xl border border-gray-200/80 bg-white shadow-2xl">
             <!-- Header Modal -->
-            <div class="px-6 py-4 bg-white border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center justify-between border-b border-gray-100 bg-white px-6 py-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <Building2 class="w-5 h-5" />
+                    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <Building2 class="h-5 w-5" />
                     </div>
                     <div>
                         <h3 class="text-base font-bold text-gray-900">
@@ -111,62 +111,63 @@ const handleSubmit = () => {
                     </div>
                 </div>
 
-                <button 
-                    @click="emit('close')" 
-                    class="p-1.5 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition"
-                >
-                    <X class="w-5 h-5" />
+                <button @click="emit('close')" class="rounded-xl p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-900">
+                    <X class="h-5 w-5" />
                 </button>
             </div>
 
             <!-- Form Body -->
-            <form @submit.prevent="handleSubmit" class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+            <form @submit.prevent="handleSubmit" class="max-h-[75vh] space-y-6 overflow-y-auto p-6">
                 <!-- Section 1: Kelembagaan -->
                 <div class="space-y-4">
-                    <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider border-b border-gray-100 pb-2">
+                    <div class="border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-wider text-emerald-700">
                         1. Data Kelembagaan & Wilayah
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Nama Koperasi *</label>
-                            <input 
-                                v-model="form.nama_koperasi" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Nama Koperasi *</label>
+                            <input
+                                v-model="form.nama_koperasi"
                                 type="text"
                                 required
                                 placeholder="Contoh: KSP Harapan Kita Medan"
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
-                            <div v-if="form.errors.nama_koperasi" class="text-rose-600 text-[11px] font-semibold mt-1">{{ form.errors.nama_koperasi }}</div>
+                            <div v-if="form.errors.nama_koperasi" class="mt-1 text-[11px] font-semibold text-rose-600">
+                                {{ form.errors.nama_koperasi }}
+                            </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Nomor Badan Hukum *</label>
-                            <input 
-                                v-model="form.no_badan_hukum" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Nomor Badan Hukum *</label>
+                            <input
+                                v-model="form.no_badan_hukum"
                                 type="text"
                                 required
                                 placeholder="AHU-0001.AH.01.26..."
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
-                            <div v-if="form.errors.no_badan_hukum" class="text-rose-600 text-[11px] font-semibold mt-1">{{ form.errors.no_badan_hukum }}</div>
+                            <div v-if="form.errors.no_badan_hukum" class="mt-1 text-[11px] font-semibold text-rose-600">
+                                {{ form.errors.no_badan_hukum }}
+                            </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">NIK Koperasi (Opsional)</label>
-                            <input 
-                                v-model="form.nik_koperasi" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">NIK Koperasi (Opsional)</label>
+                            <input
+                                v-model="form.nik_koperasi"
                                 type="text"
                                 placeholder="1271010001..."
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Jenis Koperasi *</label>
-                            <select 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Jenis Koperasi *</label>
+                            <select
                                 v-model="form.jenis_koperasi"
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             >
                                 <option value="KSP">KSP (Simpan Pinjam)</option>
                                 <option value="KSU">KSU (Serba Usaha)</option>
@@ -178,33 +179,33 @@ const handleSubmit = () => {
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Kabupaten / Kota *</label>
-                            <select 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Kabupaten / Kota *</label>
+                            <select
                                 v-model="form.kabupaten_kota"
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             >
                                 <option v-for="kab in kabupatenKotaList" :key="kab" :value="kab">{{ kab }}</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Tahun Berdiri *</label>
-                            <input 
-                                v-model="form.tahun_berdiri" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Tahun Berdiri *</label>
+                            <input
+                                v-model="form.tahun_berdiri"
                                 type="number"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div class="sm:col-span-2">
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Alamat Lengkap *</label>
-                            <textarea 
-                                v-model="form.alamat" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Alamat Lengkap *</label>
+                            <textarea
+                                v-model="form.alamat"
                                 rows="2"
                                 required
                                 placeholder="Jl. Lintas Utama No. 123..."
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             ></textarea>
                         </div>
                     </div>
@@ -212,52 +213,52 @@ const handleSubmit = () => {
 
                 <!-- Section 2: Keuangan Dasar -->
                 <div class="space-y-4">
-                    <div class="text-xs font-bold text-teal-700 uppercase tracking-wider border-b border-gray-100 pb-2">
+                    <div class="border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-wider text-teal-700">
                         2. Data Keuangan Dasar (IDR)
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Total Aset (Rp) *</label>
-                            <input 
-                                v-model="form.aset" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Total Aset (Rp) *</label>
+                            <input
+                                v-model="form.aset"
                                 type="number"
                                 step="1000"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150 font-mono"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-mono text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Modal Sendiri (Rp) *</label>
-                            <input 
-                                v-model="form.modal_sendiri" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Modal Sendiri (Rp) *</label>
+                            <input
+                                v-model="form.modal_sendiri"
                                 type="number"
                                 step="1000"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150 font-mono"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-mono text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Volume Usaha (Rp) *</label>
-                            <input 
-                                v-model="form.volume_usaha" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Volume Usaha (Rp) *</label>
+                            <input
+                                v-model="form.volume_usaha"
                                 type="number"
                                 step="1000"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150 font-mono"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-mono text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Sisa Hasil Usaha / SHU (Rp) *</label>
-                            <input 
-                                v-model="form.shu" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Sisa Hasil Usaha / SHU (Rp) *</label>
+                            <input
+                                v-model="form.shu"
                                 type="number"
                                 step="1000"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150 font-mono"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-mono text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
                     </div>
@@ -265,107 +266,107 @@ const handleSubmit = () => {
 
                 <!-- Section 3: Pengurus & Keanggotaan -->
                 <div class="space-y-4">
-                    <div class="text-xs font-bold text-indigo-700 uppercase tracking-wider border-b border-gray-100 pb-2">
+                    <div class="border-b border-gray-100 pb-2 text-xs font-bold uppercase tracking-wider text-indigo-700">
                         3. Pengurus & Keanggotaan
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Ketua Pengurus *</label>
-                            <input 
-                                v-model="form.ketua" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Ketua Pengurus *</label>
+                            <input
+                                v-model="form.ketua"
                                 type="text"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Sekretaris *</label>
-                            <input 
-                                v-model="form.sekretaris" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Sekretaris *</label>
+                            <input
+                                v-model="form.sekretaris"
                                 type="text"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Bendahara *</label>
-                            <input 
-                                v-model="form.bendahara" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Bendahara *</label>
+                            <input
+                                v-model="form.bendahara"
                                 type="text"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Ketua Pengawas *</label>
-                            <input 
-                                v-model="form.ketua_pengawas" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Ketua Pengawas *</label>
+                            <input
+                                v-model="form.ketua_pengawas"
                                 type="text"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Manajer (Opsional)</label>
-                            <input 
-                                v-model="form.manajer" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Manajer (Opsional)</label>
+                            <input
+                                v-model="form.manajer"
                                 type="text"
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Periode Jabatan *</label>
-                            <input 
-                                v-model="form.periode_jabatan" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Periode Jabatan *</label>
+                            <input
+                                v-model="form.periode_jabatan"
                                 type="text"
                                 placeholder="2023 - 2026"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Jumlah Anggota Pria *</label>
-                            <input 
-                                v-model="form.jumlah_anggota_pria" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Jumlah Anggota Pria *</label>
+                            <input
+                                v-model="form.jumlah_anggota_pria"
                                 type="number"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Jumlah Anggota Wanita *</label>
-                            <input 
-                                v-model="form.jumlah_anggota_wanita" 
+                            <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Jumlah Anggota Wanita *</label>
+                            <input
+                                v-model="form.jumlah_anggota_wanita"
                                 type="number"
                                 required
-                                class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                                class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition duration-150 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                             />
                         </div>
                     </div>
                 </div>
 
                 <!-- Modal Actions -->
-                <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                    <button 
-                        type="button" 
+                <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
+                    <button
+                        type="button"
                         @click="emit('close')"
-                        class="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition"
+                        class="rounded-xl px-4 py-2.5 text-xs font-bold text-gray-600 transition hover:bg-gray-100"
                     >
                         Batal
                     </button>
 
-                    <button 
+                    <button
                         type="submit"
                         :disabled="form.processing"
-                        class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md shadow-slate-900/10 transition disabled:opacity-50"
+                        class="rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 disabled:opacity-50"
                     >
                         {{ isEditing ? 'Simpan Perubahan' : 'Simpan Koperasi' }}
                     </button>
@@ -374,4 +375,3 @@ const handleSubmit = () => {
         </div>
     </div>
 </template>
-

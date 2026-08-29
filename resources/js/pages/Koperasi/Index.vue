@@ -1,22 +1,9 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Building2, Edit3, Eye, Plus, RotateCcw, Search, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 import FormModal from './FormModal.vue';
-import {
-    Building2,
-    Search,
-    Plus,
-    Filter,
-    Eye,
-    Edit3,
-    Trash2,
-    RotateCcw,
-    ChevronLeft,
-    ChevronRight,
-    ShieldCheck,
-    CheckCircle2
-} from 'lucide-vue-next';
 
 const props = defineProps<{
     koperasis: {
@@ -60,7 +47,7 @@ const applyFilters = () => {
             status_keaktifan: statusKeaktifan.value || undefined,
             predikat_kesehatan: predikatKesehatan.value || undefined,
         },
-        { preserveState: true, replace: true }
+        { preserveState: true, replace: true },
     );
 };
 
@@ -91,11 +78,16 @@ const handleDelete = (item: any) => {
 
 const getPredikatBadge = (predikat: string) => {
     switch (predikat) {
-        case 'Sehat': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-        case 'Cukup Sehat': return 'bg-cyan-50 text-cyan-700 border-cyan-200';
-        case 'Dalam Pengawasan': return 'bg-amber-50 text-amber-700 border-amber-200';
-        case 'Pengawasan Khusus': return 'bg-rose-50 text-rose-700 border-rose-200';
-        default: return 'bg-gray-100 text-gray-600 border-gray-200';
+        case 'Sehat':
+            return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        case 'Cukup Sehat':
+            return 'bg-cyan-50 text-cyan-700 border-cyan-200';
+        case 'Dalam Pengawasan':
+            return 'bg-amber-50 text-amber-700 border-amber-200';
+        case 'Pengawasan Khusus':
+            return 'bg-rose-50 text-rose-700 border-rose-200';
+        default:
+            return 'bg-gray-100 text-gray-600 border-gray-200';
     }
 };
 
@@ -110,48 +102,46 @@ const formatRupiah = (val: number) => {
 
         <div class="space-y-6">
             <!-- PAGE TITLE & TOP ACTION -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
-                        <Building2 class="w-6 h-6 text-emerald-600" />
+                    <h1 class="flex items-center gap-2.5 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+                        <Building2 class="h-6 w-6 text-emerald-600" />
                         Data Master Koperasi Binaan
                     </h1>
-                    <p class="text-xs text-gray-500 mt-1">
-                        Kelola data kelembagaan, pengurus, serta ringkasan kesehatan Koperasi se-Sumatera Utara.
-                    </p>
+                    <p class="mt-1 text-xs text-gray-500">Kelola data kelembagaan, pengurus, serta ringkasan kesehatan Koperasi se-Sumatera Utara.</p>
                 </div>
 
-                <button 
+                <button
                     v-if="userRole === 'admin_koperasi' || userRole === 'bidang_pengawasan'"
                     @click="openCreateModal"
-                    class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition self-start sm:self-auto"
+                    class="shadow-xs flex items-center gap-2 self-start rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 sm:self-auto"
                 >
-                    <Plus class="w-4 h-4 text-emerald-400" />
+                    <Plus class="h-4 w-4 text-emerald-400" />
                     Tambah Koperasi Baru
                 </button>
             </div>
 
             <!-- SEARCH & FILTER BAR CARD -->
-            <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-5">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
                     <!-- Search Input -->
                     <div class="relative lg:col-span-2">
-                        <Search class="w-4 h-4 text-gray-400 absolute left-3.5 top-3" />
-                        <input 
+                        <Search class="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                        <input
                             v-model="search"
                             @input="applyFilters"
                             type="text"
                             placeholder="Cari Nama Koperasi / No. Badan Hukum..."
-                            class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-4 text-xs text-gray-900 transition placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         />
                     </div>
 
                     <!-- Filter Kabupaten/Kota -->
                     <div>
-                        <select 
+                        <select
                             v-model="kabupatenKota"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
                             <option value="">Semua Kab/Kota</option>
                             <option v-for="kab in kabupatenKotaList" :key="kab" :value="kab">{{ kab }}</option>
@@ -160,10 +150,10 @@ const formatRupiah = (val: number) => {
 
                     <!-- Filter Jenis -->
                     <div>
-                        <select 
+                        <select
                             v-model="jenisKoperasi"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
                             <option value="">Semua Jenis</option>
                             <option value="KSP">KSP (Simpan Pinjam)</option>
@@ -177,10 +167,10 @@ const formatRupiah = (val: number) => {
 
                     <!-- Filter Predikat Kesehatan -->
                     <div>
-                        <select 
+                        <select
                             v-model="predikatKesehatan"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
                             <option value="">Semua Predikat</option>
                             <option value="Sehat">Sehat</option>
@@ -192,49 +182,50 @@ const formatRupiah = (val: number) => {
                 </div>
 
                 <!-- Reset Filters Button -->
-                <div class="flex items-center justify-between pt-3 border-t border-gray-100 text-xs">
-                    <span class="text-gray-500 font-medium">Menampilkan <span class="font-bold text-gray-900">{{ koperasis.from || 0 }} - {{ koperasis.to || 0 }}</span> dari <span class="font-bold text-gray-900">{{ koperasis.total }}</span> Koperasi</span>
-                    <button 
-                        @click="resetFilters"
-                        class="text-xs text-gray-500 hover:text-emerald-600 font-semibold flex items-center gap-1.5 transition"
+                <div class="flex items-center justify-between border-t border-gray-100 pt-3 text-xs">
+                    <span class="font-medium text-gray-500"
+                        >Menampilkan <span class="font-bold text-gray-900">{{ koperasis.from || 0 }} - {{ koperasis.to || 0 }}</span> dari
+                        <span class="font-bold text-gray-900">{{ koperasis.total }}</span> Koperasi</span
                     >
-                        <RotateCcw class="w-3.5 h-3.5" />
+                    <button
+                        @click="resetFilters"
+                        class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 transition hover:text-emerald-600"
+                    >
+                        <RotateCcw class="h-3.5 w-3.5" />
                         Reset Filter
                     </button>
                 </div>
             </div>
 
             <!-- TABLE CONTAINER CARD -->
-            <div class="rounded-3xl bg-white border border-gray-200/70 shadow-2xs overflow-hidden">
+            <div class="shadow-2xs overflow-hidden rounded-3xl border border-gray-200/70 bg-white">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-gray-50/80 text-gray-500 uppercase tracking-wider text-[10px] font-bold border-b border-gray-100">
+                        <thead class="border-b border-gray-100 bg-gray-50/80 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                             <tr>
-                                <th class="py-3.5 px-4 font-bold">Koperasi & No. BH</th>
-                                <th class="py-3.5 px-4 font-bold">Jenis & Wilayah</th>
-                                <th class="py-3.5 px-4 font-bold text-right">Total Aset</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Status RAT</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Predikat Kesehatan</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Aksi</th>
+                                <th class="px-4 py-3.5 font-bold">Koperasi & No. BH</th>
+                                <th class="px-4 py-3.5 font-bold">Jenis & Wilayah</th>
+                                <th class="px-4 py-3.5 text-right font-bold">Total Aset</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Status RAT</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Predikat Kesehatan</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <tr 
-                                v-for="item in koperasis.data" 
-                                :key="item.id"
-                                class="hover:bg-gray-50/60 transition group"
-                            >
+                            <tr v-for="item in koperasis.data" :key="item.id" class="group transition hover:bg-gray-50/60">
                                 <!-- Name & Avatar -->
-                                <td class="py-3.5 px-4">
+                                <td class="px-4 py-3.5">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                        <div
+                                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white"
+                                        >
                                             {{ item.nama_koperasi.charAt(0) }}
                                         </div>
                                         <div>
-                                            <div class="font-bold text-gray-900 group-hover:text-emerald-600 transition">
+                                            <div class="font-bold text-gray-900 transition group-hover:text-emerald-600">
                                                 {{ item.nama_koperasi }}
                                             </div>
-                                            <div class="text-[10px] font-mono text-gray-400 mt-0.5">
+                                            <div class="mt-0.5 font-mono text-[10px] text-gray-400">
                                                 {{ item.no_badan_hukum }}
                                             </div>
                                         </div>
@@ -242,78 +233,77 @@ const formatRupiah = (val: number) => {
                                 </td>
 
                                 <!-- Jenis & Kab/Kota -->
-                                <td class="py-3.5 px-4">
+                                <td class="px-4 py-3.5">
                                     <div class="font-semibold text-gray-800">{{ item.jenis_koperasi }}</div>
-                                    <div class="text-[11px] text-gray-500 font-medium">{{ item.kabupaten_kota }}</div>
+                                    <div class="text-[11px] font-medium text-gray-500">{{ item.kabupaten_kota }}</div>
                                 </td>
 
                                 <!-- Aset -->
-                                <td class="py-3.5 px-4 text-right font-mono font-bold text-gray-900">
+                                <td class="px-4 py-3.5 text-right font-mono font-bold text-gray-900">
                                     {{ formatRupiah(item.aset) }}
                                 </td>
 
                                 <!-- Status RAT -->
-                                <td class="py-3.5 px-4 text-center">
-                                    <span 
+                                <td class="px-4 py-3.5 text-center">
+                                    <span
                                         v-if="item.rats && item.rats.length > 0"
-                                        class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border"
-                                        :class="item.rats[0].status_rat === 'Sudah RAT Tepat Waktu' 
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                                            : 'bg-amber-50 text-amber-700 border-amber-200'"
+                                        class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold"
+                                        :class="
+                                            item.rats[0].status_rat === 'Sudah RAT Tepat Waktu'
+                                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                                : 'border-amber-200 bg-amber-50 text-amber-700'
+                                        "
                                     >
                                         {{ item.rats[0].status_rat }}
                                     </span>
-                                    <span 
-                                        v-else 
-                                        class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200"
+                                    <span
+                                        v-else
+                                        class="inline-flex rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold text-rose-700"
                                     >
                                         Belum RAT
                                     </span>
                                 </td>
 
                                 <!-- Predikat Kesehatan -->
-                                <td class="py-3.5 px-4 text-center">
-                                    <div 
-                                        v-if="item.predikat_kesehatan"
-                                        class="inline-flex flex-col items-center"
-                                    >
-                                        <span 
-                                            class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border"
+                                <td class="px-4 py-3.5 text-center">
+                                    <div v-if="item.predikat_kesehatan" class="inline-flex flex-col items-center">
+                                        <span
+                                            class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold"
                                             :class="getPredikatBadge(item.predikat_kesehatan)"
                                         >
                                             {{ item.predikat_kesehatan }}
                                         </span>
-                                        <span class="text-[10px] text-gray-400 font-mono mt-0.5">Skor: {{ item.skor_kesehatan_terakhir }}</span>
+                                        <span class="mt-0.5 font-mono text-[10px] text-gray-400">Skor: {{ item.skor_kesehatan_terakhir }}</span>
                                     </div>
-                                    <span v-else class="text-[11px] text-gray-400 italic">Belum Diperiksa</span>
+                                    <span v-else class="text-[11px] italic text-gray-400">Belum Diperiksa</span>
                                 </td>
 
                                 <!-- Action Buttons -->
-                                <td class="py-3.5 px-4 text-center">
+                                <td class="px-4 py-3.5 text-center">
                                     <div class="flex items-center justify-center gap-1">
-                                        <Link 
+                                        <Link
                                             :href="`/koperasi/${item.id}`"
                                             title="Lihat Detail Profile"
-                                            class="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition"
+                                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-emerald-50 hover:text-emerald-600"
                                         >
-                                            <Eye class="w-4 h-4" />
+                                            <Eye class="h-4 w-4" />
                                         </Link>
 
-                                        <button 
+                                        <button
                                             @click="openEditModal(item)"
                                             title="Edit Data"
-                                            class="p-1.5 rounded-lg text-gray-400 hover:text-cyan-600 hover:bg-cyan-50 transition"
+                                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-cyan-50 hover:text-cyan-600"
                                         >
-                                            <Edit3 class="w-4 h-4" />
+                                            <Edit3 class="h-4 w-4" />
                                         </button>
 
-                                        <button 
+                                        <button
                                             v-if="userRole === 'admin_koperasi'"
                                             @click="handleDelete(item)"
                                             title="Hapus Data"
-                                            class="p-1.5 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
                                         >
-                                            <Trash2 class="w-4 h-4" />
+                                            <Trash2 class="h-4 w-4" />
                                         </button>
                                     </div>
                                 </td>
@@ -323,36 +313,32 @@ const formatRupiah = (val: number) => {
                 </div>
 
                 <!-- Pagination Footer -->
-                <div class="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-                    <div class="text-xs text-gray-500 font-medium">
-                        Halaman <span class="font-bold text-gray-900">{{ koperasis.current_page }}</span> dari <span class="font-bold text-gray-900">{{ koperasis.last_page }}</span>
+                <div class="flex items-center justify-between border-t border-gray-100 bg-gray-50/50 px-6 py-4">
+                    <div class="text-xs font-medium text-gray-500">
+                        Halaman <span class="font-bold text-gray-900">{{ koperasis.current_page }}</span> dari
+                        <span class="font-bold text-gray-900">{{ koperasis.last_page }}</span>
                     </div>
 
                     <div class="flex items-center gap-1">
-                        <Component
+                        <component
                             v-for="(link, index) in koperasis.links"
                             :key="index"
                             :is="link.url ? Link : 'span'"
                             :href="link.url"
-                            v-html="link.label"
-                            class="px-3 py-1.5 rounded-xl text-xs font-semibold transition"
+                            class="rounded-xl px-3 py-1.5 text-xs font-semibold transition"
                             :class="[
-                                link.active ? 'bg-slate-900 text-white shadow-2xs' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
-                                !link.url && 'opacity-40 cursor-not-allowed'
+                                link.active ? 'shadow-2xs bg-slate-900 text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                                !link.url && 'cursor-not-allowed opacity-40',
                             ]"
-                        />
+                        >
+                            <span v-html="link.label" />
+                        </component>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Create & Edit Form Modal -->
-        <FormModal 
-            :is-open="isModalOpen"
-            :koperasi-to-edit="koperasiToEdit"
-            :kabupaten-kota-list="kabupatenKotaList"
-            @close="isModalOpen = false"
-        />
+        <FormModal :is-open="isModalOpen" :koperasi-to-edit="koperasiToEdit" :kabupaten-kota-list="kabupatenKotaList" @close="isModalOpen = false" />
     </AuthenticatedLayout>
 </template>
-

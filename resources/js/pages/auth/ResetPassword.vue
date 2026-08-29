@@ -2,7 +2,7 @@
 import InputError from '@/components/InputError.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle, KeyRound, Lock, Mail } from 'lucide-vue-next';
+import { KeyRound, LoaderCircle, Lock, Mail } from 'lucide-vue-next';
 
 interface Props {
     token: string;
@@ -34,19 +34,17 @@ const submit = () => {
         <form @submit.prevent="submit" class="space-y-4">
             <!-- Email Readonly -->
             <div class="space-y-1.5">
-                <label for="email" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Alamat Email
-                </label>
+                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-gray-700"> Alamat Email </label>
                 <div class="relative">
-                    <Mail class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
-                    <input 
-                        id="email" 
-                        type="email" 
-                        name="email" 
-                        autocomplete="email" 
-                        v-model="form.email" 
-                        readonly 
-                        class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-100 border border-gray-200 text-gray-600 text-xs sm:text-sm font-mono cursor-not-allowed"
+                    <Mail class="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
+                    <input
+                        id="email"
+                        type="email"
+                        name="email"
+                        autocomplete="email"
+                        v-model="form.email"
+                        readonly
+                        class="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-100 py-2.5 pl-10 pr-4 font-mono text-xs text-gray-600 sm:text-sm"
                     />
                 </div>
                 <InputError :message="form.errors.email" />
@@ -54,11 +52,9 @@ const submit = () => {
 
             <!-- New Password -->
             <div class="space-y-1.5">
-                <label for="password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Kata Sandi Baru
-                </label>
+                <label for="password" class="block text-xs font-bold uppercase tracking-wider text-gray-700"> Kata Sandi Baru </label>
                 <div class="relative">
-                    <Lock class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
+                    <Lock class="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                     <input
                         id="password"
                         type="password"
@@ -67,7 +63,7 @@ const submit = () => {
                         v-model="form.password"
                         autofocus
                         placeholder="••••••••"
-                        class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-xs text-gray-900 transition duration-150 placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                     />
                 </div>
                 <InputError :message="form.errors.password" />
@@ -75,11 +71,11 @@ const submit = () => {
 
             <!-- Confirm Password -->
             <div class="space-y-1.5">
-                <label for="password_confirmation" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <label for="password_confirmation" class="block text-xs font-bold uppercase tracking-wider text-gray-700">
                     Konfirmasi Kata Sandi Baru
                 </label>
                 <div class="relative">
-                    <Lock class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
+                    <Lock class="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                     <input
                         id="password_confirmation"
                         type="password"
@@ -87,23 +83,22 @@ const submit = () => {
                         autocomplete="new-password"
                         v-model="form.password_confirmation"
                         placeholder="••••••••"
-                        class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-xs text-gray-900 transition duration-150 placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                     />
                 </div>
                 <InputError :message="form.errors.password_confirmation" />
             </div>
 
             <!-- Submit Button -->
-            <button 
-                type="submit" 
-                class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-slate-900/10 transition duration-150 active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2 mt-4" 
+            <button
+                type="submit"
+                class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-md shadow-slate-900/10 transition duration-150 hover:bg-slate-800 active:scale-[0.99] disabled:opacity-50 sm:text-sm"
                 :disabled="form.processing"
             >
-                <LoaderCircle v-if="form.processing" class="w-4 h-4 animate-spin" />
-                <KeyRound v-else class="w-4 h-4 text-emerald-400" />
+                <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
+                <KeyRound v-else class="h-4 w-4 text-emerald-400" />
                 <span>Simpan Kata Sandi Baru</span>
             </button>
         </form>
     </AuthLayout>
 </template>
-

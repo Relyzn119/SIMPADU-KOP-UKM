@@ -1,21 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
-import {
-    AlertTriangle,
-    Search,
-    Clock,
-    CheckCircle2,
-    XCircle,
-    RotateCcw,
-    Edit3,
-    ShieldCheck,
-    X,
-    Trash2,
-    MessageSquare,
-    AlertCircle
-} from 'lucide-vue-next';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { AlertTriangle, Edit3, RotateCcw, Search, ShieldCheck, Trash2, X } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 const props = defineProps<{
     temuans: {
@@ -74,7 +61,7 @@ const applyFilters = () => {
             status_tindak_lanjut: statusTindakLanjut.value || undefined,
             aspek_temuan: aspekTemuan.value || undefined,
         },
-        { preserveState: true, replace: true }
+        { preserveState: true, replace: true },
     );
 };
 
@@ -99,7 +86,7 @@ const submitTindakLanjut = () => {
         onSuccess: () => {
             isTindakLanjutModalOpen.value = false;
             tindakLanjutForm.reset();
-        }
+        },
     });
 };
 
@@ -116,7 +103,7 @@ const submitVerifikasi = () => {
         onSuccess: () => {
             isVerifikasiModalOpen.value = false;
             verifikasiForm.reset();
-        }
+        },
     });
 };
 
@@ -128,18 +115,25 @@ const handleDelete = (item: any) => {
 
 const getRiskBadge = (risiko: string) => {
     switch (risiko) {
-        case 'Kritis': return 'bg-rose-50 text-rose-700 border-rose-200';
-        case 'Tinggi': return 'bg-amber-50 text-amber-700 border-amber-200';
-        case 'Sedang': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-        default: return 'bg-blue-50 text-blue-700 border-blue-200';
+        case 'Kritis':
+            return 'bg-rose-50 text-rose-700 border-rose-200';
+        case 'Tinggi':
+            return 'bg-amber-50 text-amber-700 border-amber-200';
+        case 'Sedang':
+            return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+        default:
+            return 'bg-blue-50 text-blue-700 border-blue-200';
     }
 };
 
 const getStatusBadge = (status: string) => {
     switch (status) {
-        case 'Selesai': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-        case 'Dalam Proses': return 'bg-amber-50 text-amber-700 border-amber-200';
-        default: return 'bg-rose-50 text-rose-700 border-rose-200';
+        case 'Selesai':
+            return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        case 'Dalam Proses':
+            return 'bg-amber-50 text-amber-700 border-amber-200';
+        default:
+            return 'bg-rose-50 text-rose-700 border-rose-200';
     }
 };
 </script>
@@ -150,14 +144,14 @@ const getStatusBadge = (status: string) => {
 
         <div class="space-y-6">
             <!-- PAGE TITLE BANNER CARD -->
-            <div class="rounded-3xl bg-white border border-gray-200/70 p-6 shadow-2xs">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="shadow-2xs rounded-3xl border border-gray-200/70 bg-white p-6">
+                <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                     <div>
-                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2.5">
-                            <AlertTriangle class="w-6 h-6 text-amber-600" />
+                        <h1 class="flex items-center gap-2.5 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+                            <AlertTriangle class="h-6 w-6 text-amber-600" />
                             Matriks Temuan Audit & Action Plan Tindak Lanjut
                         </h1>
-                        <p class="text-xs text-gray-500 mt-1">
+                        <p class="mt-1 text-xs text-gray-500">
                             Monitoring tingkat risiko pemeriksaan, tanggapan pengurus koperasi, dan verifikasi tim pengawas Diskop Provsu.
                         </p>
                     </div>
@@ -165,53 +159,53 @@ const getStatusBadge = (status: string) => {
             </div>
 
             <!-- KPI SUMMARY CARDS -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs">
-                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Temuan Audit</div>
-                    <div class="mt-2 text-3xl font-extrabold text-gray-900 font-mono">{{ summary.total }}</div>
-                    <p class="text-[11px] text-gray-400 font-medium mt-1">Hasil Pengawasan Lapangan</p>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="shadow-2xs rounded-3xl border border-gray-200/70 bg-white p-5">
+                    <div class="text-xs font-bold uppercase tracking-wider text-gray-400">Total Temuan Audit</div>
+                    <div class="mt-2 font-mono text-3xl font-extrabold text-gray-900">{{ summary.total }}</div>
+                    <p class="mt-1 text-[11px] font-medium text-gray-400">Hasil Pengawasan Lapangan</p>
                 </div>
 
-                <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs">
-                    <div class="text-xs font-bold text-rose-700 uppercase tracking-wider">Risiko Kritis (Open)</div>
-                    <div class="mt-2 text-3xl font-extrabold text-gray-900 font-mono">{{ summary.kritis_open }}</div>
-                    <p class="text-[11px] text-gray-400 font-medium mt-1">Penanganan Prioritas</p>
+                <div class="shadow-2xs rounded-3xl border border-gray-200/70 bg-white p-5">
+                    <div class="text-xs font-bold uppercase tracking-wider text-rose-700">Risiko Kritis (Open)</div>
+                    <div class="mt-2 font-mono text-3xl font-extrabold text-gray-900">{{ summary.kritis_open }}</div>
+                    <p class="mt-1 text-[11px] font-medium text-gray-400">Penanganan Prioritas</p>
                 </div>
 
-                <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs">
-                    <div class="text-xs font-bold text-amber-700 uppercase tracking-wider">Dalam Proses Tindak Lanjut</div>
-                    <div class="mt-2 text-3xl font-extrabold text-gray-900 font-mono">{{ summary.dalam_proses }}</div>
-                    <p class="text-[11px] text-gray-400 font-medium mt-1">Respon Pengurus Dikirim</p>
+                <div class="shadow-2xs rounded-3xl border border-gray-200/70 bg-white p-5">
+                    <div class="text-xs font-bold uppercase tracking-wider text-amber-700">Dalam Proses Tindak Lanjut</div>
+                    <div class="mt-2 font-mono text-3xl font-extrabold text-gray-900">{{ summary.dalam_proses }}</div>
+                    <p class="mt-1 text-[11px] font-medium text-gray-400">Respon Pengurus Dikirim</p>
                 </div>
 
-                <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs">
-                    <div class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Selesai Diverifikasi</div>
-                    <div class="mt-2 text-3xl font-extrabold text-gray-900 font-mono">{{ summary.selesai }}</div>
-                    <p class="text-[11px] text-gray-400 font-medium mt-1">Sesuai Rekomendasi Diskop</p>
+                <div class="shadow-2xs rounded-3xl border border-gray-200/70 bg-white p-5">
+                    <div class="text-xs font-bold uppercase tracking-wider text-emerald-700">Selesai Diverifikasi</div>
+                    <div class="mt-2 font-mono text-3xl font-extrabold text-gray-900">{{ summary.selesai }}</div>
+                    <p class="mt-1 text-[11px] font-medium text-gray-400">Sesuai Rekomendasi Diskop</p>
                 </div>
             </div>
 
             <!-- SEARCH & FILTER BAR CARD -->
-            <div class="p-5 rounded-3xl bg-white border border-gray-200/70 shadow-2xs space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-5">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <!-- Search Input -->
                     <div class="relative">
-                        <Search class="w-4 h-4 text-gray-400 absolute left-3.5 top-3" />
-                        <input 
+                        <Search class="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
+                        <input
                             v-model="search"
                             @input="applyFilters"
                             type="text"
                             placeholder="Cari Temuan / Koperasi..."
-                            class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-4 text-xs text-gray-900 transition placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         />
                     </div>
 
                     <!-- Filter Tingkat Risiko -->
                     <div>
-                        <select 
+                        <select
                             v-model="tingkatRisiko"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
                             <option value="">Semua Tingkat Risiko</option>
                             <option value="Kritis">Kritis (Merah)</option>
@@ -223,10 +217,10 @@ const getStatusBadge = (status: string) => {
 
                     <!-- Filter Status Tindak Lanjut -->
                     <div>
-                        <select 
+                        <select
                             v-model="statusTindakLanjut"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
                             <option value="">Semua Status TL</option>
                             <option value="Belum Ditindaklanjuti">Belum Ditindaklanjuti</option>
@@ -237,10 +231,10 @@ const getStatusBadge = (status: string) => {
 
                     <!-- Filter Aspek -->
                     <div>
-                        <select 
+                        <select
                             v-model="aspekTemuan"
                             @change="applyFilters"
-                            class="w-full py-2.5 px-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
                             <option value="">Semua Aspek Temuan</option>
                             <option value="Kelembagaan">Kelembagaan</option>
@@ -252,101 +246,118 @@ const getStatusBadge = (status: string) => {
                 </div>
 
                 <!-- Reset Filters -->
-                <div class="flex items-center justify-between pt-2 border-t border-gray-100 text-xs">
-                    <span class="text-gray-500 font-medium">Menampilkan {{ temuans.from || 0 }} - {{ temuans.to || 0 }} dari {{ temuans.total }} Temuan</span>
-                    <button 
-                        @click="resetFilters"
-                        class="text-xs text-gray-500 hover:text-emerald-700 flex items-center gap-1 font-bold transition"
+                <div class="flex items-center justify-between border-t border-gray-100 pt-2 text-xs">
+                    <span class="font-medium text-gray-500"
+                        >Menampilkan {{ temuans.from || 0 }} - {{ temuans.to || 0 }} dari {{ temuans.total }} Temuan</span
                     >
-                        <RotateCcw class="w-3.5 h-3.5" />
+                    <button @click="resetFilters" class="flex items-center gap-1 text-xs font-bold text-gray-500 transition hover:text-emerald-700">
+                        <RotateCcw class="h-3.5 w-3.5" />
                         Reset Filter
                     </button>
                 </div>
             </div>
 
             <!-- TABLE CONTAINER CARD -->
-            <div class="rounded-3xl bg-white border border-gray-200/70 shadow-2xs overflow-hidden">
+            <div class="shadow-2xs overflow-hidden rounded-3xl border border-gray-200/70 bg-white">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-gray-50/80 text-gray-500 uppercase tracking-wider text-[10px] font-bold border-b border-gray-100">
+                        <thead class="border-b border-gray-100 bg-gray-50/80 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                             <tr>
-                                <th class="py-3.5 px-4 font-bold">Koperasi & Aspek</th>
-                                <th class="py-3.5 px-4 font-bold">Deskripsi Temuan & Rekomendasi</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Batas Waktu</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Risiko</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Status TL</th>
-                                <th class="py-3.5 px-4 font-bold text-center">Aksi Workflow</th>
+                                <th class="px-4 py-3.5 font-bold">Koperasi & Aspek</th>
+                                <th class="px-4 py-3.5 font-bold">Deskripsi Temuan & Rekomendasi</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Batas Waktu</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Risiko</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Status TL</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Aksi Workflow</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <tr 
-                                v-for="item in temuans.data" 
-                                :key="item.id"
-                                class="hover:bg-gray-50/60 transition group"
-                            >
-                                <td class="py-3.5 px-4">
-                                    <div class="font-bold text-gray-900 group-hover:text-emerald-600 transition">
+                            <tr v-for="item in temuans.data" :key="item.id" class="group transition hover:bg-gray-50/60">
+                                <td class="px-4 py-3.5">
+                                    <div class="font-bold text-gray-900 transition group-hover:text-emerald-600">
                                         {{ item.koperasi?.nama_koperasi }}
                                     </div>
-                                    <div class="text-[11px] text-gray-500 font-medium flex items-center gap-2 mt-0.5">
-                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-bold">{{ item.aspek_temuan }}</span>
+                                    <div class="mt-0.5 flex items-center gap-2 text-[11px] font-medium text-gray-500">
+                                        <span class="rounded bg-gray-100 px-2 py-0.5 font-bold text-gray-700">{{ item.aspek_temuan }}</span>
                                         <span>•</span>
                                         <span>{{ item.koperasi?.kabupaten_kota }}</span>
                                     </div>
                                 </td>
 
-                                <td class="py-3.5 px-4 max-w-sm space-y-1">
-                                    <div class="text-gray-800 leading-snug font-medium">{{ item.deskripsi_temuan }}</div>
-                                    <div class="text-[11px] text-emerald-700 font-bold">Rekomendasi: {{ item.rekomendasi }}</div>
-                                    
+                                <td class="max-w-sm space-y-1 px-4 py-3.5">
+                                    <div class="font-medium leading-snug text-gray-800">{{ item.deskripsi_temuan }}</div>
+                                    <div class="text-[11px] font-bold text-emerald-700">Rekomendasi: {{ item.rekomendasi }}</div>
+
                                     <!-- Tanggapan Preview -->
-                                    <div v-if="item.tanggapan_koperasi" class="p-2 rounded-xl bg-gray-50 border border-gray-200 text-[11px] text-gray-600">
-                                        <strong class="text-indigo-700 font-bold">Action Plan Koperasi:</strong> {{ item.tanggapan_koperasi }}
+                                    <div
+                                        v-if="item.tanggapan_koperasi"
+                                        class="rounded-xl border border-gray-200 bg-gray-50 p-2 text-[11px] text-gray-600"
+                                    >
+                                        <strong class="font-bold text-indigo-700">Action Plan Koperasi:</strong> {{ item.tanggapan_koperasi }}
                                     </div>
 
                                     <!-- Verifikasi Catatan Preview -->
-                                    <div v-if="item.catatan_verifikasi_pengawas" class="p-2 rounded-xl bg-emerald-50/60 border border-emerald-200 text-[11px] text-emerald-800">
-                                        <strong class="text-emerald-700 font-bold">Catatan Pengawas:</strong> {{ item.catatan_verifikasi_pengawas }}
+                                    <div
+                                        v-if="item.catatan_verifikasi_pengawas"
+                                        class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-2 text-[11px] text-emerald-800"
+                                    >
+                                        <strong class="font-bold text-emerald-700">Catatan Pengawas:</strong> {{ item.catatan_verifikasi_pengawas }}
                                     </div>
                                 </td>
 
-                                <td class="py-3.5 px-4 text-center font-mono text-gray-700 whitespace-nowrap font-medium">
+                                <td class="whitespace-nowrap px-4 py-3.5 text-center font-mono font-medium text-gray-700">
                                     {{ item.batas_waktu }}
                                 </td>
 
-                                <td class="py-3.5 px-4 text-center">
-                                    <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border" :class="getRiskBadge(item.tingkat_risiko)">
+                                <td class="px-4 py-3.5 text-center">
+                                    <span
+                                        class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold"
+                                        :class="getRiskBadge(item.tingkat_risiko)"
+                                    >
                                         {{ item.tingkat_risiko }}
                                     </span>
                                 </td>
 
-                                <td class="py-3.5 px-4 text-center">
-                                    <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold border" :class="getStatusBadge(item.status_tindak_lanjut)">
+                                <td class="px-4 py-3.5 text-center">
+                                    <span
+                                        class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold"
+                                        :class="getStatusBadge(item.status_tindak_lanjut)"
+                                    >
                                         {{ item.status_tindak_lanjut }}
                                     </span>
                                 </td>
 
-                                <td class="py-3.5 px-4 text-center">
+                                <td class="px-4 py-3.5 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <!-- Update Action Plan (Role Admin Koperasi & Pengawas) -->
-                                        <button 
+                                        <button
                                             @click="openTindakLanjutModal(item)"
-                                            class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 text-[11px] font-bold transition"
+                                            class="flex items-center gap-1 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] font-bold text-amber-700 transition hover:bg-amber-100"
                                             title="Update Action Plan"
                                         >
-                                            <Edit3 class="w-3.5 h-3.5" />
+                                            <Edit3 class="h-3.5 w-3.5" />
                                             Action Plan
                                         </button>
 
                                         <!-- Verification (Role Bidang Pengawasan) -->
-                                        <button 
+                                        <button
                                             v-if="userRole === 'bidang_pengawasan'"
                                             @click="openVerifikasiModal(item)"
-                                            class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 text-[11px] font-bold transition"
+                                            class="flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100"
                                             title="Verifikasi Pengawas"
                                         >
-                                            <ShieldCheck class="w-3.5 h-3.5" />
+                                            <ShieldCheck class="h-3.5 w-3.5" />
                                             Verifikasi
+                                        </button>
+
+                                        <!-- Hapus Temuan (Role Bidang Pengawasan) -->
+                                        <button
+                                            v-if="userRole === 'bidang_pengawasan'"
+                                            @click="handleDelete(item)"
+                                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
+                                            title="Hapus Temuan"
+                                        >
+                                            <Trash2 class="h-3.5 w-3.5" />
                                         </button>
                                     </div>
                                 </td>
@@ -354,33 +365,66 @@ const getStatusBadge = (status: string) => {
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination Footer -->
+                <div
+                    v-if="temuans.links && temuans.links.length > 3"
+                    class="flex items-center justify-between border-t border-gray-100 bg-gray-50/50 px-6 py-4"
+                >
+                    <div class="text-xs font-medium text-gray-500">
+                        Halaman <span class="font-bold text-gray-900">{{ temuans.current_page }}</span> dari
+                        <span class="font-bold text-gray-900">{{ temuans.last_page }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1">
+                        <component
+                            v-for="(link, index) in temuans.links"
+                            :key="index"
+                            :is="link.url ? Link : 'span'"
+                            :href="link.url"
+                            class="rounded-xl px-3 py-1.5 text-xs font-semibold transition"
+                            :class="[
+                                link.active ? 'shadow-2xs bg-slate-900 text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+                                !link.url && 'cursor-not-allowed opacity-40',
+                            ]"
+                        >
+                            <span v-html="link.label" />
+                        </component>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- MODAL 1: UPDATE ACTION PLAN (ROLE ADMIN KOPERASI) -->
-        <div v-if="isTindakLanjutModalOpen" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="relative w-full max-w-lg rounded-3xl bg-white border border-gray-200/80 shadow-2xl p-6 space-y-4 my-8">
+        <div
+            v-if="isTindakLanjutModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-sm"
+        >
+            <div class="relative my-8 w-full max-w-lg space-y-4 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-2xl">
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-                        <Edit3 class="w-4 h-4 text-amber-600" />
+                    <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900">
+                        <Edit3 class="h-4 w-4 text-amber-600" />
                         Update Progress Action Plan Koperasi
                     </h3>
-                    <button @click="isTindakLanjutModalOpen = false" class="p-1 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition">
-                        <X class="w-5 h-5" />
+                    <button
+                        @click="isTindakLanjutModalOpen = false"
+                        class="rounded-xl p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-900"
+                    >
+                        <X class="h-5 w-5" />
                     </button>
                 </div>
 
-                <div class="text-xs text-gray-700 space-y-1 bg-gray-50 p-3 rounded-2xl border border-gray-200">
+                <div class="space-y-1 rounded-2xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
                     <div><strong>Koperasi:</strong> {{ activeTemuan?.koperasi?.nama_koperasi }}</div>
                     <div><strong>Temuan:</strong> {{ activeTemuan?.deskripsi_temuan }}</div>
                 </div>
 
                 <form @submit.prevent="submitTindakLanjut" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Status Progress *</label>
-                        <select 
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Status Progress *</label>
+                        <select
                             v-model="tindakLanjutForm.status_tindak_lanjut"
-                            class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                         >
                             <option value="Dalam Proses">Dalam Proses (Sedang Ditindaklanjuti)</option>
                             <option value="Selesai">Selesai (Siap Diverifikasi Pengawas)</option>
@@ -389,48 +433,67 @@ const getStatusBadge = (status: string) => {
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Tanggapan & Penjelasan Action Plan Pengurus *</label>
-                        <textarea 
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700"
+                            >Tanggapan & Penjelasan Action Plan Pengurus *</label
+                        >
+                        <textarea
                             v-model="tindakLanjutForm.tanggapan_koperasi"
                             rows="4"
                             required
                             placeholder="Jelaskan langkah nyata yang telah dilakukan koperasi (misal: SOP telah disahkan pada tgl...)"
-                            class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                         ></textarea>
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
-                        <button type="button" @click="isTindakLanjutModalOpen = false" class="px-4 py-2 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition">Batal</button>
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition">Simpan Action Plan</button>
+                    <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-2">
+                        <button
+                            type="button"
+                            @click="isTindakLanjutModalOpen = false"
+                            class="rounded-xl px-4 py-2 text-xs font-bold text-gray-500 transition hover:bg-gray-100"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            class="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white shadow-md transition hover:bg-slate-800"
+                        >
+                            Simpan Action Plan
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
 
         <!-- MODAL 2: VERIFIKASI PENGAWAS (ROLE BIDANG PENGAWASAN) -->
-        <div v-if="isVerifikasiModalOpen" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div class="relative w-full max-w-lg rounded-3xl bg-white border border-gray-200/80 shadow-2xl p-6 space-y-4 my-8">
+        <div
+            v-if="isVerifikasiModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-sm"
+        >
+            <div class="relative my-8 w-full max-w-lg space-y-4 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-2xl">
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-                        <ShieldCheck class="w-4 h-4 text-emerald-600" />
+                    <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900">
+                        <ShieldCheck class="h-4 w-4 text-emerald-600" />
                         Verifikasi & Approval Pengawas Diskop Provsu
                     </h3>
-                    <button @click="isVerifikasiModalOpen = false" class="p-1 rounded-xl text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition">
-                        <X class="w-5 h-5" />
+                    <button
+                        @click="isVerifikasiModalOpen = false"
+                        class="rounded-xl p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-900"
+                    >
+                        <X class="h-5 w-5" />
                     </button>
                 </div>
 
-                <div class="text-xs text-gray-700 space-y-1 bg-gray-50 p-3 rounded-2xl border border-gray-200">
+                <div class="space-y-1 rounded-2xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-700">
                     <div><strong>Koperasi:</strong> {{ activeTemuan?.koperasi?.nama_koperasi }}</div>
                     <div><strong>Action Plan Pengurus:</strong> {{ activeTemuan?.tanggapan_koperasi || '-' }}</div>
                 </div>
 
                 <form @submit.prevent="submitVerifikasi" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Keputusan Status Verifikasi *</label>
-                        <select 
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Keputusan Status Verifikasi *</label>
+                        <select
                             v-model="verifikasiForm.status_tindak_lanjut"
-                            class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                         >
                             <option value="Selesai">Disetujui / Selesai (Sesuai Rekomendasi)</option>
                             <option value="Dalam Proses">Perlu Perbaikan (Kembalikan ke Koperasi)</option>
@@ -439,19 +502,32 @@ const getStatusBadge = (status: string) => {
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Catatan Hasil Verifikasi Pengawas *</label>
-                        <textarea 
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700"
+                            >Catatan Hasil Verifikasi Pengawas *</label
+                        >
+                        <textarea
                             v-model="verifikasiForm.catatan_verifikasi_pengawas"
                             rows="4"
                             required
                             placeholder="Catatan tim pengawas mengenai kesesuaian dokumen/bukti tindak lanjut..."
-                            class="w-full rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm px-3.5 py-2.5 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                         ></textarea>
                     </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
-                        <button type="button" @click="isVerifikasiModalOpen = false" class="px-4 py-2 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-xl transition">Batal</button>
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition">Simpan Verifikasi</button>
+                    <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-2">
+                        <button
+                            type="button"
+                            @click="isVerifikasiModalOpen = false"
+                            class="rounded-xl px-4 py-2 text-xs font-bold text-gray-500 transition hover:bg-gray-100"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            class="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white shadow-md transition hover:bg-slate-800"
+                        >
+                            Simpan Verifikasi
+                        </button>
                     </div>
                 </form>
             </div>

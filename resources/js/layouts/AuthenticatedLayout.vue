@@ -1,31 +1,26 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { usePage, Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import {
-    LayoutDashboard,
-    Building2,
-    FileSpreadsheet,
-    ShieldCheck,
+    AlertCircle,
     AlertTriangle,
-    Printer,
+    Bell,
+    Building2,
+    Calendar,
+    CheckCircle2,
+    ChevronDown,
+    FileSpreadsheet,
+    Filter,
+    KeyRound,
+    LayoutDashboard,
     LogOut,
     Menu,
-    X,
-    ChevronDown,
-    Award,
-    CheckCircle2,
-    AlertCircle,
-    Bell,
-    Calendar,
-    Filter,
     Plus,
-    UserCheck,
-    Search,
-    HelpCircle,
-    SlidersHorizontal,
+    Printer,
+    ShieldCheck,
     User,
-    KeyRound
+    X,
 } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 const page = usePage();
 const auth = computed(() => page.props.auth as any);
@@ -46,41 +41,43 @@ const selectedTahunBuku = ref(urlParams.get('tahun_buku') || (page.props.filters
 const selectedKabupatenKota = ref(urlParams.get('kabupaten_kota') || (page.props.filters as any)?.kabupaten_kota || 'semua');
 
 const kabupatenKotaList = computed(() => {
-    return (page.props.kabupatenKotaList as string[]) || [
-        'Kota Medan',
-        'Kota Pematangsiantar',
-        'Kota Sibolga',
-        'Kota Tanjungbalai',
-        'Kota Binjai',
-        'Kota Tebing Tinggi',
-        'Kota Padangsidimpuan',
-        'Kota Gunungsitoli',
-        'Kabupaten Deli Serdang',
-        'Kabupaten Karo',
-        'Kabupaten Simalungun',
-        'Kabupaten Asahan',
-        'Kabupaten Dairi',
-        'Kabupaten Tapanuli Utara',
-        'Kabupaten Tapanuli Tengah',
-        'Kabupaten Tapanuli Selatan',
-        'Kabupaten Langkat',
-        'Kabupaten Nias',
-        'Kabupaten Labuhanbatu',
-        'Kabupaten Toba',
-        'Kabupaten Mandailing Natal',
-        'Kabupaten Nias Selatan',
-        'Kabupaten Pakpak Bharat',
-        'Kabupaten Humbang Hasundutan',
-        'Kabupaten Samosir',
-        'Kabupaten Serdang Bedagai',
-        'Kabupaten Batubara',
-        'Kabupaten Padang Lawas Utara',
-        'Kabupaten Padang Lawas',
-        'Kabupaten Labuhanbatu Selatan',
-        'Kabupaten Labuhanbatu Utara',
-        'Kabupaten Nias Utara',
-        'Kabupaten Nias Barat'
-    ];
+    return (
+        (page.props.kabupatenKotaList as string[]) || [
+            'Kota Medan',
+            'Kota Pematangsiantar',
+            'Kota Sibolga',
+            'Kota Tanjungbalai',
+            'Kota Binjai',
+            'Kota Tebing Tinggi',
+            'Kota Padangsidimpuan',
+            'Kota Gunungsitoli',
+            'Kabupaten Deli Serdang',
+            'Kabupaten Karo',
+            'Kabupaten Simalungun',
+            'Kabupaten Asahan',
+            'Kabupaten Dairi',
+            'Kabupaten Tapanuli Utara',
+            'Kabupaten Tapanuli Tengah',
+            'Kabupaten Tapanuli Selatan',
+            'Kabupaten Langkat',
+            'Kabupaten Nias',
+            'Kabupaten Labuhanbatu',
+            'Kabupaten Toba',
+            'Kabupaten Mandailing Natal',
+            'Kabupaten Nias Selatan',
+            'Kabupaten Pakpak Bharat',
+            'Kabupaten Humbang Hasundutan',
+            'Kabupaten Samosir',
+            'Kabupaten Serdang Bedagai',
+            'Kabupaten Batubara',
+            'Kabupaten Padang Lawas Utara',
+            'Kabupaten Padang Lawas',
+            'Kabupaten Labuhanbatu Selatan',
+            'Kabupaten Labuhanbatu Utara',
+            'Kabupaten Nias Utara',
+            'Kabupaten Nias Barat',
+        ]
+    );
 });
 
 const applyGlobalFilters = () => {
@@ -106,9 +103,9 @@ const navGroups = computed(() => [
                 name: 'Overview',
                 href: '/dashboard',
                 icon: LayoutDashboard,
-                roles: ['admin_koperasi', 'bidang_pengawasan']
-            }
-        ]
+                roles: ['admin_koperasi', 'bidang_pengawasan'],
+            },
+        ],
     },
     {
         name: 'Kelembagaan',
@@ -117,15 +114,15 @@ const navGroups = computed(() => [
                 name: 'Data Koperasi',
                 href: '/koperasi',
                 icon: Building2,
-                roles: ['admin_koperasi', 'bidang_pengawasan']
+                roles: ['admin_koperasi', 'bidang_pengawasan'],
             },
             {
                 name: 'Pelaporan RAT',
                 href: '/rat',
                 icon: FileSpreadsheet,
-                roles: ['admin_koperasi', 'bidang_pengawasan']
-            }
-        ]
+                roles: ['admin_koperasi', 'bidang_pengawasan'],
+            },
+        ],
     },
     {
         name: 'Pengawasan',
@@ -134,15 +131,15 @@ const navGroups = computed(() => [
                 name: 'Pemeriksaan Kesehatan',
                 href: '/pengawasan',
                 icon: ShieldCheck,
-                roles: ['admin_koperasi', 'bidang_pengawasan']
+                roles: ['admin_koperasi', 'bidang_pengawasan'],
             },
             {
                 name: 'Matriks Temuan Audit',
                 href: '/temuan',
                 icon: AlertTriangle,
-                roles: ['admin_koperasi', 'bidang_pengawasan']
-            }
-        ]
+                roles: ['admin_koperasi', 'bidang_pengawasan'],
+            },
+        ],
     },
     {
         name: 'System & Output',
@@ -151,10 +148,10 @@ const navGroups = computed(() => [
                 name: 'Cetak Laporan',
                 href: '/cetak',
                 icon: Printer,
-                roles: ['admin_koperasi', 'bidang_pengawasan']
-            }
-        ]
-    }
+                roles: ['admin_koperasi', 'bidang_pengawasan'],
+            },
+        ],
+    },
 ]);
 
 const isCurrentRoute = (url: string) => {
@@ -170,64 +167,60 @@ const handleLogout = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-[#f3f4f6] text-gray-800 flex flex-col font-sans antialiased selection:bg-emerald-500 selection:text-white">
+    <div class="flex min-h-screen flex-col bg-[#f3f4f6] font-sans text-gray-800 antialiased selection:bg-emerald-500 selection:text-white">
         <!-- MOBILE HEADER BAR -->
-        <header class="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200/80 px-4 py-3 flex items-center justify-between shadow-xs print:hidden">
+        <header
+            class="shadow-xs sticky top-0 z-40 flex items-center justify-between border-b border-gray-200/80 bg-white/95 px-4 py-3 backdrop-blur-md md:hidden print:hidden"
+        >
             <div class="flex items-center gap-3">
-                <button 
+                <button
                     @click="isMobileMenuOpen = !isMobileMenuOpen"
-                    class="p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition"
+                    class="rounded-xl p-2 text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
                     aria-label="Toggle Navigation"
                 >
-                    <X v-if="isMobileMenuOpen" class="w-6 h-6" />
-                    <Menu v-else class="w-6 h-6" />
+                    <X v-if="isMobileMenuOpen" class="h-6 w-6" />
+                    <Menu v-else class="h-6 w-6" />
                 </button>
 
                 <Link href="/dashboard" class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 flex items-center justify-center p-0 shrink-0">
-                        <img src="/images/icon-provsu.svg" alt="Provsu emblem" class="w-full h-full object-contain" />
+                    <div class="flex h-8 w-8 shrink-0 items-center justify-center p-0">
+                        <img src="/images/icon-provsu.svg" alt="Provsu emblem" class="h-full w-full object-contain" />
                     </div>
-                    <span class="font-bold text-sm text-gray-900 tracking-tight">SIMPADU KOP</span>
+                    <span class="text-sm font-bold tracking-tight text-gray-900">SIMPADU KOP</span>
                 </Link>
             </div>
 
             <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
                     {{ userName.charAt(0) }}
                 </div>
             </div>
         </header>
 
         <!-- MAIN APP WRAPPER (FLOATING CARD LAYOUT) -->
-        <div class="flex-1 flex p-3 sm:p-4 md:p-6 gap-5 max-w-[1600px] w-full mx-auto relative print:p-0 print:m-0 print:max-w-full">
-
+        <div class="relative mx-auto flex w-full max-w-[1600px] flex-1 gap-5 p-3 sm:p-4 md:p-6 print:m-0 print:max-w-full print:p-0">
             <!-- MOBILE SIDEBAR OVERLAY -->
-            <div 
-                v-if="isMobileMenuOpen" 
+            <div
+                v-if="isMobileMenuOpen"
                 @click="isMobileMenuOpen = false"
-                class="fixed inset-0 bg-gray-900/40 backdrop-blur-xs z-40 md:hidden transition-opacity print:hidden"
+                class="backdrop-blur-xs fixed inset-0 z-40 bg-gray-900/40 transition-opacity md:hidden print:hidden"
             ></div>
 
             <!-- FLOATING SIDEBAR (Desktop & Mobile Drawer) -->
-            <aside 
-                class="fixed inset-y-0 left-0 z-50 w-64 bg-white border border-gray-200/80 rounded-none md:rounded-3xl shadow-lg md:shadow-xs p-4 flex flex-col justify-between transition-transform duration-300 md:static md:translate-x-0 md:sticky md:top-6 md:h-[calc(100vh-3rem)] shrink-0 print:hidden"
+            <aside
+                class="md:shadow-xs fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col justify-between rounded-none border border-gray-200/80 bg-white p-4 shadow-lg transition-transform duration-300 md:static md:sticky md:top-6 md:h-[calc(100vh-3rem)] md:translate-x-0 md:rounded-3xl print:hidden"
                 :class="isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
             >
                 <!-- TOP SIDEBAR BRANDING & NAV LIST -->
-                <div class="space-y-6 overflow-y-auto pr-1 flex-1 custom-scrollbar">
-
+                <div class="custom-scrollbar flex-1 space-y-6 overflow-y-auto pr-1">
                     <!-- BRAND LOGO HEADER -->
-                    <div class="px-2 pt-1 flex items-center gap-3">
-                        <div class="w-10 h-10 flex items-center justify-center p-0 shrink-0">
-                            <img src="/images/icon-provsu.svg" alt="Provsu Emblem" class="w-full h-full object-contain" />
+                    <div class="flex items-center gap-3 px-2 pt-1">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center p-0">
+                            <img src="/images/icon-provsu.svg" alt="Provsu Emblem" class="h-full w-full object-contain" />
                         </div>
                         <div>
-                            <div class="font-extrabold text-base text-gray-900 tracking-tight leading-tight">
-                                SIMPADU KOP
-                            </div>
-                            <div class="text-[10px] text-gray-400 font-semibold uppercase tracking-widest">
-                                Prov. Sumut
-                            </div>
+                            <div class="text-base font-extrabold leading-tight tracking-tight text-gray-900">SIMPADU KOP</div>
+                            <div class="text-[10px] font-semibold uppercase tracking-widest text-gray-400">Prov. Sumut</div>
                         </div>
                     </div>
 
@@ -235,25 +228,27 @@ const handleLogout = () => {
                     <nav class="space-y-5">
                         <div v-for="group in navGroups" :key="group.name" class="space-y-1.5">
                             <!-- Category Section Title -->
-                            <div class="text-[11px] font-semibold text-gray-400 px-3 tracking-wide uppercase">
+                            <div class="px-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
                                 {{ group.name }}
                             </div>
 
                             <!-- Category Menu Items -->
                             <div class="space-y-1">
                                 <template v-for="item in group.items" :key="item.name">
-                                    <Link 
+                                    <Link
                                         v-if="item.roles.includes(userRole)"
                                         :href="item.href"
                                         @click="isMobileMenuOpen = false"
-                                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-150 group"
-                                        :class="isCurrentRoute(item.href) 
-                                            ? 'bg-gray-100 text-gray-900 font-semibold shadow-2xs' 
-                                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50 font-medium'"
+                                        class="group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs transition-all duration-150 sm:text-sm"
+                                        :class="
+                                            isCurrentRoute(item.href)
+                                                ? 'shadow-2xs bg-gray-100 font-semibold text-gray-900'
+                                                : 'font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                        "
                                     >
-                                        <component 
-                                            :is="item.icon" 
-                                            class="w-4 h-4 transition-transform duration-200 group-hover:scale-110"
+                                        <component
+                                            :is="item.icon"
+                                            class="h-4 w-4 transition-transform duration-200 group-hover:scale-110"
                                             :class="isCurrentRoute(item.href) ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-700'"
                                         />
                                         <span>{{ item.name }}</span>
@@ -265,41 +260,38 @@ const handleLogout = () => {
                 </div>
 
                 <!-- SIDEBAR FOOTER & CTA -->
-                <div class="pt-4 border-t border-gray-100 space-y-3 shrink-0">
-                    <Link 
-                        href="/koperasi" 
-                        class="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-2xl bg-indigo-50/90 hover:bg-indigo-100/90 border border-indigo-100 text-indigo-600 font-semibold text-xs transition shadow-2xs"
+                <div class="shrink-0 space-y-3 border-t border-gray-100 pt-4">
+                    <Link
+                        href="/koperasi"
+                        class="shadow-2xs flex w-full items-center justify-center gap-2 rounded-2xl border border-indigo-100 bg-indigo-50/90 px-3 py-2.5 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100/90"
                     >
-                        <Plus class="w-3.5 h-3.5" />
+                        <Plus class="h-3.5 w-3.5" />
                         Master Koperasi
                     </Link>
 
-                    <div class="text-center text-[11px] text-gray-400 font-medium">
-                        Version 2.0 • Provsu
-                    </div>
+                    <div class="text-center text-[11px] font-medium text-gray-400">Version 2.0 • Provsu</div>
                 </div>
             </aside>
 
             <!-- MAIN CONTENT AREA -->
-            <div class="flex-1 flex flex-col min-w-0 space-y-5 print:p-0 print:m-0 print:space-y-0">
-                
+            <div class="flex min-w-0 flex-1 flex-col space-y-5 print:m-0 print:space-y-0 print:p-0">
                 <!-- TOP HEADER NAVBAR (DESKTOP) -->
-                <header class="hidden md:flex items-center justify-between py-1 print:hidden">
+                <header class="hidden items-center justify-between py-1 md:flex print:hidden">
                     <!-- Page Title / Overview -->
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Overview</h1>
-                        <p class="text-xs text-gray-500 mt-0.5">Sistem Pengawasan & Administrasi Kelembagaan Koperasi</p>
+                        <h1 class="text-2xl font-bold tracking-tight text-gray-900">Overview</h1>
+                        <p class="mt-0.5 text-xs text-gray-500">Sistem Pengawasan & Administrasi Kelembagaan Koperasi</p>
                     </div>
 
                     <!-- Top Bar Action Controls (Filters, Notifications, Profile) -->
                     <div class="flex items-center gap-3">
                         <!-- Date Filter Select Dropdown -->
                         <div class="relative flex items-center">
-                            <Calendar class="w-3.5 h-3.5 text-gray-500 absolute left-3.5 pointer-events-none z-10" />
-                            <select 
+                            <Calendar class="pointer-events-none absolute left-3.5 z-10 h-3.5 w-3.5 text-gray-500" />
+                            <select
                                 v-model="selectedTahunBuku"
                                 @change="applyGlobalFilters"
-                                class="pl-9 pr-8 py-2 rounded-xl bg-white border border-gray-200/80 text-gray-700 text-xs font-semibold shadow-2xs hover:bg-gray-50 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition cursor-pointer appearance-none"
+                                class="shadow-2xs cursor-pointer appearance-none rounded-xl border border-gray-200/80 bg-white py-2 pl-9 pr-8 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                             >
                                 <option value="semua">Semua Tahun Buku</option>
                                 <option value="2026">Tahun Buku 2026</option>
@@ -308,100 +300,105 @@ const handleLogout = () => {
                                 <option value="2023">Tahun Buku 2023</option>
                                 <option value="2022">Tahun Buku 2022</option>
                             </select>
-                            <ChevronDown class="w-3.5 h-3.5 text-gray-400 absolute right-3 pointer-events-none z-10" />
+                            <ChevronDown class="pointer-events-none absolute right-3 z-10 h-3.5 w-3.5 text-gray-400" />
                         </div>
 
                         <!-- Region / Brand Filter Select Dropdown -->
                         <div class="relative flex items-center">
-                            <Filter class="w-3.5 h-3.5 text-gray-500 absolute left-3.5 pointer-events-none z-10" />
-                            <select 
+                            <Filter class="pointer-events-none absolute left-3.5 z-10 h-3.5 w-3.5 text-gray-500" />
+                            <select
                                 v-model="selectedKabupatenKota"
                                 @change="applyGlobalFilters"
-                                class="pl-9 pr-8 py-2 rounded-xl bg-white border border-gray-200/80 text-gray-700 text-xs font-semibold shadow-2xs hover:bg-gray-50 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition cursor-pointer appearance-none max-w-[210px] truncate"
+                                class="shadow-2xs max-w-[210px] cursor-pointer appearance-none truncate rounded-xl border border-gray-200/80 bg-white py-2 pl-9 pr-8 text-xs font-semibold text-gray-700 transition hover:bg-gray-50 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                             >
                                 <option value="semua">Semua Wilayah</option>
                                 <option v-for="kab in kabupatenKotaList" :key="kab" :value="kab">{{ kab }}</option>
                             </select>
-                            <ChevronDown class="w-3.5 h-3.5 text-gray-400 absolute right-3 pointer-events-none z-10" />
+                            <ChevronDown class="pointer-events-none absolute right-3 z-10 h-3.5 w-3.5 text-gray-400" />
                         </div>
 
                         <!-- Notification Bell Button -->
                         <div class="relative">
-                            <button 
+                            <button
                                 @click="isNotificationOpen = !isNotificationOpen"
-                                class="p-2 rounded-xl bg-white border border-gray-200/80 text-gray-600 hover:text-gray-900 hover:bg-gray-50 shadow-2xs transition relative"
+                                class="shadow-2xs relative rounded-xl border border-gray-200/80 bg-white p-2 text-gray-600 transition hover:bg-gray-50 hover:text-gray-900"
                                 aria-label="Notifications"
                             >
-                                <Bell class="w-4 h-4" />
-                                <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                                <Bell class="h-4 w-4" />
+                                <span class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white"></span>
                             </button>
 
                             <!-- Notification Dropdown -->
-                            <div 
+                            <div
                                 v-if="isNotificationOpen"
                                 @click="isNotificationOpen = false"
-                                class="absolute right-0 mt-2 w-72 rounded-2xl bg-white border border-gray-200 shadow-xl p-3 z-50 text-xs space-y-2"
+                                class="absolute right-0 z-50 mt-2 w-72 space-y-2 rounded-2xl border border-gray-200 bg-white p-3 text-xs shadow-xl"
                             >
-                                <div class="font-bold text-gray-900 pb-2 border-b border-gray-100 flex items-center justify-between">
+                                <div class="flex items-center justify-between border-b border-gray-100 pb-2 font-bold text-gray-900">
                                     <span>Notifikasi Sistem</span>
-                                    <span class="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md">2 Baru</span>
+                                    <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">2 Baru</span>
                                 </div>
-                                <div class="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
+                                <div class="cursor-pointer rounded-xl bg-gray-50 p-2 transition hover:bg-gray-100">
                                     <div class="font-semibold text-gray-800">Verifikasi RAT Selesai</div>
-                                    <div class="text-[10px] text-gray-400 mt-0.5">KSP Sahabat Jaya • 10 menit lalu</div>
+                                    <div class="mt-0.5 text-[10px] text-gray-400">KSP Sahabat Jaya • 10 menit lalu</div>
                                 </div>
-                                <div class="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition cursor-pointer">
+                                <div class="cursor-pointer rounded-xl bg-gray-50 p-2 transition hover:bg-gray-100">
                                     <div class="font-semibold text-gray-800">Alert Temuan Kritis</div>
-                                    <div class="text-[10px] text-gray-400 mt-0.5">Koperasi Makmur Bersama • 1 jam lalu</div>
+                                    <div class="mt-0.5 text-[10px] text-gray-400">Koperasi Makmur Bersama • 1 jam lalu</div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- User Profile Pill -->
                         <div class="relative">
-                            <button 
+                            <button
                                 @click="isProfileDropdownOpen = !isProfileDropdownOpen"
-                                class="flex items-center gap-2.5 p-1 pl-1.5 pr-2.5 rounded-full bg-white border border-gray-200/80 shadow-2xs hover:bg-gray-50 transition"
+                                class="shadow-2xs flex items-center gap-2.5 rounded-full border border-gray-200/80 bg-white p-1 pl-1.5 pr-2.5 transition hover:bg-gray-50"
                             >
-                                <div class="w-7 h-7 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center shadow-2xs">
+                                <div
+                                    class="shadow-2xs flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white"
+                                >
                                     {{ userName.charAt(0) }}
                                 </div>
-                                <span class="text-xs font-bold text-gray-800 max-w-[120px] truncate">{{ userName }}</span>
-                                <ChevronDown class="w-3.5 h-3.5 text-gray-400 transition-transform" :class="{ 'rotate-180': isProfileDropdownOpen }" />
+                                <span class="max-w-[120px] truncate text-xs font-bold text-gray-800">{{ userName }}</span>
+                                <ChevronDown
+                                    class="h-3.5 w-3.5 text-gray-400 transition-transform"
+                                    :class="{ 'rotate-180': isProfileDropdownOpen }"
+                                />
                             </button>
 
                             <!-- Profile Dropdown -->
-                            <div 
+                            <div
                                 v-if="isProfileDropdownOpen"
                                 @click="isProfileDropdownOpen = false"
-                                class="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-gray-200 shadow-xl py-2 z-50 animate-in fade-in duration-150"
+                                class="absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-gray-200 bg-white py-2 shadow-xl duration-150 animate-in fade-in"
                             >
-                                <div class="px-4 py-2 border-b border-gray-100">
+                                <div class="border-b border-gray-100 px-4 py-2">
                                     <p class="text-xs font-bold text-gray-900">{{ userName }}</p>
-                                    <p class="text-[10px] text-emerald-600 font-semibold mt-0.5">{{ roleLabel }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-0.5">NIP: {{ userNip }}</p>
+                                    <p class="mt-0.5 text-[10px] font-semibold text-emerald-600">{{ roleLabel }}</p>
+                                    <p class="mt-0.5 text-[10px] text-gray-400">NIP: {{ userNip }}</p>
                                 </div>
-                                <div class="py-1 border-b border-gray-100 space-y-0.5">
-                                    <Link 
-                                        href="/settings/profile" 
-                                        class="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition"
+                                <div class="space-y-0.5 border-b border-gray-100 py-1">
+                                    <Link
+                                        href="/settings/profile"
+                                        class="flex w-full items-center gap-2 px-4 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                                     >
-                                        <User class="w-3.5 h-3.5 text-gray-400" />
+                                        <User class="h-3.5 w-3.5 text-gray-400" />
                                         <span>Profil Pengguna</span>
                                     </Link>
-                                    <Link 
-                                        href="/settings/password" 
-                                        class="w-full flex items-center gap-2 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition"
+                                    <Link
+                                        href="/settings/password"
+                                        class="flex w-full items-center gap-2 px-4 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                                     >
-                                        <KeyRound class="w-3.5 h-3.5 text-gray-400" />
+                                        <KeyRound class="h-3.5 w-3.5 text-gray-400" />
                                         <span>Ubah Password</span>
                                     </Link>
                                 </div>
-                                <button 
+                                <button
                                     @click="handleLogout"
-                                    class="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-rose-600 hover:bg-rose-50 transition"
+                                    class="flex w-full items-center gap-2 px-4 py-2.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50"
                                 >
-                                    <LogOut class="w-4 h-4" />
+                                    <LogOut class="h-4 w-4" />
                                     Keluar Aplikasi (Logout)
                                 </button>
                             </div>
@@ -410,16 +407,22 @@ const handleLogout = () => {
                 </header>
 
                 <!-- FLASH NOTIFICATIONS -->
-                <div v-if="flash?.success" class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center justify-between shadow-2xs print:hidden">
+                <div
+                    v-if="flash?.success"
+                    class="shadow-2xs flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-800 print:hidden"
+                >
                     <div class="flex items-center gap-3">
-                        <CheckCircle2 class="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                        <CheckCircle2 class="h-5 w-5 flex-shrink-0 text-emerald-600" />
                         <span class="text-xs font-semibold">{{ flash.success }}</span>
                     </div>
                 </div>
 
-                <div v-if="flash?.error" class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between shadow-2xs print:hidden">
+                <div
+                    v-if="flash?.error"
+                    class="shadow-2xs flex items-center justify-between rounded-2xl border border-rose-200 bg-rose-50 p-4 text-rose-800 print:hidden"
+                >
                     <div class="flex items-center gap-3">
-                        <AlertCircle class="w-5 h-5 text-rose-600 flex-shrink-0" />
+                        <AlertCircle class="h-5 w-5 flex-shrink-0 text-rose-600" />
                         <span class="text-xs font-semibold">{{ flash.error }}</span>
                     </div>
                 </div>
@@ -452,17 +455,30 @@ const handleLogout = () => {
         size: A4 portrait;
         margin: 10mm 12mm;
     }
-    header, aside, nav, button, .print\:hidden {
+    header,
+    aside,
+    nav,
+    button,
+    .print\:hidden {
         display: none !important;
     }
-    body, html, #app, .min-h-screen {
+    body,
+    html,
+    #app,
+    .min-h-screen {
         background: #ffffff !important;
         color: #000000 !important;
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
     }
-    .flex-1, .p-3, .sm\:p-4, .md\:p-6, .gap-5, .space-y-5, .space-y-6 {
+    .flex-1,
+    .p-3,
+    .sm\:p-4,
+    .md\:p-6,
+    .gap-5,
+    .space-y-5,
+    .space-y-6 {
         padding: 0 !important;
         margin: 0 !important;
         gap: 0 !important;
@@ -491,7 +507,8 @@ const handleLogout = () => {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
     }
-    th, td {
+    th,
+    td {
         padding: 4px 6px !important;
     }
     .print-signature {
@@ -500,4 +517,3 @@ const handleLogout = () => {
     }
 }
 </style>
-

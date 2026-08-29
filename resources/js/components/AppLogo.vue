@@ -14,6 +14,6 @@ defineProps<Props>();
     </div>
     <div class="ml-2 grid flex-1 text-left text-sm">
         <span class="truncate font-bold leading-none text-gray-900">SIMPADU KOP</span>
-        <span class="truncate text-[10px] text-gray-400 font-semibold uppercase tracking-widest mt-0.5">Prov. Sumut</span>
+        <span class="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-widest text-gray-400">Prov. Sumut</span>
     </div>
 </template>

@@ -3,7 +3,7 @@ import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle, LogIn, Lock, Mail } from 'lucide-vue-next';
+import { LoaderCircle, Lock, LogIn, Mail } from 'lucide-vue-next';
 
 defineProps<{
     status?: string;
@@ -27,18 +27,16 @@ const submit = () => {
     <AuthBase title="Masuk ke Akun Anda" description="Masukkan kredensial akun SIMPADU KOP-UKM Anda untuk melanjutkan">
         <Head title="Masuk Aplikasi" />
 
-        <div v-if="status" class="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center text-xs font-semibold text-emerald-700">
+        <div v-if="status" class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-center text-xs font-semibold text-emerald-700">
             {{ status }}
         </div>
 
         <form @submit.prevent="submit" class="space-y-4">
             <!-- Email Input -->
             <div class="space-y-1.5">
-                <label for="email" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Alamat Email
-                </label>
+                <label for="email" class="block text-xs font-bold uppercase tracking-wider text-gray-700"> Alamat Email </label>
                 <div class="relative">
-                    <Mail class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
+                    <Mail class="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                     <input
                         id="email"
                         type="email"
@@ -48,7 +46,7 @@ const submit = () => {
                         autocomplete="email"
                         v-model="form.email"
                         placeholder="nama@sumutprov.go.id"
-                        class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-xs text-gray-900 transition duration-150 placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                     />
                 </div>
                 <InputError :message="form.errors.email" />
@@ -57,15 +55,18 @@ const submit = () => {
             <!-- Password Input -->
             <div class="space-y-1.5">
                 <div class="flex items-center justify-between">
-                    <label for="password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                        Kata Sandi
-                    </label>
-                    <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-xs text-emerald-600 hover:text-emerald-700 font-semibold" tabindex="5"> 
-                        Lupa kata sandi? 
+                    <label for="password" class="block text-xs font-bold uppercase tracking-wider text-gray-700"> Kata Sandi </label>
+                    <TextLink
+                        v-if="canResetPassword"
+                        :href="route('password.request')"
+                        class="text-xs font-semibold text-emerald-600 hover:text-emerald-700"
+                        tabindex="5"
+                    >
+                        Lupa kata sandi?
                     </TextLink>
                 </div>
                 <div class="relative">
-                    <Lock class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" />
+                    <Lock class="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
                     <input
                         id="password"
                         type="password"
@@ -74,7 +75,7 @@ const submit = () => {
                         autocomplete="current-password"
                         v-model="form.password"
                         placeholder="••••••••"
-                        class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 text-xs sm:text-sm placeholder:text-gray-400 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition duration-150"
+                        class="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-xs text-gray-900 transition duration-150 placeholder:text-gray-400 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                     />
                 </div>
                 <InputError :message="form.errors.password" />
@@ -82,38 +83,37 @@ const submit = () => {
 
             <!-- Remember Me -->
             <div class="flex items-center justify-between pt-1">
-                <label for="remember" class="flex items-center gap-2 cursor-pointer">
-                    <input 
-                        id="remember" 
+                <label for="remember" class="flex cursor-pointer items-center gap-2">
+                    <input
+                        id="remember"
                         type="checkbox"
-                        v-model="form.remember" 
+                        v-model="form.remember"
                         tabindex="3"
-                        class="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 transition"
+                        class="h-4 w-4 rounded border-gray-300 text-emerald-600 transition focus:ring-emerald-500"
                     />
-                    <span class="text-xs text-gray-600 font-medium">Ingat Sesi Saya</span>
+                    <span class="text-xs font-medium text-gray-600">Ingat Sesi Saya</span>
                 </label>
             </div>
 
             <!-- Submit Button -->
-            <button 
-                type="submit" 
-                class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-slate-900/10 transition duration-150 active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2 mt-2" 
-                tabindex="4" 
+            <button
+                type="submit"
+                class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-xs font-bold text-white shadow-md shadow-slate-900/10 transition duration-150 hover:bg-slate-800 active:scale-[0.99] disabled:opacity-50 sm:text-sm"
+                tabindex="4"
                 :disabled="form.processing"
             >
-                <LoaderCircle v-if="form.processing" class="w-4 h-4 animate-spin" />
-                <LogIn v-else class="w-4 h-4 text-emerald-400" />
+                <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
+                <LogIn v-else class="h-4 w-4 text-emerald-400" />
                 <span>Masuk ke Aplikasi</span>
             </button>
 
             <!-- Register Link -->
-            <div class="text-center text-xs text-gray-500 font-medium pt-2">
+            <div class="pt-2 text-center text-xs font-medium text-gray-500">
                 Belum memiliki akun?
-                <TextLink :href="route('register')" class="text-emerald-600 hover:text-emerald-700 font-bold ml-1" tabindex="6">
+                <TextLink :href="route('register')" class="ml-1 font-bold text-emerald-600 hover:text-emerald-700" tabindex="6">
                     Daftar Sekarang
                 </TextLink>
             </div>
         </form>
     </AuthBase>
 </template>
-
