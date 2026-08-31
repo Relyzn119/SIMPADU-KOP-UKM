@@ -14,7 +14,7 @@ class KoperasiController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Koperasi::with(['pengurus', 'rats' => fn ($q) => $q->where('tahun_buku', 2024)]);
+        $query = Koperasi::with(['pengurus', 'verifiedBy:id,name', 'rejectedBy:id,name', 'rats' => fn ($q) => $q->where('tahun_buku', 2024)]);
 
         // Search Filter
         if ($request->filled('search')) {
@@ -46,6 +46,11 @@ class KoperasiController extends Controller
             $query->where('predikat_kesehatan', $request->predikat_kesehatan);
         }
 
+        // Filter Status Verifikasi
+        if ($request->filled('status_verifikasi')) {
+            $query->where('status_verifikasi', $request->status_verifikasi);
+        }
+
         $koperasis = $query->orderBy('nama_koperasi', 'asc')
             ->paginate(10)
             ->withQueryString();
@@ -64,7 +69,7 @@ class KoperasiController extends Controller
 
         return Inertia::render('Koperasi/Index', [
             'koperasis' => $koperasis,
-            'filters' => $request->only(['search', 'kabupaten_kota', 'jenis_koperasi', 'status_keaktifan', 'predikat_kesehatan']),
+            'filters' => $request->only(['search', 'kabupaten_kota', 'jenis_koperasi', 'status_keaktifan', 'predikat_kesehatan', 'status_verifikasi']),
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
     }
@@ -73,6 +78,8 @@ class KoperasiController extends Controller
     {
         $koperasi->load([
             'pengurus',
+            'verifiedBy:id,name',
+            'rejectedBy:id,name',
             'rats' => fn ($q) => $q->orderBy('tahun_buku', 'desc'),
             'pengawasans' => fn ($q) => $q->with('temuans')->orderBy('tanggal_pemeriksaan', 'desc'),
         ]);
@@ -84,6 +91,10 @@ class KoperasiController extends Controller
 
     public function store(KoperasiRequest $request): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan membuat data.');
+        }
+
         $validated = $request->validated();
 
         $koperasi = Koperasi::create([
@@ -99,6 +110,7 @@ class KoperasiController extends Controller
             'modal_sendiri' => $validated['modal_sendiri'],
             'volume_usaha' => $validated['volume_usaha'],
             'shu' => $validated['shu'],
+            'status_verifikasi' => 'pending',
         ]);
 
         PengurusKoperasi::create([
@@ -118,6 +130,10 @@ class KoperasiController extends Controller
 
     public function update(KoperasiRequest $request, Koperasi $koperasi): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan memperbarui data.');
+        }
+
         $validated = $request->validated();
 
         $koperasi->update([
@@ -152,10 +168,52 @@ class KoperasiController extends Controller
         return redirect()->route('koperasi.index')->with('success', 'Data Koperasi berhasil diperbarui!');
     }
 
-    public function destroy(Koperasi $koperasi): RedirectResponse
+    public function destroy(Request $request, Koperasi $koperasi): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan menghapus data.');
+        }
+
         $koperasi->delete();
 
         return redirect()->route('koperasi.index')->with('success', 'Data Koperasi berhasil dihapus!');
+    }
+
+    public function verifikasi(Request $request, Koperasi $koperasi): RedirectResponse
+    {
+        if ($request->user()->role !== 'bidang_pengawasan') {
+            abort(403, 'Hanya Bidang Pengawasan yang diizinkan melakukan verifikasi.');
+        }
+
+        $koperasi->update([
+            'status_verifikasi' => 'verified',
+            'verified_by' => $request->user()->id,
+            'verified_at' => now(),
+            'rejected_by' => null,
+            'rejected_at' => null,
+            'alasan_penolakan' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Data Koperasi berhasil diverifikasi (Dokumen Sah)!');
+    }
+
+    public function tolak(Request $request, Koperasi $koperasi): RedirectResponse
+    {
+        if ($request->user()->role !== 'bidang_pengawasan') {
+            abort(403, 'Hanya Bidang Pengawasan yang diizinkan menolak dokumen.');
+        }
+
+        $validated = $request->validate([
+            'alasan_penolakan' => 'required|string',
+        ]);
+
+        $koperasi->update([
+            'status_verifikasi' => 'rejected',
+            'rejected_by' => $request->user()->id,
+            'rejected_at' => now(),
+            'alasan_penolakan' => $validated['alasan_penolakan'],
+        ]);
+
+        return redirect()->back()->with('success', 'Data Koperasi berhasil ditolak.');
     }
 }

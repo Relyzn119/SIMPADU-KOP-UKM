@@ -21,10 +21,18 @@ class Temuan extends Model
         'status_tindak_lanjut',
         'tanggapan_koperasi',
         'catatan_verifikasi_pengawas',
+        'status_verifikasi',
+        'verified_by',
+        'verified_at',
+        'rejected_by',
+        'rejected_at',
+        'alasan_penolakan',
     ];
 
     protected $casts = [
         'batas_waktu' => 'date',
+        'verified_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
 
     public function pengawasan(): BelongsTo
@@ -35,5 +43,15 @@ class Temuan extends Model
     public function koperasi(): BelongsTo
     {
         return $this->belongsTo(Koperasi::class);
+    }
+
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 }

@@ -12,7 +12,7 @@ class TemuanController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Temuan::with(['koperasi', 'pengawasan']);
+        $query = Temuan::with(['koperasi', 'pengawasan', 'verifiedBy:id,name', 'rejectedBy:id,name']);
 
         // Search Filter
         if ($request->filled('search')) {
@@ -32,6 +32,11 @@ class TemuanController extends Controller
         // Status Tindak Lanjut Filter
         if ($request->filled('status_tindak_lanjut')) {
             $query->where('status_tindak_lanjut', $request->status_tindak_lanjut);
+        }
+
+        // Status Verifikasi Filter
+        if ($request->filled('status_verifikasi')) {
+            $query->where('status_verifikasi', $request->status_verifikasi);
         }
 
         // Aspek Temuan Filter
@@ -69,7 +74,7 @@ class TemuanController extends Controller
                 'dalam_proses' => $dalamProses,
                 'selesai' => $selesai,
             ],
-            'filters' => $request->only(['search', 'tingkat_risiko', 'status_tindak_lanjut', 'aspek_temuan']),
+            'filters' => $request->only(['search', 'tingkat_risiko', 'status_tindak_lanjut', 'status_verifikasi', 'aspek_temuan']),
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
     }
@@ -97,20 +102,58 @@ class TemuanController extends Controller
         }
 
         $validated = $request->validate([
-            'catatan_verifikasi_pengawas' => 'required|string',
-            'status_tindak_lanjut' => 'required|string|in:Belum Ditindaklanjuti,Dalam Proses,Selesai',
+            'catatan_verifikasi_pengawas' => 'nullable|string',
+            'status_tindak_lanjut' => 'nullable|string|in:Belum Ditindaklanjuti,Dalam Proses,Selesai',
+        ]);
+
+        $updateData = [
+            'status_verifikasi' => 'verified',
+            'verified_by' => $request->user()->id,
+            'verified_at' => now(),
+            'rejected_by' => null,
+            'rejected_at' => null,
+            'alasan_penolakan' => null,
+        ];
+
+        if (isset($validated['catatan_verifikasi_pengawas'])) {
+            $updateData['catatan_verifikasi_pengawas'] = $validated['catatan_verifikasi_pengawas'];
+        }
+
+        if (isset($validated['status_tindak_lanjut'])) {
+            $updateData['status_tindak_lanjut'] = $validated['status_tindak_lanjut'];
+        }
+
+        $temuan->update($updateData);
+
+        return redirect()->route('temuan.index')->with('success', 'Verifikasi tindak lanjut temuan berhasil disimpan (Dokumen Sah)!');
+    }
+
+    public function tolak(Request $request, Temuan $temuan): RedirectResponse
+    {
+        if (! in_array($request->user()->role, ['bidang_pengawasan', 'admin_koperasi'])) {
+            abort(403, 'Akses terbatas untuk Bidang Pengawasan.');
+        }
+
+        $validated = $request->validate([
+            'alasan_penolakan' => 'required|string',
         ]);
 
         $temuan->update([
-            'catatan_verifikasi_pengawas' => $validated['catatan_verifikasi_pengawas'],
-            'status_tindak_lanjut' => $validated['status_tindak_lanjut'],
+            'status_verifikasi' => 'rejected',
+            'rejected_by' => $request->user()->id,
+            'rejected_at' => now(),
+            'alasan_penolakan' => $validated['alasan_penolakan'],
         ]);
 
-        return redirect()->route('temuan.index')->with('success', 'Verifikasi tindak lanjut temuan berhasil disimpan!');
+        return redirect()->route('temuan.index')->with('success', 'Data Temuan berhasil ditolak.');
     }
 
-    public function destroy(Temuan $temuan): RedirectResponse
+    public function destroy(Request $request, Temuan $temuan): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan menghapus temuan.');
+        }
+
         $temuan->delete();
 
         return redirect()->route('temuan.index')->with('success', 'Data Temuan Audit berhasil dihapus!');

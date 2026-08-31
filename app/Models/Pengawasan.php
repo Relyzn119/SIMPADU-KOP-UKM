@@ -26,6 +26,12 @@ class Pengawasan extends Model
         'predikat_kesehatan',
         'kesimpulan_pengawasan',
         'file_berita_acara_path',
+        'status_verifikasi',
+        'verified_by',
+        'verified_at',
+        'rejected_by',
+        'rejected_at',
+        'alasan_penolakan',
     ];
 
     protected $casts = [
@@ -35,11 +41,23 @@ class Pengawasan extends Model
         'skor_kinerja_keuangan' => 'decimal:2',
         'skor_permodalan' => 'decimal:2',
         'skor_total' => 'decimal:2',
+        'verified_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
 
     public function koperasi(): BelongsTo
     {
         return $this->belongsTo(Koperasi::class);
+    }
+
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 
     public function temuans(): HasMany

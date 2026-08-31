@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, DollarSign, FileSpreadsheet, FileText, MapPin, ShieldCheck, Users } from 'lucide-vue-next';
+import { ArrowLeft, CheckCircle2, DollarSign, FileSpreadsheet, FileText, MapPin, ShieldCheck, Users, XCircle } from 'lucide-vue-next';
 
 defineProps<{
     koperasi: {
@@ -20,6 +20,12 @@ defineProps<{
         shu: number;
         skor_kesehatan_terakhir: number;
         predikat_kesehatan: string;
+        status_verifikasi?: string;
+        verified_at?: string;
+        rejected_at?: string;
+        alasan_penolakan?: string;
+        verified_by?: { id: number; name: string };
+        rejected_by?: { id: number; name: string };
         pengurus?: {
             ketua: string;
             sekretaris: string;
@@ -70,6 +76,17 @@ const formatRupiah = (val: number) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 };
 
+const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+};
+
 const getPredikatBadge = (predikat: string) => {
     switch (predikat) {
         case 'Sehat':
@@ -110,6 +127,51 @@ const getRiskBadge = (risiko: string) => {
                     <ArrowLeft class="h-4 w-4" />
                     Kembali ke Daftar Koperasi
                 </Link>
+            </div>
+
+            <!-- VERIFICATION STATUS ALERT BOX -->
+            <div
+                v-if="koperasi.status_verifikasi === 'verified'"
+                class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-900"
+            >
+                <CheckCircle2 class="h-5 w-5 shrink-0 text-emerald-600" />
+                <div>
+                    <strong class="font-bold">Status Keabsahan: DOKUMEN SAH (Terverifikasi)</strong>
+                    <p class="mt-0.5 text-[11px] text-emerald-700">
+                        Diverifikasi oleh <span class="font-bold">{{ koperasi.verified_by?.name || 'Bidang Pengawasan' }}</span> pada
+                        {{ formatDate(koperasi.verified_at) }}.
+                    </p>
+                </div>
+            </div>
+
+            <div
+                v-else-if="koperasi.status_verifikasi === 'rejected'"
+                class="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-900"
+            >
+                <XCircle class="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
+                <div>
+                    <strong class="font-bold">Status Keabsahan: DITOLAK OLEH PENGAWAS</strong>
+                    <p class="mt-0.5 text-[11px] text-rose-700">
+                        Ditolak oleh <span class="font-bold">{{ koperasi.rejected_by?.name || 'Bidang Pengawasan' }}</span> pada
+                        {{ formatDate(koperasi.rejected_at) }}.
+                    </p>
+                    <div v-if="koperasi.alasan_penolakan" class="mt-2 rounded-xl bg-white/80 p-2.5 font-mono text-[11px] border border-rose-200 text-rose-900">
+                        <strong>Catatan Alasan Penolakan:</strong> {{ koperasi.alasan_penolakan }}
+                    </div>
+                </div>
+            </div>
+
+            <div
+                v-else
+                class="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900"
+            >
+                <div class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-200 text-[10px] font-bold text-amber-800">!</div>
+                <div>
+                    <strong class="font-bold">Status Keabsahan: DRAFT (Menunggu Verifikasi Pengawas)</strong>
+                    <p class="mt-0.5 text-[11px] text-amber-700">
+                        Data ini diinput oleh Admin Koperasi dan memerlukan verifikasi resmi dari Pengawas agar dokumen dianggap Sah.
+                    </p>
+                </div>
             </div>
 
             <!-- PROFILE HERO BANNER CARD -->

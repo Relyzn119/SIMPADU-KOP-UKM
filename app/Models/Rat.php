@@ -20,15 +20,33 @@ class Rat extends Model
         'status_rat',
         'file_lpj_path',
         'catatan',
+        'status_verifikasi',
+        'verified_by',
+        'verified_at',
+        'rejected_by',
+        'rejected_at',
+        'alasan_penolakan',
     ];
 
     protected $casts = [
         'tanggal_rat' => 'date',
         'kuorum' => 'boolean',
+        'verified_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
 
     public function koperasi(): BelongsTo
     {
         return $this->belongsTo(Koperasi::class);
+    }
+
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
     }
 }

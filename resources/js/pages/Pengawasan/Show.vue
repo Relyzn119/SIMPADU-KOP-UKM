@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, Printer } from 'lucide-vue-next';
+import { ArrowLeft, CheckCircle2, Printer, XCircle } from 'lucide-vue-next';
 
 defineProps<{
     pengawasan: {
@@ -17,6 +17,12 @@ defineProps<{
         predikat_kesehatan: string;
         kesimpulan_pengawasan: string;
         file_berita_acara_path: string;
+        status_verifikasi?: string;
+        verified_at?: string;
+        rejected_at?: string;
+        alasan_penolakan?: string;
+        verified_by?: { id: number; name: string };
+        rejected_by?: { id: number; name: string };
         koperasi: {
             id: number;
             nama_koperasi: string;
@@ -39,6 +45,17 @@ defineProps<{
 
 const handlePrint = () => {
     window.print();
+};
+
+const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 };
 
 const getPredikatBadge = (predikat: string) => {
@@ -87,6 +104,51 @@ const getRiskBadge = (risiko: string) => {
                     <Printer class="h-4 w-4 text-emerald-400" />
                     Cetak Lembar Hasil (LHP)
                 </button>
+            </div>
+
+            <!-- VERIFICATION STATUS ALERT BOX (NON-PRINT) -->
+            <div
+                v-if="pengawasan.status_verifikasi === 'verified'"
+                class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-900 print:hidden"
+            >
+                <CheckCircle2 class="h-5 w-5 shrink-0 text-emerald-600" />
+                <div>
+                    <strong class="font-bold">Status Keabsahan: DOKUMEN SAH (Terverifikasi)</strong>
+                    <p class="mt-0.5 text-[11px] text-emerald-700">
+                        Diverifikasi oleh <span class="font-bold">{{ pengawasan.verified_by?.name || 'Bidang Pengawasan' }}</span> pada
+                        {{ formatDate(pengawasan.verified_at) }}.
+                    </p>
+                </div>
+            </div>
+
+            <div
+                v-else-if="pengawasan.status_verifikasi === 'rejected'"
+                class="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-900 print:hidden"
+            >
+                <XCircle class="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
+                <div>
+                    <strong class="font-bold">Status Keabsahan: DITOLAK OLEH PENGAWAS</strong>
+                    <p class="mt-0.5 text-[11px] text-rose-700">
+                        Ditolak oleh <span class="font-bold">{{ pengawasan.rejected_by?.name || 'Bidang Pengawasan' }}</span> pada
+                        {{ formatDate(pengawasan.rejected_at) }}.
+                    </p>
+                    <div v-if="pengawasan.alasan_penolakan" class="mt-2 rounded-xl bg-white/80 p-2.5 font-mono text-[11px] border border-rose-200 text-rose-900">
+                        <strong>Catatan Alasan Penolakan:</strong> {{ pengawasan.alasan_penolakan }}
+                    </div>
+                </div>
+            </div>
+
+            <div
+                v-else
+                class="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900 print:hidden"
+            >
+                <div class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-200 text-[10px] font-bold text-amber-800">!</div>
+                <div>
+                    <strong class="font-bold">Status Keabsahan: DRAFT (Menunggu Verifikasi Pengawas)</strong>
+                    <p class="mt-0.5 text-[11px] text-amber-700">
+                        Hasil pemeriksaan ini diinput oleh Admin Koperasi dan memerlukan verifikasi resmi dari Pengawas agar dokumen dianggap Sah.
+                    </p>
+                </div>
             </div>
 
             <!-- OFFICIAL REPORT CONTAINER (PRINT-READY) -->

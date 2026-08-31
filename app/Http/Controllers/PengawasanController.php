@@ -15,7 +15,7 @@ class PengawasanController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Pengawasan::with(['koperasi', 'temuans']);
+        $query = Pengawasan::with(['koperasi', 'verifiedBy:id,name', 'rejectedBy:id,name', 'temuans']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -28,6 +28,10 @@ class PengawasanController extends Controller
 
         if ($request->filled('predikat_kesehatan')) {
             $query->where('predikat_kesehatan', $request->predikat_kesehatan);
+        }
+
+        if ($request->filled('status_verifikasi')) {
+            $query->where('status_verifikasi', $request->status_verifikasi);
         }
 
         if ($request->filled('kabupaten_kota')) {
@@ -52,13 +56,17 @@ class PengawasanController extends Controller
 
         return Inertia::render('Pengawasan/Index', [
             'pengawasans' => $pengawasans,
-            'filters' => $request->only(['search', 'predikat_kesehatan', 'kabupaten_kota']),
+            'filters' => $request->only(['search', 'predikat_kesehatan', 'status_verifikasi', 'kabupaten_kota']),
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan membuat pemeriksaan baru.');
+        }
+
         $koperasis = Koperasi::select('id', 'nama_koperasi', 'no_badan_hukum', 'kabupaten_kota')
             ->orderBy('nama_koperasi', 'asc')
             ->get();
@@ -70,6 +78,10 @@ class PengawasanController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan membuat data pemeriksaan.');
+        }
+
         $validated = $request->validate([
             'koperasi_id' => 'required|exists:koperasis,id',
             'no_surat_tugas' => 'required|string|max:100',
@@ -128,6 +140,7 @@ class PengawasanController extends Controller
             'predikat_kesehatan' => $predikat,
             'kesimpulan_pengawasan' => $validated['kesimpulan_pengawasan'] ?? null,
             'file_berita_acara_path' => $filePath ? 'storage/'.$filePath : null,
+            'status_verifikasi' => 'pending',
         ]);
 
         // Update latest health status in Koperasi master record
@@ -148,6 +161,7 @@ class PengawasanController extends Controller
                     'batas_waktu' => $t['batas_waktu'],
                     'tingkat_risiko' => $t['tingkat_risiko'],
                     'status_tindak_lanjut' => 'Belum Ditindaklanjuti',
+                    'status_verifikasi' => 'pending',
                 ]);
             }
         }
@@ -157,15 +171,19 @@ class PengawasanController extends Controller
 
     public function show(Pengawasan $pengawasan): Response
     {
-        $pengawasan->load(['koperasi', 'temuans']);
+        $pengawasan->load(['koperasi', 'verifiedBy:id,name', 'rejectedBy:id,name', 'temuans']);
 
         return Inertia::render('Pengawasan/Show', [
             'pengawasan' => $pengawasan,
         ]);
     }
 
-    public function destroy(Pengawasan $pengawasan): RedirectResponse
+    public function destroy(Request $request, Pengawasan $pengawasan): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan menghapus data pemeriksaan.');
+        }
+
         if ($pengawasan->file_berita_acara_path && Storage::disk('public')->exists(str_replace('storage/', '', $pengawasan->file_berita_acara_path))) {
             Storage::disk('public')->delete(str_replace('storage/', '', $pengawasan->file_berita_acara_path));
         }
@@ -173,5 +191,43 @@ class PengawasanController extends Controller
         $pengawasan->delete();
 
         return redirect()->route('pengawasan.index')->with('success', 'Data Pemeriksaan Pengawasan berhasil dihapus!');
+    }
+
+    public function verifikasi(Request $request, Pengawasan $pengawasan): RedirectResponse
+    {
+        if ($request->user()->role !== 'bidang_pengawasan') {
+            abort(403, 'Hanya Bidang Pengawasan yang diizinkan melakukan verifikasi.');
+        }
+
+        $pengawasan->update([
+            'status_verifikasi' => 'verified',
+            'verified_by' => $request->user()->id,
+            'verified_at' => now(),
+            'rejected_by' => null,
+            'rejected_at' => null,
+            'alasan_penolakan' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Data Hasil Pengawasan berhasil diverifikasi (Dokumen Sah)!');
+    }
+
+    public function tolak(Request $request, Pengawasan $pengawasan): RedirectResponse
+    {
+        if ($request->user()->role !== 'bidang_pengawasan') {
+            abort(403, 'Hanya Bidang Pengawasan yang diizinkan menolak dokumen.');
+        }
+
+        $validated = $request->validate([
+            'alasan_penolakan' => 'required|string',
+        ]);
+
+        $pengawasan->update([
+            'status_verifikasi' => 'rejected',
+            'rejected_by' => $request->user()->id,
+            'rejected_at' => now(),
+            'alasan_penolakan' => $validated['alasan_penolakan'],
+        ]);
+
+        return redirect()->back()->with('success', 'Data Hasil Pengawasan berhasil ditolak.');
     }
 }

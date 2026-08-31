@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { AlertTriangle, Edit3, RotateCcw, Search, ShieldCheck, Trash2, X } from 'lucide-vue-next';
+import { AlertTriangle, CheckCircle2, Edit3, RotateCcw, Search, ShieldCheck, Trash2, X, XCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -25,6 +25,7 @@ const props = defineProps<{
         tingkat_risiko?: string;
         status_tindak_lanjut?: string;
         aspek_temuan?: string;
+        status_verifikasi?: string;
     };
     kabupatenKotaList: string[];
 }>();
@@ -36,11 +37,17 @@ const search = ref(props.filters.search || '');
 const tingkatRisiko = ref(props.filters.tingkat_risiko || '');
 const statusTindakLanjut = ref(props.filters.status_tindak_lanjut || '');
 const aspekTemuan = ref(props.filters.aspek_temuan || '');
+const statusVerifikasi = ref(props.filters.status_verifikasi || '');
 
 // Modal States
 const isTindakLanjutModalOpen = ref(false);
 const isVerifikasiModalOpen = ref(false);
 const activeTemuan = ref<any | null>(null);
+
+// Modal Penolakan State
+const isRejectModalOpen = ref(false);
+const selectedTemuanForReject = ref<any | null>(null);
+const alasanPenolakanInput = ref('');
 
 const tindakLanjutForm = useForm({
     tanggapan_koperasi: '',
@@ -60,6 +67,7 @@ const applyFilters = () => {
             tingkat_risiko: tingkatRisiko.value || undefined,
             status_tindak_lanjut: statusTindakLanjut.value || undefined,
             aspek_temuan: aspekTemuan.value || undefined,
+            status_verifikasi: statusVerifikasi.value || undefined,
         },
         { preserveState: true, replace: true },
     );
@@ -70,6 +78,7 @@ const resetFilters = () => {
     tingkatRisiko.value = '';
     statusTindakLanjut.value = '';
     aspekTemuan.value = '';
+    statusVerifikasi.value = '';
     applyFilters();
 };
 
@@ -105,6 +114,42 @@ const submitVerifikasi = () => {
             verifikasiForm.reset();
         },
     });
+};
+
+const handleVerifikasiSah = (item: any) => {
+    if (confirm(`Apakah Anda yakin ingin memverifikasi (Mengesahkan) data temuan audit ini?`)) {
+        router.put(`/temuan/${item.id}/verifikasi`, {
+            catatan_verifikasi_pengawas: item.catatan_verifikasi_pengawas || 'Diverifikasi Sah oleh Pengawas.',
+            status_tindak_lanjut: item.status_tindak_lanjut,
+        });
+    }
+};
+
+const openRejectModal = (item: any) => {
+    selectedTemuanForReject.value = item;
+    alasanPenolakanInput.value = item.alasan_penolakan || '';
+    isRejectModalOpen.value = true;
+};
+
+const submitReject = () => {
+    if (!alasanPenolakanInput.value.trim()) {
+        alert('Mohon isi alasan penolakan.');
+        return;
+    }
+
+    router.put(
+        `/temuan/${selectedTemuanForReject.value.id}/tolak`,
+        {
+            alasan_penolakan: alasanPenolakanInput.value,
+        },
+        {
+            onSuccess: () => {
+                isRejectModalOpen.value = false;
+                selectedTemuanForReject.value = null;
+                alasanPenolakanInput.value = '';
+            },
+        },
+    );
 };
 
 const handleDelete = (item: any) => {
@@ -187,7 +232,7 @@ const getStatusBadge = (status: string) => {
 
             <!-- SEARCH & FILTER BAR CARD -->
             <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-5">
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
                     <!-- Search Input -->
                     <div class="relative">
                         <Search class="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
@@ -243,6 +288,20 @@ const getStatusBadge = (status: string) => {
                             <option value="Usaha">Usaha</option>
                         </select>
                     </div>
+
+                    <!-- Filter Status Verifikasi -->
+                    <div>
+                        <select
+                            v-model="statusVerifikasi"
+                            @change="applyFilters"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                            <option value="">Semua Verifikasi</option>
+                            <option value="pending">Draft / Pending</option>
+                            <option value="verified">Verified (Sah)</option>
+                            <option value="rejected">Ditolak</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Reset Filters -->
@@ -266,7 +325,7 @@ const getStatusBadge = (status: string) => {
                                 <th class="px-4 py-3.5 font-bold">Koperasi & Aspek</th>
                                 <th class="px-4 py-3.5 font-bold">Deskripsi Temuan & Rekomendasi</th>
                                 <th class="px-4 py-3.5 text-center font-bold">Batas Waktu</th>
-                                <th class="px-4 py-3.5 text-center font-bold">Risiko</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Status Keabsahan</th>
                                 <th class="px-4 py-3.5 text-center font-bold">Status TL</th>
                                 <th class="px-4 py-3.5 text-center font-bold">Aksi Workflow</th>
                             </tr>
@@ -309,13 +368,29 @@ const getStatusBadge = (status: string) => {
                                     {{ item.batas_waktu }}
                                 </td>
 
+                                <!-- Status Verifikasi / Keabsahan -->
                                 <td class="px-4 py-3.5 text-center">
-                                    <span
-                                        class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold"
-                                        :class="getRiskBadge(item.tingkat_risiko)"
-                                    >
-                                        {{ item.tingkat_risiko }}
-                                    </span>
+                                    <div v-if="item.status_verifikasi === 'verified'" class="inline-flex flex-col items-center">
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
+                                            <CheckCircle2 class="h-3 w-3 text-emerald-600" />
+                                            Dokumen Sah
+                                        </span>
+                                        <span class="mt-0.5 text-[9px] text-gray-400">Oleh: {{ item.verified_by?.name || 'Pengawas' }}</span>
+                                    </div>
+                                    <div v-else-if="item.status_verifikasi === 'rejected'" class="inline-flex flex-col items-center">
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold text-rose-700" :title="item.alasan_penolakan">
+                                            <XCircle class="h-3 w-3 text-rose-600" />
+                                            Ditolak
+                                        </span>
+                                        <span class="mt-0.5 text-[9px] text-rose-500 truncate max-w-[120px]" :title="item.alasan_penolakan">
+                                            {{ item.alasan_penolakan }}
+                                        </span>
+                                    </div>
+                                    <div v-else class="inline-flex flex-col items-center">
+                                        <span class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">
+                                            Draft / Belum Verifikasi
+                                        </span>
+                                    </div>
                                 </td>
 
                                 <td class="px-4 py-3.5 text-center">
@@ -329,8 +404,9 @@ const getStatusBadge = (status: string) => {
 
                                 <td class="px-4 py-3.5 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
-                                        <!-- Update Action Plan (Role Admin Koperasi & Pengawas) -->
+                                        <!-- Update Action Plan (Role Admin Koperasi) -->
                                         <button
+                                            v-if="userRole === 'admin_koperasi'"
                                             @click="openTindakLanjutModal(item)"
                                             class="flex items-center gap-1 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] font-bold text-amber-700 transition hover:bg-amber-100"
                                             title="Update Action Plan"
@@ -339,20 +415,41 @@ const getStatusBadge = (status: string) => {
                                             Action Plan
                                         </button>
 
-                                        <!-- Verification (Role Bidang Pengawasan) -->
-                                        <button
-                                            v-if="userRole === 'bidang_pengawasan'"
-                                            @click="openVerifikasiModal(item)"
-                                            class="flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100"
-                                            title="Verifikasi Pengawas"
-                                        >
-                                            <ShieldCheck class="h-3.5 w-3.5" />
-                                            Verifikasi
-                                        </button>
+                                        <!-- Verification & Tolak (Role Bidang Pengawasan) -->
+                                        <template v-if="userRole === 'bidang_pengawasan'">
+                                            <button
+                                                @click="openVerifikasiModal(item)"
+                                                class="flex items-center gap-1 rounded-xl border border-indigo-200 bg-indigo-50 px-2 py-1 text-[11px] font-bold text-indigo-700 transition hover:bg-indigo-100"
+                                                title="Tinjau & Catat Verifikasi"
+                                            >
+                                                <ShieldCheck class="h-3.5 w-3.5 text-indigo-600" />
+                                                Tinjau TL
+                                            </button>
 
-                                        <!-- Hapus Temuan (Role Bidang Pengawasan) -->
+                                            <button
+                                                v-if="item.status_verifikasi !== 'verified'"
+                                                @click="handleVerifikasiSah(item)"
+                                                title="Sahkan (Verifikasi Status)"
+                                                class="flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100"
+                                            >
+                                                <CheckCircle2 class="h-3.5 w-3.5 text-emerald-600" />
+                                                Verifikasi
+                                            </button>
+
+                                            <button
+                                                v-if="item.status_verifikasi !== 'rejected'"
+                                                @click="openRejectModal(item)"
+                                                title="Tolak Temuan Audit"
+                                                class="flex items-center gap-1 rounded-lg bg-rose-50 px-2 py-1 text-[11px] font-bold text-rose-700 transition hover:bg-rose-100"
+                                            >
+                                                <XCircle class="h-3.5 w-3.5 text-rose-600" />
+                                                Tolak
+                                            </button>
+                                        </template>
+
+                                        <!-- Hapus Temuan (Role Admin Koperasi ONLY) -->
                                         <button
-                                            v-if="userRole === 'bidang_pengawasan'"
+                                            v-if="userRole === 'admin_koperasi'"
                                             @click="handleDelete(item)"
                                             class="rounded-lg p-1.5 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
                                             title="Hapus Temuan"
@@ -530,6 +627,52 @@ const getStatusBadge = (status: string) => {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- MODAL 3: TOLAK TEMUAN AUDIT (ROLE BIDANG PENGAWASAN) -->
+        <div v-if="isRejectModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+            <div class="w-full max-w-md space-y-4 rounded-3xl bg-white p-6 shadow-xl">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <h3 class="flex items-center gap-2 text-sm font-bold text-rose-700">
+                        <XCircle class="h-5 w-5 text-rose-600" />
+                        Tolak Temuan Audit Koperasi
+                    </h3>
+                    <button @click="isRejectModalOpen = false" class="text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-xs text-gray-600">
+                        Anda akan menolak temuan audit untuk Koperasi
+                        <strong class="text-gray-900">{{ selectedTemuanForReject?.koperasi?.nama_koperasi }}</strong>.
+                        Mohon berikan alasan penolakan:
+                    </p>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-bold text-gray-700">Alasan Penolakan <span class="text-rose-500">*</span></label>
+                        <textarea
+                            v-model="alasanPenolakanInput"
+                            rows="4"
+                            placeholder="Contoh: Bukti fisik perbaikan yang dikirimkan tidak sesuai dengan standar kriteria audit..."
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-900 transition focus:border-rose-500 focus:bg-white focus:ring-2 focus:ring-rose-500/20"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 border-t border-gray-100 pt-3">
+                    <button
+                        @click="isRejectModalOpen = false"
+                        class="rounded-xl px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        @click="submitReject"
+                        class="rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-rose-700"
+                    >
+                        Simpan Penolakan
+                    </button>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

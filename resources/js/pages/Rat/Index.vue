@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { Clock, Edit3, FileSpreadsheet, FileText, Plus, Search, Trash2, X } from 'lucide-vue-next';
+import { CheckCircle2, Clock, Edit3, FileSpreadsheet, FileText, Plus, Search, Trash2, X, XCircle } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -32,6 +32,7 @@ const props = defineProps<{
         search?: string;
         status_rat?: string;
         kabupaten_kota?: string;
+        status_verifikasi?: string;
     };
     kabupatenKotaList: string[];
 }>();
@@ -43,9 +44,15 @@ const tahunBuku = ref(props.filters.tahun_buku || 2024);
 const search = ref(props.filters.search || '');
 const statusRat = ref(props.filters.status_rat || '');
 const kabupatenKota = ref(props.filters.kabupaten_kota || '');
+const statusVerifikasi = ref(props.filters.status_verifikasi || '');
 
 const isModalOpen = ref(false);
 const ratToEdit = ref<any | null>(null);
+
+// Modal Penolakan State
+const isRejectModalOpen = ref(false);
+const selectedRatForReject = ref<any | null>(null);
+const alasanPenolakanInput = ref('');
 
 const form = useForm({
     koperasi_id: props.koperasis[0]?.id || '',
@@ -66,6 +73,7 @@ const applyFilters = () => {
             search: search.value || undefined,
             status_rat: statusRat.value || undefined,
             kabupaten_kota: kabupatenKota.value || undefined,
+            status_verifikasi: statusVerifikasi.value || undefined,
         },
         { preserveState: true, replace: true },
     );
@@ -123,6 +131,39 @@ const handleDelete = (item: any) => {
         router.delete(`/rat/${item.id}`);
     }
 };
+
+const handleVerifikasi = (item: any) => {
+    if (confirm(`Apakah Anda yakin ingin memverifikasi (Mengesahkan) Laporan RAT Koperasi "${item.koperasi?.nama_koperasi}"?`)) {
+        router.put(`/rat/${item.id}/verifikasi`);
+    }
+};
+
+const openRejectModal = (item: any) => {
+    selectedRatForReject.value = item;
+    alasanPenolakanInput.value = item.alasan_penolakan || '';
+    isRejectModalOpen.value = true;
+};
+
+const submitReject = () => {
+    if (!alasanPenolakanInput.value.trim()) {
+        alert('Mohon isi alasan penolakan.');
+        return;
+    }
+
+    router.put(
+        `/rat/${selectedRatForReject.value.id}/tolak`,
+        {
+            alasan_penolakan: alasanPenolakanInput.value,
+        },
+        {
+            onSuccess: () => {
+                isRejectModalOpen.value = false;
+                selectedRatForReject.value = null;
+                alasanPenolakanInput.value = '';
+            },
+        },
+    );
+};
 </script>
 
 <template>
@@ -150,7 +191,9 @@ const handleDelete = (item: any) => {
                         </p>
                     </div>
 
+                    <!-- Show create button ONLY for admin_koperasi -->
                     <button
+                        v-if="userRole === 'admin_koperasi'"
                         @click="openCreateModal"
                         class="shadow-xs flex items-center gap-2 self-start rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 sm:self-auto"
                     >
@@ -194,7 +237,7 @@ const handleDelete = (item: any) => {
 
             <!-- SEARCH & FILTER BAR CARD -->
             <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-5">
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
                     <!-- Select Tahun Buku -->
                     <div>
                         <select
@@ -245,6 +288,20 @@ const handleDelete = (item: any) => {
                             <option v-for="kab in kabupatenKotaList" :key="kab" :value="kab">{{ kab }}</option>
                         </select>
                     </div>
+
+                    <!-- Status Verifikasi -->
+                    <div>
+                        <select
+                            v-model="statusVerifikasi"
+                            @change="applyFilters"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                            <option value="">Semua Verifikasi</option>
+                            <option value="pending">Draft / Pending</option>
+                            <option value="verified">Verified (Sah)</option>
+                            <option value="rejected">Ditolak</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -258,7 +315,7 @@ const handleDelete = (item: any) => {
                                 <th class="px-4 py-3.5 text-center font-bold">Tgl RAT</th>
                                 <th class="px-4 py-3.5 font-bold">Tempat Pelaksanaan</th>
                                 <th class="px-4 py-3.5 text-center font-bold">Hadir & Kuorum</th>
-                                <th class="px-4 py-3.5 text-center font-bold">Status Kepatuhan</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Status Keabsahan</th>
                                 <th class="px-4 py-3.5 text-center font-bold">Berkas LPJ</th>
                                 <th class="px-4 py-3.5 text-center font-bold">Aksi</th>
                             </tr>
@@ -291,17 +348,29 @@ const handleDelete = (item: any) => {
                                     </span>
                                 </td>
 
+                                <!-- Status Verifikasi / Keabsahan -->
                                 <td class="px-4 py-3.5 text-center">
-                                    <span
-                                        class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold"
-                                        :class="
-                                            item.status_rat === 'Sudah RAT Tepat Waktu'
-                                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                                                : 'border-amber-200 bg-amber-50 text-amber-700'
-                                        "
-                                    >
-                                        {{ item.status_rat }}
-                                    </span>
+                                    <div v-if="item.status_verifikasi === 'verified'" class="inline-flex flex-col items-center">
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
+                                            <CheckCircle2 class="h-3 w-3 text-emerald-600" />
+                                            Dokumen Sah
+                                        </span>
+                                        <span class="mt-0.5 text-[9px] text-gray-400">Oleh: {{ item.verified_by?.name || 'Pengawas' }}</span>
+                                    </div>
+                                    <div v-else-if="item.status_verifikasi === 'rejected'" class="inline-flex flex-col items-center">
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold text-rose-700" :title="item.alasan_penolakan">
+                                            <XCircle class="h-3 w-3 text-rose-600" />
+                                            Ditolak
+                                        </span>
+                                        <span class="mt-0.5 text-[9px] text-rose-500 truncate max-w-[120px]" :title="item.alasan_penolakan">
+                                            {{ item.alasan_penolakan }}
+                                        </span>
+                                    </div>
+                                    <div v-else class="inline-flex flex-col items-center">
+                                        <span class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">
+                                            Draft / Belum Verifikasi
+                                        </span>
+                                    </div>
                                 </td>
 
                                 <td class="px-4 py-3.5 text-center">
@@ -319,22 +388,47 @@ const handleDelete = (item: any) => {
 
                                 <td class="px-4 py-3.5 text-center">
                                     <div class="flex items-center justify-center gap-1">
-                                        <button
-                                            @click="openEditModal(item)"
-                                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-cyan-50 hover:text-cyan-600"
-                                            title="Edit Data RAT"
-                                        >
-                                            <Edit3 class="h-4 w-4" />
-                                        </button>
+                                        <!-- Admin Actions: Edit & Delete -->
+                                        <template v-if="userRole === 'admin_koperasi'">
+                                            <button
+                                                @click="openEditModal(item)"
+                                                class="rounded-lg p-1.5 text-gray-400 transition hover:bg-cyan-50 hover:text-cyan-600"
+                                                title="Edit Data RAT"
+                                            >
+                                                <Edit3 class="h-4 w-4" />
+                                            </button>
 
-                                        <button
-                                            v-if="userRole === 'admin_koperasi'"
-                                            @click="handleDelete(item)"
-                                            class="rounded-lg p-1.5 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
-                                            title="Hapus Data RAT"
-                                        >
-                                            <Trash2 class="h-4 w-4" />
-                                        </button>
+                                            <button
+                                                @click="handleDelete(item)"
+                                                class="rounded-lg p-1.5 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
+                                                title="Hapus Data RAT"
+                                            >
+                                                <Trash2 class="h-4 w-4" />
+                                            </button>
+                                        </template>
+
+                                        <!-- Pengawas Actions: Verifikasi (Sah) & Tolak -->
+                                        <template v-if="userRole === 'bidang_pengawasan'">
+                                            <button
+                                                v-if="item.status_verifikasi !== 'verified'"
+                                                @click="handleVerifikasi(item)"
+                                                title="Verifikasi Laporan RAT"
+                                                class="flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100"
+                                            >
+                                                <CheckCircle2 class="h-3.5 w-3.5 text-emerald-600" />
+                                                Verifikasi
+                                            </button>
+
+                                            <button
+                                                v-if="item.status_verifikasi !== 'rejected'"
+                                                @click="openRejectModal(item)"
+                                                title="Tolak Laporan RAT"
+                                                class="flex items-center gap-1 rounded-lg bg-rose-50 px-2 py-1 text-[11px] font-bold text-rose-700 transition hover:bg-rose-100"
+                                            >
+                                                <XCircle class="h-3.5 w-3.5 text-rose-600" />
+                                                Tolak
+                                            </button>
+                                        </template>
                                     </div>
                                 </td>
                             </tr>
@@ -368,7 +462,7 @@ const handleDelete = (item: any) => {
             </div>
         </div>
 
-        <!-- FORM MODAL INPUT RAT DIALOG -->
+        <!-- FORM MODAL INPUT RAT DIALOG (Admin Only) -->
         <div
             v-if="isModalOpen"
             class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-sm duration-200 animate-in fade-in sm:p-6"
@@ -500,6 +594,52 @@ const handleDelete = (item: any) => {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Modal Tolak Dokumen (Pengawas Only) -->
+        <div v-if="isRejectModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
+            <div class="w-full max-w-md space-y-4 rounded-3xl bg-white p-6 shadow-xl">
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                    <h3 class="flex items-center gap-2 text-sm font-bold text-rose-700">
+                        <XCircle class="h-5 w-5 text-rose-600" />
+                        Tolak Laporan RAT Koperasi
+                    </h3>
+                    <button @click="isRejectModalOpen = false" class="text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+
+                <div class="space-y-3">
+                    <p class="text-xs text-gray-600">
+                        Anda akan menolak Laporan RAT Koperasi
+                        <strong class="text-gray-900">{{ selectedRatForReject?.koperasi?.nama_koperasi }}</strong>.
+                        Mohon berikan alasan penolakan:
+                    </p>
+
+                    <div>
+                        <label class="mb-1 block text-xs font-bold text-gray-700">Alasan Penolakan <span class="text-rose-500">*</span></label>
+                        <textarea
+                            v-model="alasanPenolakanInput"
+                            rows="4"
+                            placeholder="Contoh: Berkas LPJ tidak melampirkan neraca keuangan yang telah diaudit..."
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-900 transition focus:border-rose-500 focus:bg-white focus:ring-2 focus:ring-rose-500/20"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 border-t border-gray-100 pt-3">
+                    <button
+                        @click="isRejectModalOpen = false"
+                        class="rounded-xl px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100"
+                    >
+                        Batal
+                    </button>
+                    <button
+                        @click="submitReject"
+                        class="rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-rose-700"
+                    >
+                        Simpan Penolakan
+                    </button>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

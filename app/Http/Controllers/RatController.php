@@ -16,7 +16,7 @@ class RatController extends Controller
     {
         $tahunBukuSelected = $request->get('tahun_buku', 2024);
 
-        $query = Rat::with('koperasi')
+        $query = Rat::with(['koperasi', 'verifiedBy:id,name', 'rejectedBy:id,name'])
             ->where('tahun_buku', $tahunBukuSelected);
 
         // Search Filter
@@ -32,6 +32,11 @@ class RatController extends Controller
         // Status RAT Filter
         if ($request->filled('status_rat')) {
             $query->where('status_rat', $request->status_rat);
+        }
+
+        // Status Verifikasi Filter
+        if ($request->filled('status_verifikasi')) {
+            $query->where('status_verifikasi', $request->status_verifikasi);
         }
 
         // Kabupaten / Kota Filter
@@ -83,6 +88,7 @@ class RatController extends Controller
                 'search' => $request->search,
                 'status_rat' => $request->status_rat,
                 'kabupaten_kota' => $request->kabupaten_kota,
+                'status_verifikasi' => $request->status_verifikasi,
             ],
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
@@ -90,6 +96,10 @@ class RatController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan menambah data RAT.');
+        }
+
         $validated = $request->validate([
             'koperasi_id' => 'required|exists:koperasis,id',
             'tahun_buku' => 'required|integer|min:2000|max:2030',
@@ -127,6 +137,7 @@ class RatController extends Controller
                 'status_rat' => $statusRat,
                 'file_lpj_path' => $filePath ? 'storage/'.$filePath : null,
                 'catatan' => $validated['catatan'] ?? null,
+                'status_verifikasi' => 'pending',
             ]
         );
 
@@ -135,6 +146,10 @@ class RatController extends Controller
 
     public function update(Request $request, Rat $rat): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan memperbarui data RAT.');
+        }
+
         $validated = $request->validate([
             'tanggal_rat' => 'required|date',
             'tempat_pelaksanaan' => 'required|string|max:255',
@@ -172,8 +187,12 @@ class RatController extends Controller
         return redirect()->route('rat.index')->with('success', 'Data RAT berhasil diperbarui!');
     }
 
-    public function destroy(Rat $rat): RedirectResponse
+    public function destroy(Request $request, Rat $rat): RedirectResponse
     {
+        if ($request->user()->role === 'bidang_pengawasan') {
+            abort(403, 'Akses ditolak. Pengawas tidak diizinkan menghapus data RAT.');
+        }
+
         if ($rat->file_lpj_path && Storage::disk('public')->exists(str_replace('storage/', '', $rat->file_lpj_path))) {
             Storage::disk('public')->delete(str_replace('storage/', '', $rat->file_lpj_path));
         }
@@ -181,5 +200,43 @@ class RatController extends Controller
         $rat->delete();
 
         return redirect()->route('rat.index')->with('success', 'Data Pelaksanaan RAT berhasil dihapus!');
+    }
+
+    public function verifikasi(Request $request, Rat $rat): RedirectResponse
+    {
+        if ($request->user()->role !== 'bidang_pengawasan') {
+            abort(403, 'Hanya Bidang Pengawasan yang diizinkan melakukan verifikasi.');
+        }
+
+        $rat->update([
+            'status_verifikasi' => 'verified',
+            'verified_by' => $request->user()->id,
+            'verified_at' => now(),
+            'rejected_by' => null,
+            'rejected_at' => null,
+            'alasan_penolakan' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Laporan RAT berhasil diverifikasi (Dokumen Sah)!');
+    }
+
+    public function tolak(Request $request, Rat $rat): RedirectResponse
+    {
+        if ($request->user()->role !== 'bidang_pengawasan') {
+            abort(403, 'Hanya Bidang Pengawasan yang diizinkan menolak dokumen.');
+        }
+
+        $validated = $request->validate([
+            'alasan_penolakan' => 'required|string',
+        ]);
+
+        $rat->update([
+            'status_verifikasi' => 'rejected',
+            'rejected_by' => $request->user()->id,
+            'rejected_at' => now(),
+            'alasan_penolakan' => $validated['alasan_penolakan'],
+        ]);
+
+        return redirect()->back()->with('success', 'Laporan RAT berhasil ditolak.');
     }
 }

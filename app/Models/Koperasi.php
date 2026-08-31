@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -26,6 +27,12 @@ class Koperasi extends Model
         'shu',
         'skor_kesehatan_terakhir',
         'predikat_kesehatan',
+        'status_verifikasi',
+        'verified_by',
+        'verified_at',
+        'rejected_by',
+        'rejected_at',
+        'alasan_penolakan',
     ];
 
     protected $casts = [
@@ -34,7 +41,19 @@ class Koperasi extends Model
         'volume_usaha' => 'decimal:2',
         'shu' => 'decimal:2',
         'skor_kesehatan_terakhir' => 'decimal:2',
+        'verified_at' => 'datetime',
+        'rejected_at' => 'datetime',
     ];
+
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by');
+    }
 
     public function pengurus(): HasOne
     {
@@ -61,3 +80,4 @@ class Koperasi extends Model
         return $this->hasMany(Temuan::class);
     }
 }
+
