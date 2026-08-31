@@ -12,7 +12,7 @@ class TemuanController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Temuan::with(['koperasi', 'pengawasan', 'verifiedBy:id,name', 'rejectedBy:id,name']);
+        $query = Temuan::with(['koperasi', 'pengawasan', 'createdBy:id,name', 'verifiedBy:id,name', 'rejectedBy:id,name']);
 
         // Search Filter
         if ($request->filled('search')) {
@@ -37,6 +37,11 @@ class TemuanController extends Controller
         // Status Verifikasi Filter
         if ($request->filled('status_verifikasi')) {
             $query->where('status_verifikasi', $request->status_verifikasi);
+        }
+
+        // Status Persetujuan Koperasi Filter
+        if ($request->filled('status_persetujuan_koperasi')) {
+            $query->where('status_persetujuan_koperasi', $request->status_persetujuan_koperasi);
         }
 
         // Aspek Temuan Filter
@@ -74,9 +79,42 @@ class TemuanController extends Controller
                 'dalam_proses' => $dalamProses,
                 'selesai' => $selesai,
             ],
-            'filters' => $request->only(['search', 'tingkat_risiko', 'status_tindak_lanjut', 'status_verifikasi', 'aspek_temuan']),
+            'filters' => $request->only(['search', 'tingkat_risiko', 'status_tindak_lanjut', 'status_verifikasi', 'status_persetujuan_koperasi', 'aspek_temuan']),
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        if ($request->user()->role === 'admin_koperasi') {
+            abort(403, 'Akses ditolak. Penginputan Temuan Audit hanya diizinkan untuk Tim Pengawas.');
+        }
+
+        $validated = $request->validate([
+            'koperasi_id' => 'required|exists:koperasis,id',
+            'pengawasan_id' => 'nullable|exists:pengawasans,id',
+            'aspek_temuan' => 'required|string|in:Kelembagaan,Keuangan,Operasional,Usaha',
+            'deskripsi_temuan' => 'required|string',
+            'rekomendasi' => 'required|string',
+            'batas_waktu' => 'required|date',
+            'tingkat_risiko' => 'required|string|in:Rendah,Sedang,Tinggi,Kritis',
+        ]);
+
+        Temuan::create([
+            'koperasi_id' => $validated['koperasi_id'],
+            'pengawasan_id' => $validated['pengawasan_id'] ?? null,
+            'created_by' => $request->user()->id,
+            'aspek_temuan' => $validated['aspek_temuan'],
+            'deskripsi_temuan' => $validated['deskripsi_temuan'],
+            'rekomendasi' => $validated['rekomendasi'],
+            'batas_waktu' => $validated['batas_waktu'],
+            'tingkat_risiko' => $validated['tingkat_risiko'],
+            'status_tindak_lanjut' => 'Belum Ditindaklanjuti',
+            'status_verifikasi' => 'verified',
+            'status_persetujuan_koperasi' => 'pending',
+        ]);
+
+        return redirect()->route('temuan.index')->with('success', 'Data Temuan Audit berhasil ditambahkan oleh Pengawas!');
     }
 
     public function updateTindakLanjut(Request $request, Temuan $temuan): RedirectResponse
@@ -94,13 +132,33 @@ class TemuanController extends Controller
         return redirect()->route('temuan.index')->with('success', 'Progress tindak lanjut temuan berhasil diperbarui!');
     }
 
-    public function verifikasi(Request $request, Temuan $temuan): RedirectResponse
+    public function setujui(Request $request, Temuan $temuan): RedirectResponse
     {
-        // Only bidang_pengawasan can verify
-        if (! in_array($request->user()->role, ['bidang_pengawasan', 'admin_koperasi'])) {
-            abort(403, 'Akses terbatas untuk Bidang Pengawasan.');
+        $validated = $request->validate([
+            'tanggapan_koperasi' => 'required|string',
+            'file_bukti_tindak_lanjut' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:10240',
+        ]);
+
+        $filePath = $temuan->file_bukti_tindak_lanjut_path;
+        if ($request->hasFile('file_bukti_tindak_lanjut')) {
+            $file = $request->file('file_bukti_tindak_lanjut');
+            $fileName = 'bukti_tl_temuan_'.$temuan->id.'_'.time().'.'.$file->getClientOriginalExtension();
+            $filePath = 'storage/' . $file->storeAs('bukti_tindak_lanjut', $fileName, 'public');
         }
 
+        $temuan->update([
+            'status_persetujuan_koperasi' => 'approved',
+            'status_tindak_lanjut' => 'Selesai',
+            'tanggapan_koperasi' => $validated['tanggapan_koperasi'],
+            'file_bukti_tindak_lanjut_path' => $filePath,
+            'approved_at' => now(),
+        ]);
+
+        return redirect()->route('temuan.index')->with('success', 'Temuan Audit berhasil disetujui & diselesaikan oleh Pengurus Koperasi!');
+    }
+
+    public function verifikasi(Request $request, Temuan $temuan): RedirectResponse
+    {
         $validated = $request->validate([
             'catatan_verifikasi_pengawas' => 'nullable|string',
             'status_tindak_lanjut' => 'nullable|string|in:Belum Ditindaklanjuti,Dalam Proses,Selesai',
@@ -130,10 +188,6 @@ class TemuanController extends Controller
 
     public function tolak(Request $request, Temuan $temuan): RedirectResponse
     {
-        if (! in_array($request->user()->role, ['bidang_pengawasan', 'admin_koperasi'])) {
-            abort(403, 'Akses terbatas untuk Bidang Pengawasan.');
-        }
-
         $validated = $request->validate([
             'alasan_penolakan' => 'required|string',
         ]);
@@ -150,12 +204,12 @@ class TemuanController extends Controller
 
     public function destroy(Request $request, Temuan $temuan): RedirectResponse
     {
-        if ($request->user()->role === 'bidang_pengawasan') {
-            abort(403, 'Akses ditolak. Pengawas tidak diizinkan menghapus temuan.');
+        if ($request->user()->role === 'admin_koperasi') {
+            abort(403, 'Akses ditolak. Pengurus Koperasi tidak diizinkan menghapus data temuan.');
         }
 
         $temuan->delete();
 
-        return redirect()->route('temuan.index')->with('success', 'Data Temuan Audit berhasil dihapus!');
+        return redirect()->route('temuan.index')->with('success', 'Data Temuan Audit berhasil dihapus oleh Pengawas!');
     }
 }

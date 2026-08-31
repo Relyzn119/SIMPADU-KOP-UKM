@@ -15,7 +15,7 @@ class PengawasanController extends Controller
 {
     public function index(Request $request): Response
     {
-        $query = Pengawasan::with(['koperasi', 'verifiedBy:id,name', 'rejectedBy:id,name', 'temuans']);
+        $query = Pengawasan::with(['koperasi', 'createdBy:id,name', 'approvedBy:id,name', 'verifiedBy:id,name', 'rejectedBy:id,name', 'temuans']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -32,6 +32,10 @@ class PengawasanController extends Controller
 
         if ($request->filled('status_verifikasi')) {
             $query->where('status_verifikasi', $request->status_verifikasi);
+        }
+
+        if ($request->filled('status_persetujuan_koperasi')) {
+            $query->where('status_persetujuan_koperasi', $request->status_persetujuan_koperasi);
         }
 
         if ($request->filled('kabupaten_kota')) {
@@ -56,15 +60,15 @@ class PengawasanController extends Controller
 
         return Inertia::render('Pengawasan/Index', [
             'pengawasans' => $pengawasans,
-            'filters' => $request->only(['search', 'predikat_kesehatan', 'status_verifikasi', 'kabupaten_kota']),
+            'filters' => $request->only(['search', 'predikat_kesehatan', 'status_verifikasi', 'status_persetujuan_koperasi', 'kabupaten_kota']),
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
     }
 
     public function create(Request $request): Response
     {
-        if ($request->user()->role === 'bidang_pengawasan') {
-            abort(403, 'Akses ditolak. Pengawas tidak diizinkan membuat pemeriksaan baru.');
+        if ($request->user()->role === 'admin_koperasi') {
+            abort(403, 'Akses ditolak. Penginputan LHP Pengawasan hanya diizinkan untuk Tim Pengawas Diskop.');
         }
 
         $koperasis = Koperasi::select('id', 'nama_koperasi', 'no_badan_hukum', 'kabupaten_kota')
@@ -78,8 +82,8 @@ class PengawasanController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        if ($request->user()->role === 'bidang_pengawasan') {
-            abort(403, 'Akses ditolak. Pengawas tidak diizinkan membuat data pemeriksaan.');
+        if ($request->user()->role === 'admin_koperasi') {
+            abort(403, 'Akses ditolak. Penginputan LHP Pengawasan hanya diizinkan untuk Tim Pengawas Diskop.');
         }
 
         $validated = $request->validate([
@@ -104,7 +108,6 @@ class PengawasanController extends Controller
         ]);
 
         // Calculate Total Score (4 Aspects Weightage per Permenkop)
-        // Tata Kelola (30%), Profil Risiko (25%), Kinerja Keuangan (30%), Permodalan (15%)
         $skorTotal = round(
             ($validated['skor_tata_kelola'] * 0.30) +
             ($validated['skor_profil_risiko'] * 0.25) +
@@ -129,6 +132,7 @@ class PengawasanController extends Controller
 
         $pengawasan = Pengawasan::create([
             'koperasi_id' => $validated['koperasi_id'],
+            'created_by' => $request->user()->id,
             'no_surat_tugas' => $validated['no_surat_tugas'],
             'tanggal_pemeriksaan' => $validated['tanggal_pemeriksaan'],
             'nama_tim_pengawas' => $validated['nama_tim_pengawas'],
@@ -140,7 +144,8 @@ class PengawasanController extends Controller
             'predikat_kesehatan' => $predikat,
             'kesimpulan_pengawasan' => $validated['kesimpulan_pengawasan'] ?? null,
             'file_berita_acara_path' => $filePath ? 'storage/'.$filePath : null,
-            'status_verifikasi' => 'pending',
+            'status_verifikasi' => 'verified', // Pengawas yang buat -> otomatis terverifikasi oleh pengawas
+            'status_persetujuan_koperasi' => 'pending', // Menunggu persetujuan pengurus koperasi
         ]);
 
         // Update latest health status in Koperasi master record
@@ -155,23 +160,25 @@ class PengawasanController extends Controller
                 Temuan::create([
                     'pengawasan_id' => $pengawasan->id,
                     'koperasi_id' => $validated['koperasi_id'],
+                    'created_by' => $request->user()->id,
                     'aspek_temuan' => $t['aspek_temuan'],
                     'deskripsi_temuan' => $t['deskripsi_temuan'],
                     'rekomendasi' => $t['rekomendasi'],
                     'batas_waktu' => $t['batas_waktu'],
                     'tingkat_risiko' => $t['tingkat_risiko'],
                     'status_tindak_lanjut' => 'Belum Ditindaklanjuti',
-                    'status_verifikasi' => 'pending',
+                    'status_verifikasi' => 'verified',
+                    'status_persetujuan_koperasi' => 'pending',
                 ]);
             }
         }
 
-        return redirect()->route('pengawasan.index')->with('success', 'Berita Acara & Penilaian Kesehatan Koperasi berhasil disimpan!');
+        return redirect()->route('pengawasan.index')->with('success', 'Berita Acara & Penilaian Kesehatan Koperasi berhasil diterbitkan oleh Pengawas!');
     }
 
     public function show(Pengawasan $pengawasan): Response
     {
-        $pengawasan->load(['koperasi', 'verifiedBy:id,name', 'rejectedBy:id,name', 'temuans']);
+        $pengawasan->load(['koperasi', 'createdBy:id,name', 'approvedBy:id,name', 'verifiedBy:id,name', 'rejectedBy:id,name', 'temuans']);
 
         return Inertia::render('Pengawasan/Show', [
             'pengawasan' => $pengawasan,
@@ -180,8 +187,8 @@ class PengawasanController extends Controller
 
     public function destroy(Request $request, Pengawasan $pengawasan): RedirectResponse
     {
-        if ($request->user()->role === 'bidang_pengawasan') {
-            abort(403, 'Akses ditolak. Pengawas tidak diizinkan menghapus data pemeriksaan.');
+        if ($request->user()->role === 'admin_koperasi') {
+            abort(403, 'Akses ditolak. Pengurus Koperasi tidak diizinkan menghapus LHP Pemeriksaan.');
         }
 
         if ($pengawasan->file_berita_acara_path && Storage::disk('public')->exists(str_replace('storage/', '', $pengawasan->file_berita_acara_path))) {
@@ -190,44 +197,33 @@ class PengawasanController extends Controller
 
         $pengawasan->delete();
 
-        return redirect()->route('pengawasan.index')->with('success', 'Data Pemeriksaan Pengawasan berhasil dihapus!');
+        return redirect()->route('pengawasan.index')->with('success', 'Data Pemeriksaan Pengawasan berhasil dihapus oleh Pengawas!');
     }
 
-    public function verifikasi(Request $request, Pengawasan $pengawasan): RedirectResponse
+    // Persetujuan & Tanggapan oleh Admin / Pengurus Koperasi
+    public function setujui(Request $request, Pengawasan $pengawasan): RedirectResponse
     {
-        if ($request->user()->role !== 'bidang_pengawasan') {
-            abort(403, 'Hanya Bidang Pengawasan yang diizinkan melakukan verifikasi.');
-        }
-
-        $pengawasan->update([
-            'status_verifikasi' => 'verified',
-            'verified_by' => $request->user()->id,
-            'verified_at' => now(),
-            'rejected_by' => null,
-            'rejected_at' => null,
-            'alasan_penolakan' => null,
-        ]);
-
-        return redirect()->back()->with('success', 'Data Hasil Pengawasan berhasil diverifikasi (Dokumen Sah)!');
-    }
-
-    public function tolak(Request $request, Pengawasan $pengawasan): RedirectResponse
-    {
-        if ($request->user()->role !== 'bidang_pengawasan') {
-            abort(403, 'Hanya Bidang Pengawasan yang diizinkan menolak dokumen.');
-        }
-
         $validated = $request->validate([
-            'alasan_penolakan' => 'required|string',
+            'tanggapan_koperasi' => 'required|string',
+            'file_bukti_tindak_lanjut' => 'nullable|file|mimes:pdf,doc,docx,jpg,png|max:10240',
         ]);
+
+        $filePath = $pengawasan->file_bukti_tindak_lanjut_path;
+        if ($request->hasFile('file_bukti_tindak_lanjut')) {
+            $file = $request->file('file_bukti_tindak_lanjut');
+            $fileName = 'bukti_tl_pengawasan_'.$pengawasan->id.'_'.time().'.'.$file->getClientOriginalExtension();
+            $filePath = 'storage/' . $file->storeAs('bukti_tindak_lanjut', $fileName, 'public');
+        }
 
         $pengawasan->update([
-            'status_verifikasi' => 'rejected',
-            'rejected_by' => $request->user()->id,
-            'rejected_at' => now(),
-            'alasan_penolakan' => $validated['alasan_penolakan'],
+            'status_persetujuan_koperasi' => 'approved',
+            'tanggapan_koperasi' => $validated['tanggapan_koperasi'],
+            'file_bukti_tindak_lanjut_path' => $filePath,
+            'approved_by' => $request->user()->id,
+            'approved_at' => now(),
+            'skor_transparansi' => 100, // Nilai transparansi sempurna jika disetujui pengurus
         ]);
 
-        return redirect()->back()->with('success', 'Data Hasil Pengawasan berhasil ditolak.');
+        return redirect()->back()->with('success', 'LHP Pemeriksaan Pengawasan berhasil disetujui dan ditanggapi oleh Pengurus Koperasi!');
     }
 }

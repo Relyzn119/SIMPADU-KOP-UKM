@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, CheckCircle2, Printer, XCircle } from 'lucide-vue-next';
+import { ArrowLeft, CheckCircle2, Clock, FileText, Printer, User } from 'lucide-vue-next';
 
 defineProps<{
     pengawasan: {
@@ -17,12 +17,12 @@ defineProps<{
         predikat_kesehatan: string;
         kesimpulan_pengawasan: string;
         file_berita_acara_path: string;
-        status_verifikasi?: string;
-        verified_at?: string;
-        rejected_at?: string;
-        alasan_penolakan?: string;
-        verified_by?: { id: number; name: string };
-        rejected_by?: { id: number; name: string };
+        status_persetujuan_koperasi?: string;
+        tanggapan_koperasi?: string;
+        file_bukti_tindak_lanjut_path?: string;
+        approved_at?: string;
+        created_by?: { id: number; name: string };
+        approved_by?: { id: number; name: string };
         koperasi: {
             id: number;
             nama_koperasi: string;
@@ -53,8 +53,6 @@ const formatDate = (dateStr?: string) => {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
     });
 };
 
@@ -106,34 +104,30 @@ const getRiskBadge = (risiko: string) => {
                 </button>
             </div>
 
-            <!-- VERIFICATION STATUS ALERT BOX (NON-PRINT) -->
+            <!-- PERSETUJUAN KOPERASI STATUS ALERT BOX (NON-PRINT) -->
             <div
-                v-if="pengawasan.status_verifikasi === 'verified'"
-                class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-900 print:hidden"
+                v-if="pengawasan.status_persetujuan_koperasi === 'approved'"
+                class="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-900 print:hidden"
             >
-                <CheckCircle2 class="h-5 w-5 shrink-0 text-emerald-600" />
-                <div>
-                    <strong class="font-bold">Status Keabsahan: DOKUMEN SAH (Terverifikasi)</strong>
-                    <p class="mt-0.5 text-[11px] text-emerald-700">
-                        Diverifikasi oleh <span class="font-bold">{{ pengawasan.verified_by?.name || 'Bidang Pengawasan' }}</span> pada
-                        {{ formatDate(pengawasan.verified_at) }}.
+                <CheckCircle2 class="h-5 w-5 shrink-0 text-emerald-600 mt-0.5" />
+                <div class="space-y-1">
+                    <strong class="font-bold">STATUS PERSETUJUAN: DISETUJUI OLEH PENGURUS KOPERASI</strong>
+                    <p class="text-[11px] text-emerald-700">
+                        Disetujui oleh <span class="font-bold">{{ pengawasan.approved_by?.name || 'Pengurus Koperasi' }}</span> pada
+                        {{ formatDate(pengawasan.approved_at) }}.
                     </p>
-                </div>
-            </div>
-
-            <div
-                v-else-if="pengawasan.status_verifikasi === 'rejected'"
-                class="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-900 print:hidden"
-            >
-                <XCircle class="h-5 w-5 shrink-0 text-rose-600 mt-0.5" />
-                <div>
-                    <strong class="font-bold">Status Keabsahan: DITOLAK OLEH PENGAWAS</strong>
-                    <p class="mt-0.5 text-[11px] text-rose-700">
-                        Ditolak oleh <span class="font-bold">{{ pengawasan.rejected_by?.name || 'Bidang Pengawasan' }}</span> pada
-                        {{ formatDate(pengawasan.rejected_at) }}.
-                    </p>
-                    <div v-if="pengawasan.alasan_penolakan" class="mt-2 rounded-xl bg-white/80 p-2.5 font-mono text-[11px] border border-rose-200 text-rose-900">
-                        <strong>Catatan Alasan Penolakan:</strong> {{ pengawasan.alasan_penolakan }}
+                    <div v-if="pengawasan.tanggapan_koperasi" class="mt-2 rounded-xl bg-white/80 p-3 text-[11px] border border-emerald-200 text-emerald-900">
+                        <strong>Tanggapan / Komitmen Pengurus:</strong> {{ pengawasan.tanggapan_koperasi }}
+                    </div>
+                    <div v-if="pengawasan.file_bukti_tindak_lanjut_path" class="pt-1">
+                        <a
+                            :href="`/${pengawasan.file_bukti_tindak_lanjut_path}`"
+                            target="_blank"
+                            class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-emerald-800"
+                        >
+                            <FileText class="h-3.5 w-3.5" />
+                            Lihat File Bukti Digital Tindak Lanjut
+                        </a>
                     </div>
                 </div>
             </div>
@@ -142,11 +136,11 @@ const getRiskBadge = (risiko: string) => {
                 v-else
                 class="flex items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900 print:hidden"
             >
-                <div class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-200 text-[10px] font-bold text-amber-800">!</div>
+                <Clock class="h-5 w-5 shrink-0 text-amber-600" />
                 <div>
-                    <strong class="font-bold">Status Keabsahan: DRAFT (Menunggu Verifikasi Pengawas)</strong>
+                    <strong class="font-bold">STATUS PERSETUJUAN: SEDANG DIPROSES (PENDING PENGURUS)</strong>
                     <p class="mt-0.5 text-[11px] text-amber-700">
-                        Hasil pemeriksaan ini diinput oleh Admin Koperasi dan memerlukan verifikasi resmi dari Pengawas agar dokumen dianggap Sah.
+                        LHP ini diterbitkan oleh Tim Pengawas Diskop Provsu ({{ pengawasan.created_by?.name || pengawasan.nama_tim_pengawas }}) dan menunggu peninjauan/persetujuan resmi dari Pengurus Koperasi.
                     </p>
                 </div>
             </div>
@@ -188,6 +182,10 @@ const getRiskBadge = (risiko: string) => {
                         <div class="font-mono font-bold text-gray-900">{{ pengawasan.no_surat_tugas }}</div>
                         <div class="mt-2 font-medium text-gray-500">Tanggal Pemeriksaan:</div>
                         <div class="font-bold text-gray-900">{{ pengawasan.tanggal_pemeriksaan }}</div>
+                        <div class="mt-2 flex items-center gap-1 font-medium text-indigo-700">
+                            <User class="h-3.5 w-3.5 text-indigo-600" />
+                            <span>Diterbitkan Oleh: {{ pengawasan.created_by?.name || pengawasan.nama_tim_pengawas }}</span>
+                        </div>
                     </div>
 
                     <div class="space-y-1 text-right">
@@ -294,16 +292,16 @@ const getRiskBadge = (risiko: string) => {
                 <!-- SIGNATURE BOX FOR PRINT -->
                 <div class="print-signature grid grid-cols-2 gap-8 pt-10 text-center text-xs print:flex print:justify-between print:pt-6">
                     <div>
-                        <div>Mengetahui,</div>
+                        <div>Mengetahui & Menyetujui,</div>
                         <div class="font-bold">Pengurus Koperasi {{ pengawasan.koperasi?.nama_koperasi }}</div>
                         <div class="h-16"></div>
-                        <div class="text-underline font-bold">( ________________________ )</div>
+                        <div class="font-bold underline">({{ pengawasan.approved_by?.name || '________________________' }})</div>
                     </div>
                     <div>
                         <div>Medan, {{ pengawasan.tanggal_pemeriksaan }}</div>
                         <div class="font-bold">Tim Pengawas Diskop Provsu</div>
                         <div class="h-16"></div>
-                        <div class="font-underline font-bold">{{ pengawasan.nama_tim_pengawas }}</div>
+                        <div class="font-bold underline">{{ pengawasan.created_by?.name || pengawasan.nama_tim_pengawas }}</div>
                     </div>
                 </div>
             </div>

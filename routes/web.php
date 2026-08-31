@@ -30,12 +30,15 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('pengawasan', PengawasanController::class);
     Route::put('/pengawasan/{pengawasan}/verifikasi', [PengawasanController::class, 'verifikasi'])->name('pengawasan.verifikasi');
     Route::put('/pengawasan/{pengawasan}/tolak', [PengawasanController::class, 'tolak'])->name('pengawasan.tolak');
+    Route::put('/pengawasan/{pengawasan}/setujui', [PengawasanController::class, 'setujui'])->name('pengawasan.setujui');
 
     // Modul Matriks Temuan & Tindak Lanjut
     Route::get('/temuan', [TemuanController::class, 'index'])->name('temuan.index');
+    Route::post('/temuan', [TemuanController::class, 'store'])->name('temuan.store');
     Route::put('/temuan/{temuan}/tindak-lanjut', [TemuanController::class, 'updateTindakLanjut'])->name('temuan.update-tindak-lanjut');
     Route::put('/temuan/{temuan}/verifikasi', [TemuanController::class, 'verifikasi'])->name('temuan.verifikasi');
     Route::put('/temuan/{temuan}/tolak', [TemuanController::class, 'tolak'])->name('temuan.tolak');
+    Route::put('/temuan/{temuan}/setujui', [TemuanController::class, 'setujui'])->name('temuan.setujui');
     Route::delete('/temuan/{temuan}', [TemuanController::class, 'destroy'])->name('temuan.destroy');
 
     // Modul Audit Log Verifikasi Pengawas

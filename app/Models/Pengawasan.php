@@ -15,6 +15,7 @@ class Pengawasan extends Model
 
     protected $fillable = [
         'koperasi_id',
+        'created_by',
         'no_surat_tugas',
         'tanggal_pemeriksaan',
         'nama_tim_pengawas',
@@ -27,10 +28,16 @@ class Pengawasan extends Model
         'kesimpulan_pengawasan',
         'file_berita_acara_path',
         'status_verifikasi',
+        'status_persetujuan_koperasi',
+        'tanggapan_koperasi',
+        'file_bukti_tindak_lanjut_path',
+        'skor_transparansi',
         'verified_by',
         'verified_at',
         'rejected_by',
         'rejected_at',
+        'approved_by',
+        'approved_at',
         'alasan_penolakan',
     ];
 
@@ -41,13 +48,25 @@ class Pengawasan extends Model
         'skor_kinerja_keuangan' => 'decimal:2',
         'skor_permodalan' => 'decimal:2',
         'skor_total' => 'decimal:2',
+        'skor_transparansi' => 'integer',
         'verified_at' => 'datetime',
         'rejected_at' => 'datetime',
+        'approved_at' => 'datetime',
     ];
 
     public function koperasi(): BelongsTo
     {
         return $this->belongsTo(Koperasi::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 
     public function verifiedBy(): BelongsTo

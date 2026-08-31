@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { CheckCircle2, Eye, Plus, RotateCcw, Search, ShieldCheck, Trash2, XCircle } from 'lucide-vue-next';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
+import { CheckCircle2, Clock, Eye, FileText, Plus, RotateCcw, Search, ShieldCheck, Trash2, Upload, User, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -18,7 +18,7 @@ const props = defineProps<{
         search?: string;
         predikat_kesehatan?: string;
         kabupaten_kota?: string;
-        status_verifikasi?: string;
+        status_persetujuan_koperasi?: string;
     };
     kabupatenKotaList: string[];
 }>();
@@ -29,12 +29,16 @@ const userRole = (page.props.auth as any)?.user?.role || 'admin_koperasi';
 const search = ref(props.filters.search || '');
 const predikatKesehatan = ref(props.filters.predikat_kesehatan || '');
 const kabupatenKota = ref(props.filters.kabupaten_kota || '');
-const statusVerifikasi = ref(props.filters.status_verifikasi || '');
+const statusPersetujuan = ref(props.filters.status_persetujuan_koperasi || '');
 
-// Modal Penolakan State
-const isRejectModalOpen = ref(false);
-const selectedPengawasanForReject = ref<any | null>(null);
-const alasanPenolakanInput = ref('');
+// Modal Persetujuan State (Role Admin Koperasi)
+const isSetujuiModalOpen = ref(false);
+const selectedPengawasan = ref<any | null>(null);
+
+const setujuiForm = useForm({
+    tanggapan_koperasi: '',
+    file_bukti_tindak_lanjut: null as File | null,
+});
 
 const applyFilters = () => {
     router.get(
@@ -43,7 +47,7 @@ const applyFilters = () => {
             search: search.value || undefined,
             predikat_kesehatan: predikatKesehatan.value || undefined,
             kabupaten_kota: kabupatenKota.value || undefined,
-            status_verifikasi: statusVerifikasi.value || undefined,
+            status_persetujuan_koperasi: statusPersetujuan.value || undefined,
         },
         { preserveState: true, replace: true },
     );
@@ -53,7 +57,7 @@ const resetFilters = () => {
     search.value = '';
     predikatKesehatan.value = '';
     kabupatenKota.value = '';
-    statusVerifikasi.value = '';
+    statusPersetujuan.value = '';
     applyFilters();
 };
 
@@ -63,37 +67,48 @@ const handleDelete = (item: any) => {
     }
 };
 
-const handleVerifikasi = (item: any) => {
-    if (confirm(`Apakah Anda yakin ingin memverifikasi (Mengesahkan) Berita Acara Pemeriksaan "${item.no_surat_tugas}"?`)) {
-        router.put(`/pengawasan/${item.id}/verifikasi`);
+const openSetujuiModal = (item: any) => {
+    selectedPengawasan.value = item;
+    setujuiForm.tanggapan_koperasi = item.tanggapan_koperasi || '';
+    setujuiForm.file_bukti_tindak_lanjut = null;
+    isSetujuiModalOpen.value = true;
+};
+
+const handleFileChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+        setujuiForm.file_bukti_tindak_lanjut = target.files[0];
     }
 };
 
-const openRejectModal = (item: any) => {
-    selectedPengawasanForReject.value = item;
-    alasanPenolakanInput.value = item.alasan_penolakan || '';
-    isRejectModalOpen.value = true;
-};
+const submitSetujui = () => {
+    if (!selectedPengawasan.value) return;
 
-const submitReject = () => {
-    if (!alasanPenolakanInput.value.trim()) {
-        alert('Mohon isi alasan penolakan.');
-        return;
-    }
-
-    router.put(
-        `/pengawasan/${selectedPengawasanForReject.value.id}/tolak`,
+    // Use router.post with _method: 'PUT' for multipart/form-data support in Inertia
+    router.post(
+        `/pengawasan/${selectedPengawasan.value.id}/setujui`,
         {
-            alasan_penolakan: alasanPenolakanInput.value,
+            _method: 'PUT',
+            tanggapan_koperasi: setujuiForm.tanggapan_koperasi,
+            file_bukti_tindak_lanjut: setujuiForm.file_bukti_tindak_lanjut,
         },
         {
             onSuccess: () => {
-                isRejectModalOpen.value = false;
-                selectedPengawasanForReject.value = null;
-                alasanPenolakanInput.value = '';
+                isSetujuiModalOpen.value = false;
+                setujuiForm.reset();
+                selectedPengawasan.value = null;
             },
         },
     );
+};
+
+const formatDate = (dateStr?: string) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr).toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
 };
 
 const getPredikatBadge = (predikat: string) => {
@@ -125,13 +140,13 @@ const getPredikatBadge = (predikat: string) => {
                         Pemeriksaan & Penilaian Kesehatan Koperasi
                     </h1>
                     <p class="mt-1 text-xs text-gray-500">
-                        Instrumen Pengawasan 4 Aspek (Tata Kelola, Profil Risiko, Kinerja Keuangan, Permodalan) Permenkop No. 9/2020.
+                        Instrumen Pengawasan Lapangan 4 Aspek Kesehatan Koperasi oleh Tim Pengawas Diskop Provsu.
                     </p>
                 </div>
 
-                <!-- Create Link Shown ONLY for admin_koperasi -->
+                <!-- Create Link Shown ONLY for bidang_pengawasan -->
                 <Link
-                    v-if="userRole === 'admin_koperasi'"
+                    v-if="userRole === 'bidang_pengawasan'"
                     href="/pengawasan/create"
                     class="shadow-xs flex items-center gap-2 self-start rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 sm:self-auto"
                 >
@@ -182,17 +197,16 @@ const getPredikatBadge = (predikat: string) => {
                         </select>
                     </div>
 
-                    <!-- Filter Status Verifikasi -->
+                    <!-- Filter Status Persetujuan -->
                     <div>
                         <select
-                            v-model="statusVerifikasi"
+                            v-model="statusPersetujuan"
                             @change="applyFilters"
                             class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
-                            <option value="">Semua Status Verifikasi</option>
-                            <option value="pending">Draft / Pending</option>
-                            <option value="verified">Verified (Sah)</option>
-                            <option value="rejected">Ditolak</option>
+                            <option value="">Semua Status Persetujuan</option>
+                            <option value="pending">Sedang Diproses (Pending)</option>
+                            <option value="approved">Disetujui Pengurus (Sah)</option>
                         </select>
                     </div>
                 </div>
@@ -220,11 +234,10 @@ const getPredikatBadge = (predikat: string) => {
                         <thead class="border-b border-gray-100 bg-gray-50/80 text-[10px] font-bold uppercase tracking-wider text-gray-500">
                             <tr>
                                 <th class="px-4 py-3.5 font-bold">Koperasi & Surat Tugas</th>
-                                <th class="px-4 py-3.5 text-center font-bold">Tgl Pemeriksaan</th>
+                                <th class="px-4 py-3.5 font-bold">Dibuat Oleh (Pengawas)</th>
                                 <th class="px-4 py-3.5 text-center font-bold">Skor 4 Aspek</th>
-                                <th class="px-4 py-3.5 text-center font-bold">Status Keabsahan</th>
-                                <th class="px-4 py-3.5 text-center font-bold">Skor Total & Predikat</th>
-                                <th class="px-4 py-3.5 text-center font-bold">Jumlah Temuan</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Persetujuan Pengurus</th>
+                                <th class="px-4 py-3.5 text-center font-bold">Predikat Kesehatan</th>
                                 <th class="px-4 py-3.5 text-center font-bold">Aksi</th>
                             </tr>
                         </thead>
@@ -241,8 +254,16 @@ const getPredikatBadge = (predikat: string) => {
                                     </div>
                                 </td>
 
-                                <td class="px-4 py-3.5 text-center font-mono font-medium text-gray-700">
-                                    {{ item.tanggal_pemeriksaan }}
+                                <!-- Dibuat Oleh (Tim Pengawas) -->
+                                <td class="px-4 py-3.5">
+                                    <div class="flex items-center gap-1.5 font-bold text-gray-900">
+                                        <User class="h-3.5 w-3.5 text-indigo-600" />
+                                        {{ item.created_by?.name || item.nama_tim_pengawas }}
+                                    </div>
+                                    <div class="flex items-center gap-1 text-[10px] text-gray-400">
+                                        <Clock class="h-3 w-3" />
+                                        <span>Tgl Buat: {{ formatDate(item.created_at || item.tanggal_pemeriksaan) }}</span>
+                                    </div>
                                 </td>
 
                                 <td class="px-4 py-3.5 text-center">
@@ -262,28 +283,21 @@ const getPredikatBadge = (predikat: string) => {
                                     </div>
                                 </td>
 
-                                <!-- Status Verifikasi / Keabsahan -->
+                                <!-- Status Persetujuan Koperasi -->
                                 <td class="px-4 py-3.5 text-center">
-                                    <div v-if="item.status_verifikasi === 'verified'" class="inline-flex flex-col items-center">
+                                    <div v-if="item.status_persetujuan_koperasi === 'approved'" class="inline-flex flex-col items-center">
                                         <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">
                                             <CheckCircle2 class="h-3 w-3 text-emerald-600" />
-                                            Dokumen Sah
+                                            Disetujui Pengurus
                                         </span>
-                                        <span class="mt-0.5 text-[9px] text-gray-400">Oleh: {{ item.verified_by?.name || 'Pengawas' }}</span>
-                                    </div>
-                                    <div v-else-if="item.status_verifikasi === 'rejected'" class="inline-flex flex-col items-center">
-                                        <span class="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold text-rose-700" :title="item.alasan_penolakan">
-                                            <XCircle class="h-3 w-3 text-rose-600" />
-                                            Ditolak
-                                        </span>
-                                        <span class="mt-0.5 text-[9px] text-rose-500 truncate max-w-[120px]" :title="item.alasan_penolakan">
-                                            {{ item.alasan_penolakan }}
-                                        </span>
+                                        <span class="mt-0.5 text-[9px] text-gray-400">Tgl: {{ formatDate(item.approved_at) }}</span>
                                     </div>
                                     <div v-else class="inline-flex flex-col items-center">
-                                        <span class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">
-                                            Draft / Belum Verifikasi
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">
+                                            <Clock class="h-3 w-3 text-amber-600" />
+                                            Sedang Diproses
                                         </span>
+                                        <span class="mt-0.5 text-[9px] text-amber-600">Pending Persetujuan</span>
                                     </div>
                                 </td>
 
@@ -295,22 +309,12 @@ const getPredikatBadge = (predikat: string) => {
                                         >
                                             {{ item.predikat_kesehatan }}
                                         </span>
-                                        <span class="mt-0.5 font-mono text-[10px] text-gray-400">Skor: {{ item.skor_total }}</span>
+                                        <span class="mt-0.5 font-mono text-[10px] text-gray-400">Skor Total: {{ item.skor_total }}</span>
                                     </div>
                                 </td>
 
                                 <td class="px-4 py-3.5 text-center">
-                                    <span
-                                        v-if="item.temuans && item.temuans.length > 0"
-                                        class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700"
-                                    >
-                                        {{ item.temuans.length }} Temuan
-                                    </span>
-                                    <span v-else class="text-[11px] italic text-gray-400">Nihil Temuan</span>
-                                </td>
-
-                                <td class="px-4 py-3.5 text-center">
-                                    <div class="flex items-center justify-center gap-1">
+                                    <div class="flex items-center justify-center gap-1.5">
                                         <Link
                                             :href="`/pengawasan/${item.id}`"
                                             class="rounded-lg p-1.5 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600"
@@ -319,38 +323,26 @@ const getPredikatBadge = (predikat: string) => {
                                             <Eye class="h-4 w-4" />
                                         </Link>
 
-                                        <!-- Admin Action: Delete -->
+                                        <!-- Admin Action: Setujui LHP -->
                                         <button
                                             v-if="userRole === 'admin_koperasi'"
+                                            @click="openSetujuiModal(item)"
+                                            class="flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100"
+                                            title="Tanggapi & Setujui LHP"
+                                        >
+                                            <CheckCircle2 class="h-3.5 w-3.5 text-emerald-600" />
+                                            {{ item.status_persetujuan_koperasi === 'approved' ? 'Edit Tanggapan' : 'Setujui LHP' }}
+                                        </button>
+
+                                        <!-- Pengawas Action: Delete -->
+                                        <button
+                                            v-if="userRole === 'bidang_pengawasan'"
                                             @click="handleDelete(item)"
                                             class="rounded-lg p-1.5 text-gray-400 transition hover:bg-rose-50 hover:text-rose-600"
-                                            title="Hapus Pengawasan"
+                                            title="Hapus LHP Pengawasan"
                                         >
                                             <Trash2 class="h-4 w-4" />
                                         </button>
-
-                                        <!-- Pengawas Actions: Verifikasi & Tolak -->
-                                        <template v-if="userRole === 'bidang_pengawasan'">
-                                            <button
-                                                v-if="item.status_verifikasi !== 'verified'"
-                                                @click="handleVerifikasi(item)"
-                                                title="Verifikasi Hasil Pengawasan"
-                                                class="flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100"
-                                            >
-                                                <CheckCircle2 class="h-3.5 w-3.5 text-emerald-600" />
-                                                Verifikasi
-                                            </button>
-
-                                            <button
-                                                v-if="item.status_verifikasi !== 'rejected'"
-                                                @click="openRejectModal(item)"
-                                                title="Tolak Hasil Pengawasan"
-                                                class="flex items-center gap-1 rounded-lg bg-rose-50 px-2 py-1 text-[11px] font-bold text-rose-700 transition hover:bg-rose-100"
-                                            >
-                                                <XCircle class="h-3.5 w-3.5 text-rose-600" />
-                                                Tolak
-                                            </button>
-                                        </template>
                                     </div>
                                 </td>
                             </tr>
@@ -384,49 +376,77 @@ const getPredikatBadge = (predikat: string) => {
             </div>
         </div>
 
-        <!-- Modal Tolak Dokumen (Pengawas Only) -->
-        <div v-if="isRejectModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
-            <div class="w-full max-w-md space-y-4 rounded-3xl bg-white p-6 shadow-xl">
+        <!-- MODAL SETUJUI LHP & UPLOAD BUKTI DIGITAL (ROLE ADMIN KOPERASI) -->
+        <div
+            v-if="isSetujuiModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/60 p-4 backdrop-blur-sm"
+        >
+            <div class="relative my-8 w-full max-w-lg space-y-4 rounded-3xl border border-gray-200/80 bg-white p-6 shadow-2xl">
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h3 class="flex items-center gap-2 text-sm font-bold text-rose-700">
-                        <XCircle class="h-5 w-5 text-rose-600" />
-                        Tolak Hasil Pengawasan
+                    <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900">
+                        <CheckCircle2 class="h-5 w-5 text-emerald-600" />
+                        Persetujuan & Tanggapan LHP Pengurus Koperasi
                     </h3>
-                    <button @click="isRejectModalOpen = false" class="text-gray-400 hover:text-gray-600">✕</button>
+                    <button
+                        @click="isSetujuiModalOpen = false"
+                        class="rounded-xl p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-900"
+                    >
+                        <X class="h-5 w-5" />
+                    </button>
                 </div>
 
-                <div class="space-y-3">
-                    <p class="text-xs text-gray-600">
-                        Anda akan menolak Hasil Pengawasan No. Surat Tugas
-                        <strong class="text-gray-900">{{ selectedPengawasanForReject?.no_surat_tugas }}</strong>.
-                        Mohon berikan alasan penolakan:
-                    </p>
+                <div class="space-y-1.5 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3.5 text-xs text-emerald-900">
+                    <div><strong>No. Surat Tugas:</strong> {{ selectedPengawasan?.no_surat_tugas }}</div>
+                    <div><strong>Objek Koperasi:</strong> {{ selectedPengawasan?.koperasi?.nama_koperasi }}</div>
+                    <div><strong>Predikat Hasil Audit:</strong> {{ selectedPengawasan?.predikat_kesehatan }} (Skor: {{ selectedPengawasan?.skor_total }})</div>
+                </div>
 
+                <form @submit.prevent="submitSetujui" class="space-y-4">
                     <div>
-                        <label class="mb-1 block text-xs font-bold text-gray-700">Alasan Penolakan <span class="text-rose-500">*</span></label>
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700"
+                            >Tanggapan & Komitmen Pengurus Koperasi *</label
+                        >
                         <textarea
-                            v-model="alasanPenolakanInput"
+                            v-model="setujuiForm.tanggapan_koperasi"
                             rows="4"
-                            placeholder="Contoh: Berita acara tidak sesuai dengan skor fisik permodalan..."
-                            class="w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-xs text-gray-900 transition focus:border-rose-500 focus:bg-white focus:ring-2 focus:ring-rose-500/20"
+                            required
+                            placeholder="Tuliskan tanggapan resmi dari Pengurus Koperasi atas LHP hasil pemeriksaan ini..."
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
                         ></textarea>
                     </div>
-                </div>
 
-                <div class="flex items-center justify-end gap-2 border-t border-gray-100 pt-3">
-                    <button
-                        @click="isRejectModalOpen = false"
-                        class="rounded-xl px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100"
-                    >
-                        Batal
-                    </button>
-                    <button
-                        @click="submitReject"
-                        class="rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-rose-700"
-                    >
-                        Simpan Penolakan
-                    </button>
-                </div>
+                    <!-- File Upload Bukti Digital (Opsi D) -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Upload File Bukti Digital / Lampiran (PDF/DOCX/JPG)
+                        </label>
+                        <input
+                            type="file"
+                            @change="handleFileChange"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-1 text-xs file:font-bold file:text-white hover:file:bg-slate-800"
+                        />
+                        <p class="mt-1 text-[10px] text-gray-400">Maksimal file 10 MB. Melampirkan bukti fisik perbaikan memperkuat Indeks Transparansi Koperasi.</p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3 border-t border-gray-100 pt-2">
+                        <button
+                            type="button"
+                            @click="isSetujuiModalOpen = false"
+                            class="rounded-xl px-4 py-2 text-xs font-bold text-gray-500 transition hover:bg-gray-100"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            type="submit"
+                            :disabled="setujuiForm.processing"
+                            class="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-md transition hover:bg-emerald-700"
+                        >
+                            <CheckCircle2 class="h-4 w-4 text-emerald-200" />
+                            Setujui LHP & Kirim Tanggapan
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </AuthenticatedLayout>

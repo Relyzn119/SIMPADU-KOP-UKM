@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, CheckCircle2, DollarSign, FileSpreadsheet, FileText, MapPin, ShieldCheck, Users, XCircle } from 'lucide-vue-next';
+import { ArrowLeft, CheckCircle2, DollarSign, FileSpreadsheet, FileText, MapPin, QrCode, ShieldCheck, Users, XCircle } from 'lucide-vue-next';
+import { computed } from 'vue';
 
-defineProps<{
+const props = defineProps<{
     koperasi: {
         id: number;
         no_badan_hukum: string;
@@ -59,6 +60,9 @@ defineProps<{
             skor_total: number;
             predikat_kesehatan: string;
             kesimpulan_pengawasan: string;
+            status_persetujuan_koperasi?: string;
+            tanggapan_koperasi?: string;
+            file_bukti_tindak_lanjut_path?: string;
             temuans?: Array<{
                 id: number;
                 aspek_temuan: string;
@@ -73,7 +77,7 @@ defineProps<{
 }>();
 
 const formatRupiah = (val: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val || 0);
 };
 
 const formatDate = (dateStr?: string) => {
@@ -86,6 +90,43 @@ const formatDate = (dateStr?: string) => {
         minute: '2-digit',
     });
 };
+
+// Calculated Transparancy Rating (Opsi D)
+const computedTransparencyScore = computed(() => {
+    let score = 0;
+    // RAT Compliance (Max 40)
+    if (props.koperasi.rats && props.koperasi.rats.length > 0) {
+        const latestRat = props.koperasi.rats[0];
+        if (latestRat.status_rat === 'Sudah RAT Tepat Waktu') score += 40;
+        else score += 20;
+    }
+
+    // LHP Approval & Digital Proof Upload (Max 30)
+    if (props.koperasi.pengawasans && props.koperasi.pengawasans.length > 0) {
+        const latestPengawasan = props.koperasi.pengawasans[0];
+        if (latestPengawasan.status_persetujuan_koperasi === 'approved') {
+            score += latestPengawasan.file_bukti_tindak_lanjut_path ? 30 : 20;
+        } else {
+            score += 10;
+        }
+    } else {
+        score += 20;
+    }
+
+    // Master Verification Status (Max 30)
+    if (props.koperasi.status_verifikasi === 'verified') score += 30;
+    else if (props.koperasi.status_verifikasi === 'pending') score += 15;
+
+    return Math.min(100, score);
+});
+
+const computedTransparencyBadge = computed(() => {
+    const s = computedTransparencyScore.value;
+    if (s >= 90) return { label: 'Sangat Transparan (Grade A+)', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+    if (s >= 75) return { label: 'Transparan (Grade A)', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' };
+    if (s >= 50) return { label: 'Cukup Transparan (Grade B)', color: 'bg-amber-50 text-amber-700 border-amber-200' };
+    return { label: 'Perlu Peningkatan Transparansi (Grade C)', color: 'bg-rose-50 text-rose-700 border-rose-200' };
+});
 
 const getPredikatBadge = (predikat: string) => {
     switch (predikat) {
@@ -210,23 +251,38 @@ const getRiskBadge = (risiko: string) => {
                         </div>
                     </div>
 
-                    <!-- Health Badge Box -->
-                    <div class="flex shrink-0 items-center gap-4 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md">
-                        <div
-                            class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-lg font-extrabold text-slate-900 shadow-sm"
-                        >
-                            {{ koperasi.skor_kesehatan_terakhir || '0' }}
-                        </div>
-                        <div>
-                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300">Predikat Kesehatan</div>
+                    <!-- Health & Transparency Badge Box (Opsi D) -->
+                    <div class="flex flex-col gap-3 sm:flex-row">
+                        <div class="flex shrink-0 items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-md">
                             <div
-                                v-if="koperasi.predikat_kesehatan"
-                                class="mt-0.5 inline-block rounded-md border px-2.5 py-0.5 text-xs font-extrabold"
-                                :class="getPredikatBadge(koperasi.predikat_kesehatan)"
+                                class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500 text-base font-extrabold text-slate-900 shadow-sm"
                             >
-                                {{ koperasi.predikat_kesehatan }}
+                                {{ koperasi.skor_kesehatan_terakhir || '0' }}
                             </div>
-                            <div v-else class="mt-0.5 text-xs italic text-slate-400">Belum Diperiksa</div>
+                            <div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300">Skor Kesehatan</div>
+                                <div
+                                    v-if="koperasi.predikat_kesehatan"
+                                    class="mt-0.5 inline-block rounded-md border px-2 py-0.5 text-[11px] font-extrabold"
+                                    :class="getPredikatBadge(koperasi.predikat_kesehatan)"
+                                >
+                                    {{ koperasi.predikat_kesehatan }}
+                                </div>
+                                <div v-else class="mt-0.5 text-[11px] italic text-slate-400">Belum Diperiksa</div>
+                            </div>
+                        </div>
+
+                        <!-- Transparency Index Score Box (Opsi D) -->
+                        <div class="flex shrink-0 items-center gap-3 rounded-2xl border border-indigo-400/30 bg-indigo-500/20 p-3.5 backdrop-blur-md">
+                            <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500 text-white shadow-sm font-mono text-sm font-bold">
+                                {{ computedTransparencyScore }}
+                            </div>
+                            <div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-200">Indeks Transparansi (Opsi D)</div>
+                                <div class="mt-0.5 rounded-md border px-2 py-0.5 text-[11px] font-extrabold" :class="computedTransparencyBadge.color">
+                                    {{ computedTransparencyBadge.label }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -243,6 +299,20 @@ const getRiskBadge = (risiko: string) => {
                             Alamat & Domisili
                         </h2>
                         <p class="text-xs font-medium leading-relaxed text-gray-600">{{ koperasi.alamat }}</p>
+                    </div>
+
+                    <!-- Digital Verification Badge Box (Opsi D) -->
+                    <div class="shadow-2xs space-y-3 rounded-3xl border border-emerald-200 bg-emerald-50/70 p-5 text-xs text-emerald-900">
+                        <div class="flex items-center justify-between">
+                            <h3 class="flex items-center gap-2 font-bold text-emerald-900">
+                                <QrCode class="h-5 w-5 text-emerald-600" />
+                                Validasi QR Transparansi
+                            </h3>
+                            <span class="rounded-md bg-emerald-200 px-2 py-0.5 font-mono text-[9px] font-bold text-emerald-800">VERIFIED</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-700">
+                            Status data kelembagaan, laporan RAT, dan persetujuan LHP pengawasan koperasi ini resmi terverifikasi pada sistem Diskop Provsu.
+                        </p>
                     </div>
 
                     <!-- Pengurus Card -->
