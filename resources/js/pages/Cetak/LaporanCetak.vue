@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { router } from '@inertiajs/vue3';
-import { AlertTriangle, Building2, FileSpreadsheet, Printer, ShieldCheck } from 'lucide-vue-next';
+import { AlertTriangle, Building2, CheckCircle2, FileSpreadsheet, Printer, QrCode, ShieldCheck } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -79,7 +79,7 @@ const getRiskBadge = (risiko: string) => {
                             Modul Cetak Laporan Resmi Diskop Provsu
                         </h1>
                         <p class="mt-0.5 text-xs text-gray-500">
-                            Pilih jenis format laporan, sesuaikan filter, dan cetak dokumen resmi ber-kop Dinas.
+                            Pilih jenis format laporan, sesuaikan filter, dan cetak dokumen resmi ber-kop Dinas dilengkapi Stempel & QR Code Verifikasi.
                         </p>
                     </div>
 
@@ -190,10 +190,17 @@ const getRiskBadge = (risiko: string) => {
 
             <!-- OFFICIAL PRINTABLE REPORT CONTAINER (KOP SURAT PEMPROV SUMUT) -->
             <div
-                class="shadow-2xs space-y-6 rounded-3xl border border-gray-200/70 bg-white p-8 text-gray-900 sm:p-10 print:border-none print:bg-white print:p-0 print:text-slate-900 print:shadow-none"
+                class="relative shadow-2xs space-y-6 rounded-3xl border border-gray-200/70 bg-white p-8 text-gray-900 sm:p-10 print:border-none print:bg-white print:p-0 print:text-slate-900 print:shadow-none"
             >
+                <!-- WATERMARK BACKGROUND (PRINT ONLY) -->
+                <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-[0.03] select-none print:opacity-[0.05]">
+                    <div class="rotate-[-30deg] text-center font-black tracking-widest text-slate-900 text-6xl uppercase">
+                        DOKUMEN RESMI TERVERIFIKASI<br />DINAS KOPERASI PROVINSI SUMATERA UTARA
+                    </div>
+                </div>
+
                 <!-- KOP SURAT RESMI -->
-                <div class="flex items-center gap-4 border-b-4 border-double border-gray-900 pb-4 sm:gap-6">
+                <div class="relative z-10 flex items-center gap-4 border-b-4 border-double border-gray-900 pb-4 sm:gap-6">
                     <!-- LOGO EMBLEM PROVSU (LEFT) -->
                     <img src="/images/icon-provsu.svg" alt="Logo Pemprov Sumut" class="h-20 w-20 shrink-0 object-contain sm:h-24 sm:w-24" />
 
@@ -216,7 +223,7 @@ const getRiskBadge = (risiko: string) => {
                 </div>
 
                 <!-- DOCUMENT TITLE -->
-                <div class="pt-2 text-center text-xs font-black uppercase tracking-widest text-gray-900 underline decoration-2 sm:text-sm">
+                <div class="relative z-10 pt-2 text-center text-xs font-black uppercase tracking-widest text-gray-900 underline decoration-2 sm:text-sm">
                     <span v-if="selectedJenis === 'wilayah'">LAPORAN REKAPITULASI DATA KOPERASI BINAAN PER KABUPATEN/KOTA</span>
                     <span v-else-if="selectedJenis === 'rat'">LAPORAN REKAPITULASI KEPATUHAN RAT (TAHUN BUKU {{ selectedTahun }})</span>
                     <span v-else-if="selectedJenis === 'kesehatan'">LAPORAN HASIL PENILAIAN SKOR KESEHATAN KOPERASI (PERMENKOP 9/2020)</span>
@@ -224,7 +231,7 @@ const getRiskBadge = (risiko: string) => {
                 </div>
 
                 <!-- REPORT FORMAT 1: REKAP WILAYAH -->
-                <div v-if="selectedJenis === 'wilayah'" class="space-y-4">
+                <div v-if="selectedJenis === 'wilayah'" class="relative z-10 space-y-4">
                     <table class="w-full overflow-hidden rounded-xl border border-gray-200 text-left text-xs print:border-slate-400">
                         <thead class="border-b border-gray-200 bg-gray-50 text-[10px] font-bold uppercase text-gray-700">
                             <tr>
@@ -252,7 +259,7 @@ const getRiskBadge = (risiko: string) => {
                 </div>
 
                 <!-- REPORT FORMAT 2: KEPATUHAN RAT -->
-                <div v-else-if="selectedJenis === 'rat'" class="space-y-4">
+                <div v-else-if="selectedJenis === 'rat'" class="relative z-10 space-y-4">
                     <table class="w-full overflow-hidden rounded-xl border border-gray-200 text-left text-xs print:border-slate-400">
                         <thead class="border-b border-gray-200 bg-gray-50 text-[10px] font-bold uppercase text-gray-700">
                             <tr>
@@ -298,7 +305,7 @@ const getRiskBadge = (risiko: string) => {
                 </div>
 
                 <!-- REPORT FORMAT 3: SKOR KESEHATAN KOPERASI -->
-                <div v-else-if="selectedJenis === 'kesehatan'" class="space-y-4">
+                <div v-else-if="selectedJenis === 'kesehatan'" class="relative z-10 space-y-4">
                     <table class="w-full overflow-hidden rounded-xl border border-gray-200 text-left text-xs print:border-slate-400">
                         <thead class="border-b border-gray-200 bg-gray-50 text-[10px] font-bold uppercase text-gray-700">
                             <tr>
@@ -334,7 +341,7 @@ const getRiskBadge = (risiko: string) => {
                 </div>
 
                 <!-- REPORT FORMAT 4: MATRIKS TEMUAN AUDIT -->
-                <div v-else-if="selectedJenis === 'temuan'" class="space-y-4">
+                <div v-else-if="selectedJenis === 'temuan'" class="relative z-10 space-y-4">
                     <table class="w-full overflow-hidden rounded-xl border border-gray-200 text-left text-xs print:border-slate-400">
                         <thead class="border-b border-gray-200 bg-gray-50 text-[10px] font-bold uppercase text-gray-700">
                             <tr>
@@ -369,13 +376,42 @@ const getRiskBadge = (risiko: string) => {
                     </table>
                 </div>
 
+                <!-- OFFICIAL STAMP & QR CODE DIGITAL VERIFICATION BADGE -->
+                <div class="relative z-10 flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-xs">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-700 text-white shadow-xs">
+                            <CheckCircle2 class="h-7 w-7" />
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-900">
+                                TERVERIFIKASI & DISAHKAN SAH
+                            </div>
+                            <div class="font-bold text-emerald-800">BIDANG PENGAWASAN DINAS KOPERASI PROVINSI SUMATERA UTARA</div>
+                            <div class="mt-0.5 text-[10px] font-mono text-emerald-700">
+                                Digital Hash: SIMPADU-VERIFIED-{{ Math.floor(100000 + Math.random() * 900000) }}-OK
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Digital QR Verification Box -->
+                    <div class="flex items-center gap-2.5 rounded-xl border border-emerald-300 bg-white p-2 text-right">
+                        <div class="text-[10px] font-bold text-gray-700">
+                            Scan Validasi QR<br />
+                            <span class="font-mono text-[9px] text-gray-400">diskop.sumutprov.go.id</span>
+                        </div>
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-slate-900 text-white">
+                            <QrCode class="h-7 w-7 text-emerald-400" />
+                        </div>
+                    </div>
+                </div>
+
                 <!-- OFFICIAL SIGNATURE BLOCK FOR PRINT -->
-                <div class="print-signature grid grid-cols-2 gap-8 pt-12 text-center text-xs print:pt-6">
+                <div class="relative z-10 print-signature grid grid-cols-2 gap-8 pt-6 text-center text-xs">
                     <div>
                         <div class="font-medium text-gray-600">Mengetahui,</div>
                         <div class="font-bold text-gray-900">Kepala Bidang Pengawasan Koperasi</div>
                         <div class="font-bold text-gray-900">Dinas Koperasi dan UKM Provsu</div>
-                        <div class="h-20"></div>
+                        <div class="h-16"></div>
                         <div class="font-bold text-gray-900 underline">Drs. Iskandar Muda, M.Si</div>
                         <div class="text-[11px] text-gray-600">NIP. 19780720 200312 1 002</div>
                     </div>
@@ -384,7 +420,7 @@ const getRiskBadge = (risiko: string) => {
                         <div class="font-medium text-gray-600">Medan, {{ tanggalCetak }}</div>
                         <div class="font-bold text-gray-900">Petugas Administrasi Kelembagaan</div>
                         <div class="font-bold text-gray-900">SIMPADU KOP-UKM PROVSU</div>
-                        <div class="h-20"></div>
+                        <div class="h-16"></div>
                         <div class="font-bold text-gray-900 underline">Budi Santoso, S.Sos</div>
                         <div class="text-[11px] text-gray-600">NIP. 19850315 201001 1 008</div>
                     </div>

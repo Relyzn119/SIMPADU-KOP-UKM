@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { FileText, MoreVertical } from 'lucide-vue-next';
+import { CheckCircle2, Clock, FileText, MoreVertical, ShieldCheck, XCircle } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -12,6 +12,9 @@ const props = defineProps<{
         total_diawasi: number;
         total_temuan_open: number;
         temuan_kritis_open: number;
+        pending_verifikasi?: number;
+        verified_sah?: number;
+        rejected?: number;
     };
     charts: {
         predikat: {
@@ -185,9 +188,61 @@ const getPercentage = (count: number) => {
 
 <template>
     <AuthenticatedLayout>
-        <Head title="Dashboard Administrasi Koperasi" />
+        <Head title="Dashboard Administrasi & Pengawasan Koperasi" />
 
         <div class="space-y-6">
+            <!-- VERIFICATION KPI SUMMARY WIDGET -->
+            <div class="shadow-2xs rounded-3xl border border-gray-200/70 bg-white p-6">
+                <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3">
+                    <div>
+                        <h2 class="flex items-center gap-2 text-base font-bold text-gray-900">
+                            <ShieldCheck class="h-5 w-5 text-indigo-600" />
+                            Ringkasan Verifikasi Role Pengawasan
+                        </h2>
+                        <p class="text-xs text-gray-500">Status keabsahan seluruh dokumen & data kebijakan Koperasi se-Sumatera Utara.</p>
+                    </div>
+
+                    <Link href="/audit-log" class="text-xs font-bold text-emerald-700 hover:underline">
+                        Lihat Audit Log Riwayat →
+                    </Link>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="flex items-center gap-4 rounded-2xl border border-amber-200 bg-amber-50/60 p-4">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-xs">
+                            <Clock class="h-5 w-5" />
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-bold uppercase text-amber-700">Pending Verifikasi</div>
+                            <div class="font-mono text-2xl font-extrabold text-amber-900">{{ kpi.pending_verifikasi || 0 }} Dokumen</div>
+                            <div class="text-[10px] text-amber-600">Perlu peninjauan Pengawas</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-xs">
+                            <CheckCircle2 class="h-5 w-5" />
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-bold uppercase text-emerald-700">Dokumen Sah (Verified)</div>
+                            <div class="font-mono text-2xl font-extrabold text-emerald-900">{{ kpi.verified_sah || 0 }} Dokumen</div>
+                            <div class="text-[10px] text-emerald-600">Disahkan Bidang Pengawasan</div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-600 text-white shadow-xs">
+                            <XCircle class="h-5 w-5" />
+                        </div>
+                        <div>
+                            <div class="text-[11px] font-bold uppercase text-rose-700">Dokumen Ditolak</div>
+                            <div class="font-mono text-2xl font-extrabold text-rose-900">{{ kpi.rejected || 0 }} Dokumen</div>
+                            <div class="text-[10px] text-rose-600">Dikembalikan dengan catatan</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- 1. TOP ROW: 4 SUMMARY KPI CARDS (Matching Skymetrics design) -->
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- KPI Card 1: Total Koperasi -->
@@ -277,7 +332,7 @@ const getPercentage = (count: number) => {
                 <div class="shadow-2xs flex flex-col justify-between space-y-4 rounded-3xl border border-gray-200/70 bg-white p-6 lg:col-span-2">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-base font-bold tracking-tight text-gray-900">Revenue over time</h2>
+                            <h2 class="text-base font-bold tracking-tight text-gray-900">Grafik Kepatuhan per Wilayah</h2>
                             <p class="text-xs text-gray-400">Tren Kepatuhan & Kesehatan Koperasi per Wilayah Sumut</p>
                         </div>
 
@@ -302,7 +357,7 @@ const getPercentage = (count: number) => {
                 <!-- Right Chart Card: Traffic by source style (Donut) -->
                 <div class="shadow-2xs flex flex-col justify-between space-y-4 rounded-3xl border border-gray-200/70 bg-white p-6">
                     <div>
-                        <h2 class="text-base font-bold tracking-tight text-gray-900">Traffic by source</h2>
+                        <h2 class="text-base font-bold tracking-tight text-gray-900">Distribusi Predikat</h2>
                         <p class="text-xs text-gray-400">Distribusi Predikat Kesehatan Koperasi</p>
                     </div>
 
@@ -356,13 +411,13 @@ const getPercentage = (count: number) => {
                 </div>
             </div>
 
-            <!-- 3. BOTTOM ROW: 2 TABLES / LISTS (Recent orders & Top products) -->
+            <!-- 3. BOTTOM ROW: 2 TABLES / LISTS -->
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <!-- Left Card: Recent orders style (Koperasi Terlambat / Belum RAT) -->
+                <!-- Left Card: Recent orders style -->
                 <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-base font-bold tracking-tight text-gray-900">Recent orders</h3>
+                            <h3 class="text-base font-bold tracking-tight text-gray-900">Koperasi Belum RAT</h3>
                             <p class="text-xs text-gray-400">Daftar Koperasi Belum / Terlambat RAT (TB 2024)</p>
                         </div>
                         <Link href="/rat" class="rounded-xl p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700">
@@ -382,7 +437,6 @@ const getPercentage = (count: number) => {
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 <tr v-for="item in alerts.belum_rat" :key="item.id" class="group cursor-pointer transition hover:bg-gray-50/60">
-                                    <!-- Customer / Koperasi name & avatar -->
                                     <td class="px-4 py-3.5">
                                         <div class="flex items-center gap-3">
                                             <div
@@ -401,12 +455,10 @@ const getPercentage = (count: number) => {
                                         </div>
                                     </td>
 
-                                    <!-- Wilayah -->
                                     <td class="px-4 py-3.5 font-medium text-gray-500">
                                         {{ item.kabupaten_kota }}
                                     </td>
 
-                                    <!-- Status Badge -->
                                     <td class="px-4 py-3.5 text-right">
                                         <span
                                             class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700"
@@ -420,11 +472,11 @@ const getPercentage = (count: number) => {
                     </div>
                 </div>
 
-                <!-- Right Card: Top products style (Matriks Temuan Audit Kritis) -->
+                <!-- Right Card: Top products style -->
                 <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-6">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="text-base font-bold tracking-tight text-gray-900">Top products</h3>
+                            <h3 class="text-base font-bold tracking-tight text-gray-900">Temuan Risiko Kritis</h3>
                             <p class="text-xs text-gray-400">Matriks Temuan Audit Risiko Tinggi & Kritis</p>
                         </div>
                         <Link href="/temuan" class="rounded-xl p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700">
@@ -432,7 +484,6 @@ const getPercentage = (count: number) => {
                         </Link>
                     </div>
 
-                    <!-- Table Header Bar -->
                     <div class="overflow-hidden rounded-2xl border border-gray-100">
                         <table class="w-full text-left text-xs">
                             <thead class="border-b border-gray-100 bg-gray-50/80 text-[10px] font-semibold uppercase tracking-wider text-gray-500">
@@ -448,7 +499,6 @@ const getPercentage = (count: number) => {
                                     :key="item.id"
                                     class="group cursor-pointer transition hover:bg-gray-50/60"
                                 >
-                                    <!-- Product / Temuan Icon & Title -->
                                     <td class="px-4 py-3.5">
                                         <div class="flex items-center gap-3">
                                             <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white">
@@ -465,7 +515,6 @@ const getPercentage = (count: number) => {
                                         </div>
                                     </td>
 
-                                    <!-- Tingkat Risiko -->
                                     <td class="px-4 py-3.5 text-center">
                                         <span
                                             class="inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold"
@@ -475,7 +524,6 @@ const getPercentage = (count: number) => {
                                         </span>
                                     </td>
 
-                                    <!-- Batas Waktu -->
                                     <td class="px-4 py-3.5 text-right font-mono font-bold text-gray-800">
                                         {{ item.batas_waktu || '30 Hari' }}
                                     </td>

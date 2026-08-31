@@ -108,6 +108,19 @@ class DashboardController extends Controller
         // List of all 33 Regencies in North Sumatra
         $kabupatenKotaList = Koperasi::distinct()->pluck('kabupaten_kota')->filter()->values();
 
+        // Verification Stats (Dokumen Pending, Verified, Rejected)
+        $totalPendingVerifikasi = Koperasi::where('status_verifikasi', 'pending')->count()
+            + Rat::where('status_verifikasi', 'pending')->count()
+            + Pengawasan::where('status_verifikasi', 'pending')->count();
+
+        $totalVerifiedSah = Koperasi::where('status_verifikasi', 'verified')->count()
+            + Rat::where('status_verifikasi', 'verified')->count()
+            + Pengawasan::where('status_verifikasi', 'verified')->count();
+
+        $totalRejected = Koperasi::where('status_verifikasi', 'rejected')->count()
+            + Rat::where('status_verifikasi', 'rejected')->count()
+            + Pengawasan::where('status_verifikasi', 'rejected')->count();
+
         return Inertia::render('Dashboard', [
             'kpi' => [
                 'total_koperasi' => $totalKoperasi,
@@ -116,6 +129,9 @@ class DashboardController extends Controller
                 'total_diawasi' => $totalDiawasi,
                 'total_temuan_open' => $totalTemuanOpen,
                 'temuan_kritis_open' => $temuanKritisOpen,
+                'pending_verifikasi' => $totalPendingVerifikasi,
+                'verified_sah' => $totalVerifiedSah,
+                'rejected' => $totalRejected,
             ],
             'charts' => [
                 'predikat' => $predikatDistribution,

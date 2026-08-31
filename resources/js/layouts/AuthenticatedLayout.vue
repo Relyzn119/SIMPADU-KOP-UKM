@@ -139,6 +139,12 @@ const navGroups = computed(() => [
                 icon: AlertTriangle,
                 roles: ['admin_koperasi', 'bidang_pengawasan'],
             },
+            {
+                name: 'Audit Log Verifikasi',
+                href: '/audit-log',
+                icon: ShieldCheck,
+                roles: ['admin_koperasi', 'bidang_pengawasan'],
+            },
         ],
     },
     {

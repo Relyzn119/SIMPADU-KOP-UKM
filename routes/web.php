@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\CetakController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KoperasiController;
@@ -36,6 +37,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/temuan/{temuan}/verifikasi', [TemuanController::class, 'verifikasi'])->name('temuan.verifikasi');
     Route::put('/temuan/{temuan}/tolak', [TemuanController::class, 'tolak'])->name('temuan.tolak');
     Route::delete('/temuan/{temuan}', [TemuanController::class, 'destroy'])->name('temuan.destroy');
+
+    // Modul Audit Log Verifikasi Pengawas
+    Route::get('/audit-log', [AuditLogController::class, 'index'])->name('audit-log.index');
 
     // Modul Cetak Laporan Resmi Diskop Sumut
     Route::get('/cetak', [CetakController::class, 'index'])->name('cetak.index');
