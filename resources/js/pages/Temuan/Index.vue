@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { AlertTriangle, CheckCircle2, Clock, Edit3, Plus, RotateCcw, Search, Trash2, User, X } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     temuans: {
@@ -14,6 +14,17 @@ const props = defineProps<{
         from: number;
         to: number;
     };
+    koperasis?: Array<{
+        id: number;
+        nama_koperasi: string;
+        no_badan_hukum: string;
+        kabupaten_kota: string;
+    }>;
+    pengawasans?: Array<{
+        id: number;
+        koperasi_id: number;
+        no_surat_tugas: string;
+    }>;
     summary: {
         total: number;
         kritis_open: number;
@@ -42,12 +53,19 @@ const statusPersetujuan = ref(props.filters.status_persetujuan_koperasi || '');
 // Modal Create Temuan State (Pengawas Only)
 const isCreateTemuanModalOpen = ref(false);
 const createForm = useForm({
-    koperasi_id: 1,
+    koperasi_id: props.koperasis?.[0]?.id || '',
+    pengawasan_id: null as number | null,
     aspek_temuan: 'Operasional',
     deskripsi_temuan: '',
     rekomendasi: '',
     batas_waktu: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     tingkat_risiko: 'Sedang',
+});
+
+// Filtered Pengawasans by selected Koperasi in Create Form
+const availablePengawasans = computed(() => {
+    if (!props.pengawasans || !createForm.koperasi_id) return [];
+    return props.pengawasans.filter((p) => p.koperasi_id === Number(createForm.koperasi_id));
 });
 
 // Modal Setujui & Selesaikan State (Admin Koperasi)
@@ -82,6 +100,9 @@ const resetFilters = () => {
 };
 
 const openCreateTemuanModal = () => {
+    if (props.koperasis && props.koperasis.length > 0 && !createForm.koperasi_id) {
+        createForm.koperasi_id = props.koperasis[0].id;
+    }
     isCreateTemuanModalOpen.value = true;
 };
 
@@ -448,6 +469,34 @@ const getStatusBadge = (status: string) => {
                 </div>
 
                 <form @submit.prevent="submitCreateTemuan" class="space-y-4">
+                    <!-- Select Koperasi -->
+                    <div>
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Pilih Objek Koperasi *</label>
+                        <select
+                            v-model="createForm.koperasi_id"
+                            required
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
+                        >
+                            <option v-for="k in koperasis" :key="k.id" :value="k.id">
+                                {{ k.nama_koperasi }} ({{ k.kabupaten_kota }})
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Select LHP Pengawasan (Optional) -->
+                    <div v-if="availablePengawasans.length > 0">
+                        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Link LHP Pengawasan (Opsional)</label>
+                        <select
+                            v-model="createForm.pengawasan_id"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-xs text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 sm:text-sm"
+                        >
+                            <option :value="null">-- Berdiri Sendiri (Tanpa Link LHP) --</option>
+                            <option v-for="p in availablePengawasans" :key="p.id" :value="p.id">
+                                Surat Tugas: {{ p.no_surat_tugas }}
+                            </option>
+                        </select>
+                    </div>
+
                     <div>
                         <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">Aspek Temuan *</label>
                         <select

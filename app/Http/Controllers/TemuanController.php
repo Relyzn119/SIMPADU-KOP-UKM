@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Koperasi;
+use App\Models\Pengawasan;
 use App\Models\Temuan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -71,8 +73,13 @@ class TemuanController extends Controller
             'Kabupaten Serdang Bedagai',
         ];
 
+        $koperasis = Koperasi::select('id', 'nama_koperasi', 'no_badan_hukum', 'kabupaten_kota')->orderBy('nama_koperasi')->get();
+        $pengawasans = Pengawasan::select('id', 'koperasi_id', 'no_surat_tugas')->get();
+
         return Inertia::render('Temuan/Index', [
             'temuans' => $temuans,
+            'koperasis' => $koperasis,
+            'pengawasans' => $pengawasans,
             'summary' => [
                 'total' => $totalTemuan,
                 'kritis_open' => $kritisOpen,
