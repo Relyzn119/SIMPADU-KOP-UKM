@@ -168,9 +168,11 @@ const getRiskBadge = (risiko: string) => {
                             @change="applyFilters"
                             class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-bold text-gray-900 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
-                            <option :value="2025">Tahun Buku 2025</option>
-                            <option :value="2024">Tahun Buku 2024</option>
-                            <option :value="2023">Tahun Buku 2023</option>
+                            <option value="semua">Semua Data Tahun</option>
+                            <option :value="2026">Data Tahun 2026</option>
+                            <option :value="2025">Data Tahun 2025</option>
+                            <option :value="2024">Data Tahun 2024</option>
+                            <option :value="2023">Data Tahun 2023</option>
                         </select>
                     </div>
 

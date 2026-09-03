@@ -245,9 +245,11 @@ const submitReject = () => {
                             @change="applyFilters"
                             class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs font-bold text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
                         >
-                            <option :value="2025">Tahun Buku 2025</option>
-                            <option :value="2024">Tahun Buku 2024</option>
-                            <option :value="2023">Tahun Buku 2023</option>
+                            <option value="semua">Semua Data Tahun</option>
+                            <option :value="2026">Data Tahun 2026</option>
+                            <option :value="2025">Data Tahun 2025</option>
+                            <option :value="2024">Data Tahun 2024</option>
+                            <option :value="2023">Data Tahun 2023</option>
                         </select>
                     </div>
 
@@ -376,7 +378,7 @@ const submitReject = () => {
                                 <td class="px-4 py-3.5 text-center">
                                     <a
                                         v-if="item.file_lpj_path"
-                                        :href="`/${item.file_lpj_path}`"
+                                        :href="`/file-download?path=${encodeURIComponent(item.file_lpj_path)}`"
                                         target="_blank"
                                         class="inline-flex items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-bold text-teal-700 transition hover:bg-teal-100"
                                     >

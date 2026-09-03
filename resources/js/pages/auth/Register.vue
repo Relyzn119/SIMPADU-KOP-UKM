@@ -10,6 +10,7 @@ const form = useForm({
     email: '',
     password: '',
     password_confirmation: '',
+    role: 'bidang_pengawasan',
 });
 
 const submit = () => {

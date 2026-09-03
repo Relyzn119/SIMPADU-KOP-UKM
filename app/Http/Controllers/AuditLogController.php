@@ -16,6 +16,7 @@ class AuditLogController extends Controller
     {
         $search = $request->query('search', '');
         $status = $request->query('status', ''); // verified or rejected
+        $tahun = $request->query('tahun', '');
 
         // Collect logs from all 4 entities
         $koperasiLogs = Koperasi::with(['verifiedBy:id,name', 'rejectedBy:id,name'])
@@ -84,6 +85,13 @@ class AuditLogController extends Controller
             $allLogs = $allLogs->where('status', $status);
         }
 
+        if ($tahun && $tahun !== 'semua') {
+            $allLogs = $allLogs->filter(function ($item) use ($tahun) {
+                if (!$item['timestamp']) return false;
+                return date('Y', strtotime($item['timestamp'])) == $tahun;
+            });
+        }
+
         if ($search) {
             $allLogs = $allLogs->filter(function ($item) use ($search) {
                 return str_contains(strtolower($item['judul']), strtolower($search))
@@ -99,6 +107,7 @@ class AuditLogController extends Controller
             'filters' => [
                 'search' => $search,
                 'status' => $status,
+                'tahun' => $tahun,
             ],
         ]);
     }

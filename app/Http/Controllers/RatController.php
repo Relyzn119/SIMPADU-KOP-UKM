@@ -14,10 +14,13 @@ class RatController extends Controller
 {
     public function index(Request $request): Response
     {
-        $tahunBukuSelected = $request->get('tahun_buku', 2024);
+        $tahunBukuSelected = $request->get('tahun_buku', '2024');
 
-        $query = Rat::with(['koperasi', 'verifiedBy:id,name', 'rejectedBy:id,name'])
-            ->where('tahun_buku', $tahunBukuSelected);
+        $query = Rat::with(['koperasi', 'verifiedBy:id,name', 'rejectedBy:id,name']);
+
+        if ($tahunBukuSelected && $tahunBukuSelected !== 'semua') {
+            $query->where('tahun_buku', (int) $tahunBukuSelected);
+        }
 
         // Search Filter
         if ($request->filled('search')) {
@@ -52,9 +55,13 @@ class RatController extends Controller
 
         // Counter Summary Stats
         $totalKoperasi = Koperasi::count();
-        $ratTepatWaktu = Rat::where('tahun_buku', $tahunBukuSelected)->where('status_rat', 'Sudah RAT Tepat Waktu')->count();
-        $ratTerlambat = Rat::where('tahun_buku', $tahunBukuSelected)->where('status_rat', 'Sudah RAT Terlambat')->count();
-        $belumRat = Rat::where('tahun_buku', $tahunBukuSelected)->where('status_rat', 'Belum RAT')->count();
+        $ratStatQuery = Rat::query();
+        if ($tahunBukuSelected && $tahunBukuSelected !== 'semua') {
+            $ratStatQuery->where('tahun_buku', (int) $tahunBukuSelected);
+        }
+        $ratTepatWaktu = (clone $ratStatQuery)->where('status_rat', 'Sudah RAT Tepat Waktu')->count();
+        $ratTerlambat = (clone $ratStatQuery)->where('status_rat', 'Sudah RAT Terlambat')->count();
+        $belumRat = (clone $ratStatQuery)->where('status_rat', 'Belum RAT')->count();
 
         // Koperasi list without RAT for current select options
         $koperasis = Koperasi::select('id', 'nama_koperasi', 'no_badan_hukum', 'kabupaten_kota')
@@ -84,7 +91,7 @@ class RatController extends Controller
                 'kepatuhan_pct' => $totalKoperasi > 0 ? round(($ratTepatWaktu / $totalKoperasi) * 100, 1) : 0,
             ],
             'filters' => [
-                'tahun_buku' => (int) $tahunBukuSelected,
+                'tahun_buku' => $tahunBukuSelected === 'semua' ? 'semua' : (is_numeric($tahunBukuSelected) ? (int) $tahunBukuSelected : $tahunBukuSelected),
                 'search' => $request->search,
                 'status_rat' => $request->status_rat,
                 'kabupaten_kota' => $request->kabupaten_kota,

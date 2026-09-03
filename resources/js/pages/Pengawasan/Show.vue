@@ -121,7 +121,7 @@ const getRiskBadge = (risiko: string) => {
                     </div>
                     <div v-if="pengawasan.file_bukti_tindak_lanjut_path" class="pt-1">
                         <a
-                            :href="`/${pengawasan.file_bukti_tindak_lanjut_path}`"
+                            :href="`/file-download?path=${encodeURIComponent(pengawasan.file_bukti_tindak_lanjut_path)}`"
                             target="_blank"
                             class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-emerald-800"
                         >
@@ -143,6 +143,28 @@ const getRiskBadge = (risiko: string) => {
                         LHP ini diterbitkan oleh Tim Pengawas Diskop Provsu ({{ pengawasan.created_by?.name || pengawasan.nama_tim_pengawas }}) dan menunggu peninjauan/persetujuan resmi dari Pengurus Koperasi.
                     </p>
                 </div>
+            </div>
+
+            <!-- BERKAS BERITA ACARA PEMERIKSAAN (PDF) (NON-PRINT) -->
+            <div
+                v-if="pengawasan.file_berita_acara_path"
+                class="flex items-center justify-between rounded-2xl border border-indigo-200 bg-indigo-50/70 p-4 text-xs text-indigo-900 print:hidden"
+            >
+                <div class="flex items-center gap-2.5">
+                    <FileText class="h-5 w-5 shrink-0 text-indigo-600" />
+                    <div>
+                        <strong class="font-bold">Berkas Berita Acara Pemeriksaan (PDF)</strong>
+                        <p class="text-[11px] text-indigo-700">Dokumen Berita Acara resmi hasil pengawasan kesehatan oleh Tim Pengawas.</p>
+                    </div>
+                </div>
+                <a
+                    :href="`/file-download?path=${encodeURIComponent(pengawasan.file_berita_acara_path)}`"
+                    target="_blank"
+                    class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-indigo-700"
+                >
+                    <FileText class="h-4 w-4" />
+                    Lihat Berita Acara (PDF)
+                </a>
             </div>
 
             <!-- OFFICIAL REPORT CONTAINER (PRINT-READY) -->

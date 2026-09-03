@@ -26,6 +26,14 @@ class TemuanController extends Controller
             });
         }
 
+        // Filter Tahun
+        if ($request->filled('tahun') && $request->tahun !== 'semua') {
+            $query->where(function ($q) use ($request) {
+                $q->whereYear('created_at', $request->tahun)
+                    ->orWhereYear('batas_waktu', $request->tahun);
+            });
+        }
+
         // Tingkat Risiko Filter
         if ($request->filled('tingkat_risiko')) {
             $query->where('tingkat_risiko', $request->tingkat_risiko);
@@ -86,7 +94,7 @@ class TemuanController extends Controller
                 'dalam_proses' => $dalamProses,
                 'selesai' => $selesai,
             ],
-            'filters' => $request->only(['search', 'tingkat_risiko', 'status_tindak_lanjut', 'status_verifikasi', 'status_persetujuan_koperasi', 'aspek_temuan']),
+            'filters' => $request->only(['search', 'tahun', 'tingkat_risiko', 'status_tindak_lanjut', 'status_verifikasi', 'status_persetujuan_koperasi', 'aspek_temuan']),
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
     }

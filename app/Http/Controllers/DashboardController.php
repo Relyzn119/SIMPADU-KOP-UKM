@@ -49,6 +49,12 @@ class DashboardController extends Controller
 
         // Total Temuan Audit belum selesai
         $temuanQuery = Temuan::query();
+        if ($tahunBuku && $tahunBuku !== 'semua') {
+            $temuanQuery->where(function ($q) use ($tahunBuku) {
+                $q->whereYear('created_at', $tahunBuku)
+                    ->orWhereYear('batas_waktu', $tahunBuku);
+            });
+        }
         if ($kabupatenKota && $kabupatenKota !== 'semua') {
             $temuanQuery->whereHas('koperasi', fn ($q) => $q->where('kabupaten_kota', $kabupatenKota));
         }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { AlertTriangle, CheckCircle2, Clock, Edit3, Plus, RotateCcw, Search, Trash2, User, X } from 'lucide-vue-next';
+import { AlertTriangle, CheckCircle2, Clock, Edit3, FileText, Plus, RotateCcw, Search, Trash2, User, X } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{
@@ -33,6 +33,7 @@ const props = defineProps<{
     };
     filters: {
         search?: string;
+        tahun?: string;
         tingkat_risiko?: string;
         status_tindak_lanjut?: string;
         aspek_temuan?: string;
@@ -45,6 +46,7 @@ const page = usePage();
 const userRole = (page.props.auth as any)?.user?.role || 'admin_koperasi';
 
 const search = ref(props.filters.search || '');
+const tahun = ref(props.filters.tahun || '');
 const tingkatRisiko = ref(props.filters.tingkat_risiko || '');
 const statusTindakLanjut = ref(props.filters.status_tindak_lanjut || '');
 const aspekTemuan = ref(props.filters.aspek_temuan || '');
@@ -81,6 +83,7 @@ const applyFilters = () => {
         '/temuan',
         {
             search: search.value || undefined,
+            tahun: tahun.value || undefined,
             tingkat_risiko: tingkatRisiko.value || undefined,
             status_tindak_lanjut: statusTindakLanjut.value || undefined,
             aspek_temuan: aspekTemuan.value || undefined,
@@ -92,6 +95,7 @@ const applyFilters = () => {
 
 const resetFilters = () => {
     search.value = '';
+    tahun.value = '';
     tingkatRisiko.value = '';
     statusTindakLanjut.value = '';
     aspekTemuan.value = '';
@@ -239,7 +243,22 @@ const getStatusBadge = (status: string) => {
 
             <!-- SEARCH & FILTER BAR CARD -->
             <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-5">
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+                    <!-- Filter Tahun -->
+                    <div>
+                        <select
+                            v-model="tahun"
+                            @change="applyFilters"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs font-bold text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                            <option value="">Semua Data Tahun</option>
+                            <option value="2026">Data Tahun 2026</option>
+                            <option value="2025">Data Tahun 2025</option>
+                            <option value="2024">Data Tahun 2024</option>
+                            <option value="2023">Data Tahun 2023</option>
+                        </select>
+                    </div>
+
                     <!-- Search Input -->
                     <div class="relative">
                         <Search class="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
@@ -353,12 +372,34 @@ const getStatusBadge = (status: string) => {
                                     <div class="font-medium leading-snug text-gray-800">{{ item.deskripsi_temuan }}</div>
                                     <div class="text-[11px] font-bold text-emerald-700">Rekomendasi: {{ item.rekomendasi }}</div>
 
-                                    <!-- Tanggapan Preview -->
+                                    <!-- Tanggapan Preview & Bukti Perbaikan -->
                                     <div
                                         v-if="item.tanggapan_koperasi"
-                                        class="rounded-xl border border-gray-200 bg-gray-50 p-2 text-[11px] text-gray-600"
+                                        class="rounded-xl border border-gray-200 bg-gray-50 p-2 text-[11px] text-gray-600 space-y-1.5"
                                     >
-                                        <strong class="font-bold text-indigo-700">Action Plan Koperasi:</strong> {{ item.tanggapan_koperasi }}
+                                        <div><strong class="font-bold text-indigo-700">Action Plan Koperasi:</strong> {{ item.tanggapan_koperasi }}</div>
+                                        <div v-if="item.file_bukti_tindak_lanjut_path" class="pt-0.5">
+                                            <a
+                                                :href="`/file-download?path=${encodeURIComponent(item.file_bukti_tindak_lanjut_path)}`"
+                                                target="_blank"
+                                                class="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-100/70 px-2 py-0.5 text-[10px] font-bold text-emerald-800 transition hover:bg-emerald-200"
+                                                title="Lihat Berkas Bukti Perbaikan"
+                                            >
+                                                <FileText class="h-3 w-3 text-emerald-700" />
+                                                Lihat File Bukti Perbaikan
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div v-else-if="item.file_bukti_tindak_lanjut_path" class="pt-1">
+                                        <a
+                                            :href="`/file-download?path=${encodeURIComponent(item.file_bukti_tindak_lanjut_path)}`"
+                                            target="_blank"
+                                            class="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-100/70 px-2 py-0.5 text-[10px] font-bold text-emerald-800 transition hover:bg-emerald-200"
+                                            title="Lihat Berkas Bukti Perbaikan"
+                                        >
+                                            <FileText class="h-3 w-3 text-emerald-700" />
+                                            Lihat File Bukti Perbaikan
+                                        </a>
                                     </div>
                                 </td>
 
@@ -618,6 +659,17 @@ const getStatusBadge = (status: string) => {
                         <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700"
                             >Upload File Bukti Perbaikan (PDF/DOCX/JPG)</label
                         >
+                        <div v-if="activeTemuan?.file_bukti_tindak_lanjut_path" class="mb-2 flex items-center gap-2 rounded-xl bg-gray-50 border border-gray-200 p-2.5 text-xs">
+                            <FileText class="h-4 w-4 text-emerald-600" />
+                            <span class="text-gray-600">File Saat Ini:</span>
+                            <a
+                                :href="`/file-download?path=${encodeURIComponent(activeTemuan.file_bukti_tindak_lanjut_path)}`"
+                                target="_blank"
+                                class="font-bold text-emerald-600 hover:underline"
+                            >
+                                Lihat Dokumen Bukti Perbaikan
+                            </a>
+                        </div>
                         <input
                             type="file"
                             @change="handleFileChange"

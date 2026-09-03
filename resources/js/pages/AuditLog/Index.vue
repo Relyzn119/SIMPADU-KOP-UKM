@@ -18,11 +18,13 @@ const props = defineProps<{
     filters: {
         search?: string;
         status?: string;
+        tahun?: string;
     };
 }>();
 
 const search = ref(props.filters.search || '');
 const status = ref(props.filters.status || '');
+const tahun = ref(props.filters.tahun || '');
 
 const applyFilters = () => {
     router.get(
@@ -30,6 +32,7 @@ const applyFilters = () => {
         {
             search: search.value || undefined,
             status: status.value || undefined,
+            tahun: tahun.value || undefined,
         },
         { preserveState: true, replace: true },
     );
@@ -38,6 +41,7 @@ const applyFilters = () => {
 const resetFilters = () => {
     search.value = '';
     status.value = '';
+    tahun.value = '';
     applyFilters();
 };
 
@@ -77,7 +81,22 @@ const formatDate = (dateStr?: string) => {
 
             <!-- SEARCH & FILTER BAR -->
             <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-5">
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
+                    <!-- Filter Tahun -->
+                    <div>
+                        <select
+                            v-model="tahun"
+                            @change="applyFilters"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs font-bold text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                            <option value="">Semua Data Tahun</option>
+                            <option value="2026">Data Tahun 2026</option>
+                            <option value="2025">Data Tahun 2025</option>
+                            <option value="2024">Data Tahun 2024</option>
+                            <option value="2023">Data Tahun 2023</option>
+                        </select>
+                    </div>
+
                     <div class="relative sm:col-span-2">
                         <Search class="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
                         <input

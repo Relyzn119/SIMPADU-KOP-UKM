@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\CetakController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FileDownloadController;
 use App\Http\Controllers\KoperasiController;
 use App\Http\Controllers\PengawasanController;
 use App\Http\Controllers\RatController;
@@ -15,6 +16,9 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Secure File Download/Stream Route
+    Route::get('/file-download', [FileDownloadController::class, 'show'])->name('file.download');
 
     // Modul Master Data Koperasi
     Route::resource('koperasi', KoperasiController::class);

@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { CheckCircle2, Clock, FileText, MoreVertical, ShieldCheck, XCircle } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     kpi: {
@@ -52,7 +52,24 @@ const props = defineProps<{
             };
         }>;
     };
+    filters?: {
+        tahun_buku?: string;
+        kabupaten_kota?: string;
+    };
+    kabupatenKotaList?: string[];
 }>();
+
+const selectedTahun = ref(props.filters?.tahun_buku || '2024');
+
+const applyDashboardFilter = () => {
+    router.get(
+        '/dashboard',
+        {
+            tahun_buku: selectedTahun.value,
+        },
+        { preserveState: true, replace: true },
+    );
+};
 
 // Spline Line Chart Configuration (Revenue over time style)
 const lineChartOptions = computed(() => ({
@@ -191,6 +208,33 @@ const getPercentage = (count: number) => {
         <Head title="Dashboard Administrasi & Pengawasan Koperasi" />
 
         <div class="space-y-6">
+            <!-- DASHBOARD TITLE & YEAR FILTER BAR -->
+            <div class="shadow-2xs flex flex-col justify-between gap-4 rounded-3xl border border-gray-200/70 bg-white p-6 sm:flex-row sm:items-center">
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+                        Dashboard Eksekutif SIMPADU KOP-UKM
+                    </h1>
+                    <p class="mt-0.5 text-xs text-gray-500">
+                        Monitoring data pengawasan, RAT, dan kesehatan koperasi se-Sumatera Utara.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-gray-500">Filter Data Tahun:</label>
+                    <select
+                        v-model="selectedTahun"
+                        @change="applyDashboardFilter"
+                        class="rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 text-xs font-bold text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                    >
+                        <option value="semua">Semua Data Tahun</option>
+                        <option value="2026">Data Tahun 2026</option>
+                        <option value="2025">Data Tahun 2025</option>
+                        <option value="2024">Data Tahun 2024</option>
+                        <option value="2023">Data Tahun 2023</option>
+                    </select>
+                </div>
+            </div>
+
             <!-- VERIFICATION KPI SUMMARY WIDGET -->
             <div class="shadow-2xs rounded-3xl border border-gray-200/70 bg-white p-6">
                 <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-3">

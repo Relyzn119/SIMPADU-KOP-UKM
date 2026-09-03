@@ -16,6 +16,7 @@ const props = defineProps<{
     };
     filters: {
         search?: string;
+        tahun?: string;
         predikat_kesehatan?: string;
         kabupaten_kota?: string;
         status_persetujuan_koperasi?: string;
@@ -27,6 +28,7 @@ const page = usePage();
 const userRole = (page.props.auth as any)?.user?.role || 'admin_koperasi';
 
 const search = ref(props.filters.search || '');
+const tahun = ref(props.filters.tahun || '');
 const predikatKesehatan = ref(props.filters.predikat_kesehatan || '');
 const kabupatenKota = ref(props.filters.kabupaten_kota || '');
 const statusPersetujuan = ref(props.filters.status_persetujuan_koperasi || '');
@@ -45,6 +47,7 @@ const applyFilters = () => {
         '/pengawasan',
         {
             search: search.value || undefined,
+            tahun: tahun.value || undefined,
             predikat_kesehatan: predikatKesehatan.value || undefined,
             kabupaten_kota: kabupatenKota.value || undefined,
             status_persetujuan_koperasi: statusPersetujuan.value || undefined,
@@ -55,6 +58,7 @@ const applyFilters = () => {
 
 const resetFilters = () => {
     search.value = '';
+    tahun.value = '';
     predikatKesehatan.value = '';
     kabupatenKota.value = '';
     statusPersetujuan.value = '';
@@ -157,7 +161,22 @@ const getPredikatBadge = (predikat: string) => {
 
             <!-- SEARCH & FILTER BAR CARD -->
             <div class="shadow-2xs space-y-4 rounded-3xl border border-gray-200/70 bg-white p-5">
-                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+                    <!-- Filter Tahun -->
+                    <div>
+                        <select
+                            v-model="tahun"
+                            @change="applyFilters"
+                            class="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-xs font-bold text-gray-900 transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+                        >
+                            <option value="">Semua Data Tahun</option>
+                            <option value="2026">Data Tahun 2026</option>
+                            <option value="2025">Data Tahun 2025</option>
+                            <option value="2024">Data Tahun 2024</option>
+                            <option value="2023">Data Tahun 2023</option>
+                        </select>
+                    </div>
+
                     <!-- Search Input -->
                     <div class="relative lg:col-span-2">
                         <Search class="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
@@ -252,6 +271,17 @@ const getPredikatBadge = (predikat: string) => {
                                         <span>•</span>
                                         <span>{{ item.koperasi?.kabupaten_kota }}</span>
                                     </div>
+                                    <div v-if="item.file_berita_acara_path" class="mt-1.5">
+                                        <a
+                                            :href="`/file-download?path=${encodeURIComponent(item.file_berita_acara_path)}`"
+                                            target="_blank"
+                                            class="inline-flex items-center gap-1 rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-700 transition hover:bg-indigo-100"
+                                            title="Lihat Berkas Berita Acara Pemeriksaan (PDF)"
+                                        >
+                                            <FileText class="h-3 w-3 text-indigo-600" />
+                                            Berita Acara (PDF)
+                                        </a>
+                                    </div>
                                 </td>
 
                                 <!-- Dibuat Oleh (Tim Pengawas) -->
@@ -298,6 +328,19 @@ const getPredikatBadge = (predikat: string) => {
                                             Sedang Diproses
                                         </span>
                                         <span class="mt-0.5 text-[9px] text-amber-600">Pending Persetujuan</span>
+                                    </div>
+
+                                    <!-- File Bukti Digital (Visible for BOTH admin and pengawas) -->
+                                    <div v-if="item.file_bukti_tindak_lanjut_path" class="mt-1.5">
+                                        <a
+                                            :href="`/file-download?path=${encodeURIComponent(item.file_bukti_tindak_lanjut_path)}`"
+                                            target="_blank"
+                                            class="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 transition hover:bg-emerald-100"
+                                            title="Lihat Dokumen Bukti Digital Tindak Lanjut"
+                                        >
+                                            <FileText class="h-3 w-3 text-emerald-600" />
+                                            Bukti Digital
+                                        </a>
                                     </div>
                                 </td>
 
@@ -420,6 +463,17 @@ const getPredikatBadge = (predikat: string) => {
                         <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
                             Upload File Bukti Digital / Lampiran (PDF/DOCX/JPG)
                         </label>
+                        <div v-if="selectedPengawasan?.file_bukti_tindak_lanjut_path" class="mb-2 flex items-center gap-2 rounded-xl bg-gray-50 border border-gray-200 p-2.5 text-xs">
+                            <FileText class="h-4 w-4 text-emerald-600" />
+                            <span class="text-gray-600">File Saat Ini:</span>
+                            <a
+                                :href="`/file-download?path=${encodeURIComponent(selectedPengawasan.file_bukti_tindak_lanjut_path)}`"
+                                target="_blank"
+                                class="font-bold text-emerald-600 hover:underline"
+                            >
+                                Lihat Dokumen Bukti Digital
+                            </a>
+                        </div>
                         <input
                             type="file"
                             @change="handleFileChange"

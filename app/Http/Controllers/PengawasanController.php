@@ -26,6 +26,10 @@ class PengawasanController extends Controller
             });
         }
 
+        if ($request->filled('tahun') && $request->tahun !== 'semua') {
+            $query->whereYear('tanggal_pemeriksaan', $request->tahun);
+        }
+
         if ($request->filled('predikat_kesehatan')) {
             $query->where('predikat_kesehatan', $request->predikat_kesehatan);
         }
@@ -60,7 +64,7 @@ class PengawasanController extends Controller
 
         return Inertia::render('Pengawasan/Index', [
             'pengawasans' => $pengawasans,
-            'filters' => $request->only(['search', 'predikat_kesehatan', 'status_verifikasi', 'status_persetujuan_koperasi', 'kabupaten_kota']),
+            'filters' => $request->only(['search', 'tahun', 'predikat_kesehatan', 'status_verifikasi', 'status_persetujuan_koperasi', 'kabupaten_kota']),
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
     }

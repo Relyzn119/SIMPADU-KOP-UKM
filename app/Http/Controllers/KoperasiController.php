@@ -26,6 +26,15 @@ class KoperasiController extends Controller
             });
         }
 
+        // Filter Tahun
+        if ($request->filled('tahun') && $request->tahun !== 'semua') {
+            $query->where(function ($q) use ($request) {
+                $q->whereYear('created_at', $request->tahun)
+                    ->orWhereYear('tahun_berdiri', $request->tahun)
+                    ->orWhereHas('rats', fn ($r) => $r->where('tahun_buku', $request->tahun));
+            });
+        }
+
         // Filter Kabupaten / Kota
         if ($request->filled('kabupaten_kota')) {
             $query->where('kabupaten_kota', $request->kabupaten_kota);
@@ -69,7 +78,7 @@ class KoperasiController extends Controller
 
         return Inertia::render('Koperasi/Index', [
             'koperasis' => $koperasis,
-            'filters' => $request->only(['search', 'kabupaten_kota', 'jenis_koperasi', 'status_keaktifan', 'predikat_kesehatan', 'status_verifikasi']),
+            'filters' => $request->only(['search', 'tahun', 'kabupaten_kota', 'jenis_koperasi', 'status_keaktifan', 'predikat_kesehatan', 'status_verifikasi']),
             'kabupatenKotaList' => $kabupatenKotaList,
         ]);
     }

@@ -15,7 +15,7 @@ class CetakController extends Controller
     public function index(Request $request): Response
     {
         $jenisLaporan = $request->get('jenis_laporan', 'wilayah');
-        $tahunBuku = $request->get('tahun_buku', 2024);
+        $tahunBuku = $request->get('tahun_buku', '2024');
         $kabupatenSelected = $request->get('kabupaten_kota');
 
         // Data 1: Rekapitulasi Data Koperasi Binaan per 33 Kabupaten/Kota
@@ -34,7 +34,7 @@ class CetakController extends Controller
             ->get();
 
         // Data 2: Rekapitulasi Kepatuhan RAT
-        $ratQuery = Koperasi::with(['rats' => fn ($q) => $q->where('tahun_buku', $tahunBuku)])
+        $ratQuery = Koperasi::with(['rats' => fn ($q) => $tahunBuku !== 'semua' ? $q->where('tahun_buku', $tahunBuku) : $q])
             ->when($kabupatenSelected, fn ($q) => $q->where('kabupaten_kota', $kabupatenSelected));
         $rekapRat = $ratQuery->orderBy('kabupaten_kota', 'asc')->orderBy('nama_koperasi', 'asc')->get();
 
@@ -62,7 +62,7 @@ class CetakController extends Controller
 
         return Inertia::render('Cetak/LaporanCetak', [
             'jenisLaporan' => $jenisLaporan,
-            'tahunBuku' => (int) $tahunBuku,
+            'tahunBuku' => $tahunBuku === 'semua' ? 'semua' : (is_numeric($tahunBuku) ? (int) $tahunBuku : $tahunBuku),
             'kabupatenSelected' => $kabupatenSelected,
             'rekapWilayah' => $rekapWilayah,
             'rekapRat' => $rekapRat,
