@@ -407,28 +407,7 @@ const formatDate = (dateStr: string) => {
                                             </button>
                                         </template>
 
-                                        <!-- Pengawas Actions: Verifikasi (Sah) & Tolak -->
-                                        <template v-if="userRole === 'bidang_pengawasan'">
-                                            <button
-                                                v-if="item.status_verifikasi !== 'verified'"
-                                                @click="handleVerifikasi(item)"
-                                                title="Verifikasi (Mengesahkan Dokumen)"
-                                                class="flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-[11px] font-bold text-emerald-700 transition hover:bg-emerald-100"
-                                            >
-                                                <CheckCircle2 class="h-3.5 w-3.5 text-emerald-600" />
-                                                Verifikasi
-                                            </button>
 
-                                            <button
-                                                v-if="item.status_verifikasi !== 'rejected'"
-                                                @click="openRejectModal(item)"
-                                                title="Tolak Dokumen Koperasi"
-                                                class="flex items-center gap-1 rounded-lg bg-rose-50 px-2 py-1 text-[11px] font-bold text-rose-700 transition hover:bg-rose-100"
-                                            >
-                                                <XCircle class="h-3.5 w-3.5 text-rose-600" />
-                                                Tolak
-                                            </button>
-                                        </template>
                                     </div>
                                 </td>
                             </tr>

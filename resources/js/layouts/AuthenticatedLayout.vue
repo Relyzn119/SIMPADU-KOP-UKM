@@ -133,6 +133,7 @@ const navGroups = computed(() => [
                 icon: ShieldCheck,
                 roles: ['admin_koperasi', 'bidang_pengawasan'],
             },
+            /* Archived menu items:
             {
                 name: 'Matriks Temuan Audit',
                 href: '/temuan',
@@ -145,6 +146,7 @@ const navGroups = computed(() => [
                 icon: ShieldCheck,
                 roles: ['admin_koperasi', 'bidang_pengawasan'],
             },
+            */
         ],
     },
     {
@@ -267,14 +269,6 @@ const handleLogout = () => {
 
                 <!-- SIDEBAR FOOTER & CTA -->
                 <div class="shrink-0 space-y-3 border-t border-gray-100 pt-4">
-                    <Link
-                        href="/koperasi"
-                        class="shadow-2xs flex w-full items-center justify-center gap-2 rounded-2xl border border-indigo-100 bg-indigo-50/90 px-3 py-2.5 text-xs font-semibold text-indigo-600 transition hover:bg-indigo-100/90"
-                    >
-                        <Plus class="h-3.5 w-3.5" />
-                        Master Koperasi
-                    </Link>
-
                     <div class="text-center text-[11px] font-medium text-gray-400">Version 2.0 • Provsu</div>
                 </div>
             </aside>
